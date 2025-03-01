@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/websites/index_files/logo%201.svg">
   <link href="./index_files/all.css" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
 
 <style>
   .cont {
@@ -23,10 +25,19 @@
     background-color: rgba(0, 0, 0, 0.404);
     border-radius: 10px;
   }
-
+  
+  @font-face {
+    font-family: YSMusic Headline;
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2"),url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff")
+  }
   h1 {
     color: white;
-    font-size: 28px;
+    font-size: 30px;
+    font-family: "YSMusic Headline",sans-serif;
+    font-weight: 700;
   }
 
   body {
@@ -56,10 +67,13 @@
     color: rgb(0, 0, 0);
     font-size: 23px;
   }
+
+  a{
+    color:rgb(240, 240, 240);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 19;
+  }
 </style></head>
-
-
-
 <body style="background-color:rgb(100,100,100)">
   <div class="cont">
     <h1>zavorateam.github.io</h1>
@@ -67,7 +81,6 @@
     <span><a class="btn" href="https://zavorateam.github.io/bible/">Paranoid's Bible RUS</a></span>
     <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
   </div>
-
   <script>
     let boxes = [];
     let bsize = 40;
@@ -117,7 +130,5 @@
       }
     }
   </script>
-
-
-
-<main><canvas id="defaultCanvas0" class="p5Canvas" style="width: 1536px; height: 740px;" width="3072" height="1480"></canvas></main></body></html>
+  <main></main>
+</body></html>
