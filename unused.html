@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Zavorateam Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/websites/index_files/logo%201.svg">
+  <link href="./index_files/all.css" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+
+<style>
+  .cont {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+    width: auto;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    background-color: rgba(30, 30, 40, 0.8); /* Темный фон контейнера */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  @font-face {
+    font-family: YSMusic Headline;
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2"),url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff")
+  }
+  h1 {
+    color: #ddd;
+    font-size: 30px;
+    font-family: "YSMusic Headline",sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  }
+
+  body {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+    background-color: rgb(30, 30, 40); /* Темный фон */
+    margin: 0;
+    overflow: hidden;
+  }
+
+  span {
+    cursor: pointer;
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 5px;
+    background-color: rgba(50, 180, 70, 0.8); /* Зеленый оттенок */
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    color: #fff; /* Белый текст */
+  }
+
+  span:hover {
+    background-color: rgba(40, 150, 60, 0.9);
+    transform: scale(1.05);
+  }
+
+  .btn {
+    text-decoration: none;
+    color: #eee;
+    font-size: 23px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  }
+
+  a{
+    color:#eee;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 19;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+</style>
+</head>
+<body style="background-color:rgb(30,30,40)">
+  <div class="cont">
+    <h1>zavorateam.github.io</h1>
+    <span><a class="btn" href="./mod.html">BezmatMOD ZavoraMOD</a></span>
+    <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
+    <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+  </div>
+
+  <script>
+    let angle = 25;
+    let branchLength = 120;
+    let maxDepth = 9;
+    let colorStart = [50, 150, 200];
+    let colorEnd = [0, 255, 0]; // Зеленый
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      angleMode(DEGREES);
+      background(30);
+    }
+
+    function draw() {
+      background(30, 10);
+      translate(width / 2, height);
+      branch(branchLength, 0);
+    }
+
+    function branch(len, depth) {
+      let lerpAmt = depth / maxDepth;
+      let strokeColor = lerpColor(color(colorStart[0], colorStart[1], colorStart[2]), color(colorEnd[0], colorEnd[1], colorEnd[2]), lerpAmt);
+      stroke(strokeColor);
+      strokeWeight(map(depth, 0, maxDepth, 6, 1));
+
+      line(0, 0, 0, -len);
+      translate(0, -len);
+
+      if (depth < maxDepth) {
+        // Изменение угла ветвления по горизонтали
+        let swayAngle = map(mouseX, 0, width, -35, 35);
+        // Изменение длины ветвления по вертикали
+        let growthFactor = map(mouseY, 0, height, 0.5, 0.9);
+
+
+        push();
+        rotate(angle + swayAngle);
+        branch(len * growthFactor, depth + 1);
+        pop();
+
+        push();
+        rotate(-angle - swayAngle);
+        branch(len * growthFactor, depth + 1);
+        pop();
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+  <main></main>
+</body>
+</html>

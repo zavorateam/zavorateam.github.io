@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Zavorateam Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/websites/index_files/logo%201.svg">
+  <link href="./index_files/all.css" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+
+<style>
+  .cont {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+    width: auto;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.404);
+    border-radius: 10px;
+  }
+  
+  @font-face {
+    font-family: YSMusic Headline;
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2"),url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff")
+  }
+  h1 {
+    color: white;
+    font-size: 30px;
+    font-family: "YSMusic Headline",sans-serif;
+    font-weight: 700;
+  }
+
+  body {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+    background-color: rgb(100, 100, 100);
+    margin: 0;
+  }
+
+  span {
+    cursor: pointer;
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 5px;
+    background-color: rgb(0, 194, 0);
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  span:hover {
+    background-color: rgb(0, 155, 0);
+  }
+
+  .btn {
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    font-size: 23px;
+  }
+
+  a{
+    color:rgb(240, 240, 240);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 19;
+  }
+
+  /* Стили для фона */
+  body {
+    overflow: hidden; /* Скрываем полосы прокрутки, вызванные p5.js */
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Помещаем фон позади контента */
+  }
+</style>
+</head>
+<body style="background-color:rgb(100,100,100)">
+  <div class="cont">
+    <h1>zavorateam.github.io</h1>
+    <span><a class="btn" href="./mod.html">BezmatMOD ZavoraMOD</a></span>
+    <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
+    <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+  </div>
+
+  <script>
+    let particles = [];
+    const numParticles = 200;
+    const waveSpeed = 0.01;
+    const particleSize = 5;
+    const baseHue = 200; // Синий оттенок
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      colorMode(HSB, 360, 100, 100, 1);
+
+      // Инициализация частиц
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: random(width),
+          y: random(height),
+          z: random(TWO_PI), // Фаза для волнового движения
+          hue: baseHue + random(-20, 20)
+        });
+      }
+    }
+
+    function draw() {
+      background(220,0,10);
+      noStroke();
+
+      for (let i = 0; i < numParticles; i++) {
+        let p = particles[i];
+
+        // Волновое движение
+        let angle = p.z + frameCount * waveSpeed;
+        let displacement = map(sin(angle), -1, 1, -20, 20); // Амплитуда волны
+        let yOffset = map(noise(p.x * 0.01, p.y * 0.01, frameCount * 0.005), 0, 1, -50, 50); // Добавляем шум
+
+        let particleY = p.y + displacement + yOffset;
+
+        // Взаимодействие с мышью (отталкивание)
+        let distance = dist(mouseX, mouseY, p.x, particleY);
+        if (distance < 50) {
+          let angleToMouse = atan2(particleY - mouseY, p.x - mouseX);
+          p.x += cos(angleToMouse) * 2;
+          p.y += sin(angleToMouse) * 2;
+
+          // Ограничиваем движение, чтобы частицы не улетали слишком далеко
+          p.x = constrain(p.x, 0, width);
+          p.y = constrain(p.y, 0, height);
+        }
+
+        // Цвет частицы
+        fill(p.hue, 80, 80, 0.7);
+
+        ellipse(p.x, particleY, particleSize, particleSize);
+
+        // Обновляем фазу для волнового движения
+        p.z += 0.02;
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+  <main></main>
+</body>
+</html>
