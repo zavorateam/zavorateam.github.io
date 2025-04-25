@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZavoraTeam Website - Документация</title>
+    <link rel="stylesheet" href="common_styles.css">
+    <link rel="stylesheet" href="mod_files/style.css">
+    <style>
+        :root {
+            --primary: #155799;
+            --secondary: #159957;
+            --text: #2c3e50;
+            --bg-light: #ffffff;
+            --bg-dark: #1e1e21;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg-dark: rgba(43, 43, 45, 0.9);
+            --body-bg: #f8f9fa;
+            --body-bg-dark: #121212;
+            --table-header-bg: rgba(21, 87, 153, 0.1);
+            --table-header-bg-dark: rgba(21, 87, 153, 0.3);
+            --table-row-hover: rgba(21, 87, 153, 0.05);
+            --table-row-hover-dark: rgba(21, 87, 153, 0.2);
+            --table-border: rgba(0, 0, 0, 0.1);
+            --table-border-dark: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            margin: 0;
+            font-family: "YSMusic Headline", sans-serif;
+            color: var(--text);
+            background: var(--body-bg);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --text: #bebebe;
+            --bg-light: #2b2b2d;
+            --card-bg: var(--card-bg-dark);
+            --body-bg: var(--body-bg-dark);
+            --table-header-bg: var(--table-header-bg-dark);
+            --table-row-hover: var(--table-row-hover-dark);
+            --table-border: var(--table-border-dark);
+            color: var(--text);
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            margin: 1rem auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .section ul {
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .section a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .section a:hover {
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-5px);
+            background: var(--primary);
+            color: white;
+        }
+
+        .social-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1rem;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .theme-toggle {
+                bottom: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="index_files/logo 1.svg" alt="ZavoraTeam Logo" class="logo">
+            <h1>ZavoraTeam Website</h1>
+            <p class="project-tagline">Официальный сайт команды ZavoraTeam, посвященный вейпингу и электронным сигаретам</p>
+        </header>
+
+        <a href="index.html" class="back-btn">← Вернуться на главную</a>
+
+        <section class="section">
+            <h2>Структура проекта</h2>
+            <ul>
+                <li><strong>/styles</strong> - CSS стили</li>
+                <li><strong>/templates</strong> - HTML шаблоны</li>
+                <li><strong>/assets</strong> - Изображения и другие медиафайлы</li>
+                <li><strong>/docs</strong> - Документация и руководства</li>
+                <li><strong>/mod_files</strong> - Модифицированные файлы и скрипты</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Основные разделы</h2>
+            
+            <h3>1. Моды</h3>
+            <p>Информация о различных модах для электронных сигарет</p>
+            <ul>
+                <li>BezmatMOD</li>
+                <li>ZavoraMOD</li>
+                <li>Схемы и инструкции по сборке</li>
+            </ul>
+            
+            <h3>2. Аккумуляторы</h3>
+            <p>Подробная информация об аккумуляторах</p>
+            <ul>
+                <li>Характеристики</li>
+                <li>Рекомендации по использованию</li>
+                <li>Таблицы совместимости</li>
+            </ul>
+            
+            <h3>3. Библия</h3>
+            <p>Энциклопедия знаний о вейпинге</p>
+            <ul>
+                <li>Основные понятия</li>
+                <li>Советы по использованию</li>
+                <li>Технические характеристики</li>
+            </ul>
+            
+            <h3>4. Уроки Arduino</h3>
+            <p>Образовательный раздел</p>
+            <ul>
+                <li>Программирование Arduino</li>
+                <li>Электроника для начинающих</li>
+                <li>Библиотеки Arduino</li>
+                <li>Дополнительные ресурсы и проекты</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Технологии</h2>
+            <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript</li>
+                <li>CSS Variables для темизации</li>
+                <li>LocalStorage для сохранения настроек пользователя</li>
+                <li>Адаптивный дизайн</li>
+                <li>GitHub Pages для хостинга</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Особенности сайта</h2>
+            <ul>
+                <li><strong>Темная тема</strong> - возможность переключения между светлой и темной темой</li>
+                <li><strong>Адаптивный дизайн</strong> - корректное отображение на всех устройствах</li>
+                <li><strong>Интерактивные элементы</strong> - анимации при наведении, эффекты переходов</li>
+                <li><strong>Оптимизированная структура</strong> - чистый и понятный код</li>
+                <li><strong>Удобная навигация</strong> - логичное расположение элементов меню</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Разработка</h2>
+            <ol>
+                <li>Клонируйте репозиторий</li>
+                <li>Установите зависимости (если есть)</li>
+                <li>Внесите изменения</li>
+                <li>Создайте pull request</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Планы по развитию</h2>
+            <ul>
+                <li>Добавление интерактивных калькуляторов для вейперов</li>
+                <li>Создание базы знаний по ремонту и обслуживанию устройств</li>
+                <li>Интеграция с социальными сетями</li>
+                <li>Добавление форума для общения пользователей</li>
+                <li>Расширение раздела с уроками Arduino</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Лицензия</h2>
+            <p>MIT License - свободное использование и модификация</p>
+        </section>
+
+        <section class="section">
+            <h2>Контакты</h2>
+            <div class="social-links">
+                <a href="https://github.com/zavorateam" class="social-btn" target="_blank">
+                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/github.svg" alt="GitHub">
+                    GitHub
+                </a>
+                <a href="https://gitverse.ru/zavorateam" class="social-btn" target="_blank">
+                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/gitverse.svg" alt="GitVerse">
+                    GitVerse
+                </a>
+                <a href="https://t.me/zavorateam" class="social-btn" target="_blank">
+                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/telegram.svg" alt="Telegram">
+                    Telegram
+                </a>
+                <a href="https://vk.com/zavorateam" class="social-btn" target="_blank">
+                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/vk.svg" alt="VK">
+                    ВКонтакте
+                </a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Благодарности</h2>
+            <p>Особая благодарность <a href="https://alexgyver.ru/" target="_blank">AlexGyver</a> за предоставленные материалы и вдохновение для создания образовательного раздела по Arduino.</p>
+        </section>
+    </div>
+
+    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
+
+    <script>
+        // Переключение темы
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+
+        // Проверка сохраненной темы
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html> 
