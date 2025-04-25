@@ -1,2 +1,0 @@
-document.addEventListener("DOMContentLoaded",()=>{let sels=document.querySelectorAll('[data-sc-render-var]');for(let sel of sels){let arrname=sel.getAttribute('data-sc-render-var');let arr=eval(arrname);if(!arr)continue;let inn='';for(let el of arr){inn+=`<option value='${el}'>${el}</option>`}
-sel.innerHTML=inn}})
