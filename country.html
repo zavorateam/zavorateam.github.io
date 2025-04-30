@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица стран</title>
+    <link rel="stylesheet" href="common_styles.css">
+    <style>
+        :root {
+            --primary: #155799;
+            --secondary: #159957;
+            --text: #2c3e50;
+            --bg-light: #ffffff;
+            --bg-dark: #1e1e21;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg-dark: rgba(43, 43, 45, 0.9);
+            --body-bg: #f8f9fa;
+            --body-bg-dark: #121212;
+        }
+        
+        body {
+            margin: 0;
+            font-family: "YSMusic Headline", sans-serif;
+            color: var(--text);
+            background: var(--body-bg);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --text: #bebebe;
+            --bg-light: #2b2b2d;
+            --card-bg: var(--card-bg-dark);
+            --body-bg: var(--body-bg-dark);
+            color: var(--text);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(21, 87, 153, 0.1);
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin-top: 2rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .table-container {
+                padding: 1rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Таблица стран</h1>
+            <p class="project-tagline">Полный список стран мира</p>
+        </header>
+
+        <div class="table-container">
+            <div class="loading">Загрузка данных...</div>
+            <table style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Страна</th>
+                        <th>Полное наименование</th>
+                        <th>На английском</th>
+                        <th>Alpha2</th>
+                        <th>Alpha3</th>
+                        <th>ISO</th>
+                        <th>Часть света</th>
+                        <th>Расположение</th>
+                    </tr>
+                </thead>
+                <tbody id="countriesTableBody">
+                </tbody>
+            </table>
+            <a href="anycraft.html" class="back-btn">Вернуться назад</a>
+        </div>
+    </div>
+
+    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
+
+    <script>
+        // Загрузка данных из XML
+        async function loadCountries() {
+            try {
+                const response = await fetch('loaded.xml');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, "text/xml");
+                
+                const countries = xmlDoc.getElementsByTagName("country");
+                const tbody = document.getElementById("countriesTableBody");
+                for (let country of countries) {
+                    const tr = document.createElement("tr");
+                    
+                    const fields = [
+                        "name",
+                        "fullname",
+                        "english",
+                        "alpha2",
+                        "alpha3",
+                        "iso",
+                        "location",
+                        "location-precise"
+                    ];
+                    
+                    for (let field of fields) {
+                        const td = document.createElement("td");
+                        const value = country.getElementsByTagName(field)[0]?.textContent || "-";
+                        td.textContent = value;
+                        tr.appendChild(td);
+                    }
+                    
+                    tbody.appendChild(tr);
+                }
+                
+                // Скрываем индикатор загрузки и показываем таблицу
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('table').style.display = 'table';
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                document.querySelector('.loading').textContent = 'Ошибка загрузки данных';
+            }
+        }
+
+        // Загружаем данные при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadCountries);
+
+        // Переключение темы
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+
+        // Проверка сохраненной темы
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html> 
