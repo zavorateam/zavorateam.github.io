@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZavoraTeam Website - Документация</title>
-    <link rel="stylesheet" href="common_styles.css">
-    <link rel="stylesheet" href="mod_files/style.css">
+    <link rel="stylesheet" href="../common_styles.css">
+    <link rel="stylesheet" href="../mod_files/style.css">
     <style>
         :root {
             --primary: #155799;
@@ -187,6 +187,9 @@
             width: 24px;
             height: 24px;
             margin-right: 0.5rem;
+            max-width: 64px;
+            max-height: 64px;
+            object-fit: contain;
         }
 
         .footer {
@@ -237,12 +240,15 @@
         <section class="section">
             <h2>Структура проекта</h2>
             <ul>
-                <li><strong>common_styles.css</strong> - стандартные CSS стили</li>
-                <li><strong>/templates</strong> - HTML шаблоны</li>
-                <li><strong>/*_files</strong> - Отдельно принадлежащие к страницам файлы</li>
-                <li><strong>/mod_files</strong> - Модифицированные файлы и скрипты</li>
+                <li><strong>/templates</strong> - HTML шаблоны и страницы всех инструментов</li>
+                <li><strong>/common_styles.css</strong> - Общие стили для всего проекта</li>
+                <li><strong>/index.html</strong> - Файл перенаправления на основную страницу</li>
                 <li><strong>/index_files</strong> - Ресурсы для главной страницы</li>
+                <li><strong>/mod_files</strong> - Ресурсы и стили для BezmatMOD ZavoraMOD</li>
+                <li><strong>/bible_files</strong> - Ресурсы для Paranoid's Bible RUS</li>
+                <li><strong>/accums_files</strong> - Ресурсы для страницы аккумуляторов</li>
                 <li><strong>/caleidoskopus_files</strong> - Файлы для визуализатора звука</li>
+                <li><strong>/images</strong> - Общие изображения для проекта</li>
             </ul>
         </section>
 
@@ -357,19 +363,19 @@
             <h2>Контакты</h2>
             <div class="social-links">
                 <a href="https://github.com/zavorateam" class="social-btn" target="_blank">
-                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/github.svg" alt="GitHub">
+                    <img src="../index_files/pinned-octocat-093da3e6fa40.svg" alt="GitHub" width="24" height="24">
                     GitHub
                 </a>
                 <a href="https://gitverse.ru/zavorateam" class="social-btn" target="_blank">
-                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/gitverse.svg" alt="GitVerse">
+                    <img src="../index_files/favicon-32x32.png" alt="GitVerse" width="24" height="24">
                     GitVerse
                 </a>
                 <a href="https://t.me/zavorateam" class="social-btn" target="_blank">
-                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/telegram.svg" alt="Telegram">
+                    <img src="../index_files/t_logo_2x.png" alt="Telegram" width="24" height="24">
                     Telegram
                 </a>
                 <a href="https://vk.com/zavorateam" class="social-btn" target="_blank">
-                    <img src="https://alexgyver.ru/wp-content/uploads/2020/12/vk.svg" alt="VK">
+                    <img src="../index_files/favicon-32x32.png" alt="VK" width="24" height="24">
                     ВКонтакте
                 </a>
             </div>
