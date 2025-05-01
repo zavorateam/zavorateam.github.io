@@ -11,14 +11,104 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
 
 <style>
-  /* Специфичные стили для данной страницы */
+  h2{
+    color: white;
+    font-family: YS Text;
+  }
+
+  .cont {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+    width: auto;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.404);
+    /* Добавляем прокрутку */
+    max-height: 75vh;
+    overflow-y: auto;
+    /* Сглаживание прокрутки */
+    scroll-behavior: smooth;
+    /* Внутренние отступы для контента */
+    padding: 15px;
+    /* Граница с радиусом */
+    border-radius: 8px;
+  }
+
+  /* Стилизация полосы прокрутки для Webkit (Chrome, Safari, Opera) */
+  .cont::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cont::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  .cont::-webkit-scrollbar-thumb {
+    background: rgba(0, 194, 0, 0.5);
+    border-radius: 3px;
+  }
+
+  .cont::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 194, 0, 0.8);
+  }
+
+  /* Стилизация полосы прокрутки для Firefox */
+  .cont {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 194, 0, 0.5) rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    color: white;
+  }
+
   body {
     background-color: rgb(100, 100, 100);
     overflow: hidden;
   }
+
+  span {
+    cursor: pointer;
+    display: block;
+    width: 200px;
+    padding: 10px;
+    margin: 5px;
+    background-color: rgb(0, 194, 0);
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  span:hover {
+    background-color: rgb(0, 155, 0);
+  }
+
+  .btn {
+    color: rgb(0, 0, 0);
+  }
+
+  a{
+    color:rgb(240, 240, 240);
+    padding: 0px;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
 </style>
 </head>
-<body>
+<body style="background-color:rgb(100,100,100)">
   <div class="cont">
     <h1><a href="./index.html">zavorateam.github.io</a></h1>
     <h2>Форматтер/эникрафт</h2>
