@@ -141,7 +141,7 @@
             bottom: 4rem;
             left: 50%;
             transform: translateX(-50%);
-            width: auto;
+            width: 300px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -150,30 +150,103 @@
             padding: 1rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             z-index: 1;
-        }
-
-        .changemode_ {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .changemode {
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.1);
         }
 
-        .changemode:hover, .changemode.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+        .controls.hidden {
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toggle-controls {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-controls:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .toggle-controls img {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-controls.hidden img {
+            transform: rotate(180deg);
         }
 
         .controls-drawing {
-            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reload-controls, .speed-controls, .color-controls {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            color: var(--text);
+        }
+
+        .reload-slider, .speed-slider {
+            width: 150px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            border: none;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        .color-picker::-moz-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        #reloadValue, #speedValue {
+            min-width: 30px;
+            text-align: center;
         }
 
         .download {
@@ -372,47 +445,6 @@
         .container, .controls, footer {
             transition: opacity 0.5s ease;
         }
-
-        .reload-controls {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text);
-        }
-
-        .reload-slider {
-            width: 150px;
-            height: 5px;
-            -webkit-appearance: none;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 5px;
-            outline: none;
-        }
-
-        .reload-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 15px;
-            height: 15px;
-            background: white;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        }
-
-        .reload-slider::-moz-range-thumb {
-            width: 15px;
-            height: 15px;
-            background: white;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        }
-
-        #reloadValue {
-            min-width: 30px;
-            text-align: center;
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
@@ -474,14 +506,26 @@
                 </div>
             </div>
             <div class="reload-controls">
-                <label for="reloadInterval">Интервал перезагрузки (сек):</label>
+                <label for="reloadInterval">Перезагрузка (сек):</label>
                 <input type="range" id="reloadInterval" min="2" max="120" value="25" class="reload-slider">
                 <span id="reloadValue">25</span>
+            </div>
+            <div class="speed-controls">
+                <label for="speedControl">Скорость:</label>
+                <input type="range" id="speedControl" min="0.1" max="5" step="0.1" value="1" class="speed-slider">
+                <span id="speedValue">1.0</span>
+            </div>
+            <div class="color-controls">
+                <label for="baseColor">Цвет:</label>
+                <input type="color" id="baseColor" class="color-picker" value="#ff0000">
             </div>
         </div>
     </div>
 
     <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
+    <button class="toggle-controls" title="Скрыть/показать панель управления">
+        <img src="../caleidoskopus_files/ico-02.svg" alt="">
+    </button>
 
     <footer class="desktop">
         <div class="footer-copy">
@@ -521,6 +565,8 @@
         let animationFrameId;
         let reloadTimer;
         let reloadInterval = 25000; // 25 секунд по умолчанию
+        let manualSpeed = 1;
+        let baseColor = '#ff0000';
         
         // Элементы интерфейса
         const startBtn = document.querySelector('.start_btn');
@@ -535,6 +581,11 @@
         const downloadPngBtn = document.querySelector('.download_png');
         const pauseOverlay = document.getElementById('pauseOverlay');
         const modeBtns = document.querySelectorAll('.changemode');
+        const controls = document.querySelector('.controls');
+        const toggleControlsBtn = document.querySelector('.toggle-controls');
+        const speedControl = document.getElementById('speedControl');
+        const speedValue = document.getElementById('speedValue');
+        const colorPicker = document.getElementById('baseColor');
 
         // Обработчики событий
         startBtn.addEventListener('click', startApp);
@@ -819,12 +870,23 @@
                     this.height = app.renderer.height;
                     
                     this.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    this.timeDomainData = new Uint8Array(analyser.fftSize);
+                    
+                    // Улучшенные параметры для анализа BPM
+                    this.bpm = 120;
+                    this.bpmHistory = [];
+                    this.lastBeatTime = 0;
+                    this.beatThreshold = 0.35;
+                    this.minBPM = 80;
+                    this.maxBPM = 180;
+                    this.energyHistory = [];
+                    this.energyHistorySize = 20;
+                    this.energyThreshold = 0.1;
                     
                     this.particles = [];
                     this.lines = [];
                     this.triangles = [];
                     
-                    // Массив текущих цветов для каждой частицы
                     this.particleColors = [];
                     
                     this.container = new PIXI.Container();
@@ -846,11 +908,11 @@
             }
             
             generateParticles() {
-                const count = 140; // Количество частиц
+                const count = 180; // Увеличим количество частиц для более плавного эффекта
                 
                 for (let i = 0; i < count; i++) {
                     const angle = (i / count) * Math.PI * 2;
-                    const distance = Math.random() * 100 + 50;
+                    const distance = Math.random() * 150 + 100; // Увеличим радиус
                     
                     // Создаем начальный цвет для каждой частицы
                     this.particleColors[i] = {
@@ -870,7 +932,7 @@
                         x: Math.cos(angle) * distance,
                         y: Math.sin(angle) * distance,
                         angle: angle,
-                        speed: Math.random() * 0.01 + 0.005,
+                        speed: Math.random() * 0.005 + 0.002, // Уменьшим скорость вращения
                         distance: distance,
                         originalDistance: distance
                     });
@@ -879,26 +941,25 @@
             
             updateColors() {
                 const colors = [];
+                const baseRGB = this.hexToRgb(baseColor);
+                
                 for (let i = 0; i < this.particles.length; i++) {
                     const color = this.particleColors[i];
                     
-                    // Плавное изменение текущего цвета к целевому
-                    color.current.r += (color.target.r - color.current.r) * 0.001;
-                    color.current.g += (color.target.g - color.current.g) * 0.001;
-                    color.current.b += (color.target.b - color.current.b) * 0.001;
+                    // Используем базовый цвет как отправную точку
+                    const targetR = baseRGB.r + Math.random() * 100 - 50;
+                    const targetG = baseRGB.g + Math.random() * 100 - 50;
+                    const targetB = baseRGB.b + Math.random() * 100 - 50;
                     
-                    // Если цвет почти достиг целевого, выбираем новый целевой цвет
-                    if (Math.abs(color.current.r - color.target.r) < 1 &&
-                        Math.abs(color.current.g - color.target.g) < 1 &&
-                        Math.abs(color.current.b - color.target.b) < 1) {
-                        color.target = {
-                            r: Math.random() * 255,
-                            g: Math.random() * 255,
-                            b: Math.random() * 255
-                        };
-                    }
+                    color.current.r += (targetR - color.current.r) * 0.0005;
+                    color.current.g += (targetG - color.current.g) * 0.0005;
+                    color.current.b += (targetB - color.current.b) * 0.0005;
                     
-                    // Преобразуем RGB в шестнадцатеричный цвет
+                    // Ограничиваем значения RGB
+                    color.current.r = Math.max(0, Math.min(255, color.current.r));
+                    color.current.g = Math.max(0, Math.min(255, color.current.g));
+                    color.current.b = Math.max(0, Math.min(255, color.current.b));
+                    
                     colors.push((Math.floor(color.current.r) << 16) | 
                                (Math.floor(color.current.g) << 8) | 
                                Math.floor(color.current.b));
@@ -906,27 +967,84 @@
                 return colors;
             }
             
-            update() {
-                // Получаем данные из аудио
-                this.analyser.getByteFrequencyData(this.dataArray);
+            analyzeBPM() {
+                const now = Date.now();
                 
-                // Обновляем цвета
+                // Получаем данные временной области
+                this.analyser.getByteTimeDomainData(this.timeDomainData);
+                
+                // Рассчитываем текущую энергию
+                const currentEnergy = this.calculateEnergy();
+                
+                // Добавляем текущую энергию в историю
+                this.energyHistory.push(currentEnergy);
+                if (this.energyHistory.length > this.energyHistorySize) {
+                    this.energyHistory.shift();
+                }
+                
+                // Рассчитываем среднюю энергию
+                const averageEnergy = this.energyHistory.reduce((a, b) => a + b, 0) / this.energyHistory.length;
+                
+                // Определяем бит
+                if (currentEnergy > averageEnergy * (1 + this.energyThreshold)) {
+                    if (this.lastBeatTime > 0) {
+                        const timeDiff = now - this.lastBeatTime;
+                        const currentBPM = 60000 / timeDiff;
+                        
+                        if (currentBPM >= this.minBPM && currentBPM <= this.maxBPM) {
+                            this.bpmHistory.push(currentBPM);
+                            
+                            if (this.bpmHistory.length > 10) {
+                                this.bpmHistory.shift();
+                            }
+                            
+                            // Используем медианное значение для более стабильного BPM
+                            const sortedBPM = [...this.bpmHistory].sort((a, b) => a - b);
+                            const mid = Math.floor(sortedBPM.length / 2);
+                            this.bpm = sortedBPM.length % 2 === 0 
+                                ? (sortedBPM[mid - 1] + sortedBPM[mid]) / 2 
+                                : sortedBPM[mid];
+                        }
+                    }
+                    this.lastBeatTime = now;
+                }
+            }
+            
+            calculateEnergy() {
+                let sum = 0;
+                for (let i = 0; i < this.timeDomainData.length; i++) {
+                    const value = (this.timeDomainData[i] - 128) / 128;
+                    sum += value * value;
+                }
+                return sum / this.timeDomainData.length;
+            }
+            
+            update() {
+                this.analyser.getByteFrequencyData(this.dataArray);
+                this.analyser.getByteTimeDomainData(this.timeDomainData);
+                
+                this.analyzeBPM();
+                
                 const colors = this.updateColors();
                 
-                // Обновляем частицы
+                // Учитываем как BPM, так и ручную настройку скорости
+                const baseSpeed = 0.002;
+                const bpmFactor = this.bpm / 120;
+                const adjustedSpeed = baseSpeed * bpmFactor * manualSpeed;
+                
                 for (let i = 0; i < this.particles.length; i++) {
                     const particle = this.particles[i];
                     const frequencyIndex = Math.floor(i / this.particles.length * this.dataArray.length);
-                    const frequencyValue = this.dataArray[frequencyIndex];
+                    const frequencyValue = this.dataArray[frequencyIndex] / 2;
                     
-                    particle.distance = particle.originalDistance + frequencyValue;
+                    particle.speed = adjustedSpeed;
+                    particle.distance = particle.originalDistance + frequencyValue * 0.5;
                     particle.angle += particle.speed;
                     
                     particle.x = Math.cos(particle.angle) * particle.distance;
                     particle.y = Math.sin(particle.angle) * particle.distance;
                 }
                 
-                // Рисуем в зависимости от выбранного режима
                 this.draw(colors);
             }
             
@@ -948,7 +1066,7 @@
             
             drawPolygon(color) {
                 this.graphics.lineStyle(0);
-                this.graphics.beginFill(color, 0.5);
+                this.graphics.beginFill(color, 0.3); // Уменьшим прозрачность для более мягкого эффекта
                 this.graphics.moveTo(this.particles[0].x, this.particles[0].y);
                 
                 for (let i = 1; i < this.particles.length; i++) {
@@ -962,7 +1080,7 @@
             drawTriangles(colors) {
                 for (let i = 0; i < this.particles.length - 2; i += 3) {
                     this.graphics.lineStyle(0);
-                    this.graphics.beginFill(colors[i], 0.5);
+                    this.graphics.beginFill(colors[i], 0.3); // Уменьшим прозрачность
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[i + 1].x, this.particles[i + 1].y);
                     this.graphics.lineTo(this.particles[i + 2].x, this.particles[i + 2].y);
@@ -974,7 +1092,7 @@
             drawLines(colors) {
                 for (let i = 0; i < this.particles.length; i++) {
                     const nextIndex = (i + 1) % this.particles.length;
-                    this.graphics.lineStyle(2, colors[i], 1);
+                    this.graphics.lineStyle(1, colors[i], 0.5); // Уменьшим толщину и прозрачность линий
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[nextIndex].x, this.particles[nextIndex].y);
                 }
@@ -1004,31 +1122,61 @@
                     `<svg width="${this.width}" height="${this.height}" xmlns="http://www.w3.org/2000/svg">`
                 ];
                 
+                // Получаем текущие цвета
+                const colors = this.updateColors();
+                
                 if (this.mode === 'poly') {
                     let points = '';
                     for (let i = 0; i < this.particles.length; i++) {
-                        points += `${this.particles[i].x},${this.particles[i].y} `;
+                        points += `${this.particles[i].x + this.center.x},${this.particles[i].y + this.center.y} `;
                     }
                     
-                    svg.push(`<polygon points="${points}" fill="#${this.particles[0].color.toString(16)}" opacity="0.5" />`);
+                    svg.push(`<polygon points="${points}" fill="#${colors[0].toString(16).padStart(6, '0')}" opacity="0.5" />`);
                     
                 } else if (this.mode === 'triangles') {
                     for (let i = 0; i < this.particles.length - 2; i += 3) {
-                        const points = `${this.particles[i].x},${this.particles[i].y} ${this.particles[i+1].x},${this.particles[i+1].y} ${this.particles[i+2].x},${this.particles[i+2].y}`;
-                        svg.push(`<polygon points="${points}" fill="#${this.particles[i].color.toString(16)}" opacity="0.5" />`);
+                        const points = `${this.particles[i].x + this.center.x},${this.particles[i].y + this.center.y} ` +
+                                      `${this.particles[i+1].x + this.center.x},${this.particles[i+1].y + this.center.y} ` +
+                                      `${this.particles[i+2].x + this.center.x},${this.particles[i+2].y + this.center.y}`;
+                        svg.push(`<polygon points="${points}" fill="#${colors[i].toString(16).padStart(6, '0')}" opacity="0.5" />`);
                     }
                     
                 } else if (this.mode === 'lines') {
                     for (let i = 0; i < this.particles.length; i++) {
                         const nextIndex = (i + 1) % this.particles.length;
-                        svg.push(`<line x1="${this.particles[i].x}" y1="${this.particles[i].y}" x2="${this.particles[nextIndex].x}" y2="${this.particles[nextIndex].y}" stroke="#${this.particles[i].color.toString(16)}" stroke-width="2" />`);
+                        svg.push(`<line x1="${this.particles[i].x + this.center.x}" y1="${this.particles[i].y + this.center.y}" ` +
+                                `x2="${this.particles[nextIndex].x + this.center.x}" y2="${this.particles[nextIndex].y + this.center.y}" ` +
+                                `stroke="#${colors[i].toString(16).padStart(6, '0')}" stroke-width="2" />`);
                     }
                 }
                 
                 svg.push('</svg>');
                 return svg.join('\n');
             }
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : { r: 255, g: 0, b: 0 };
+            }
         }
+
+        toggleControlsBtn.addEventListener('click', () => {
+            controls.classList.toggle('hidden');
+            toggleControlsBtn.classList.toggle('hidden');
+        });
+
+        speedControl.addEventListener('input', (e) => {
+            manualSpeed = parseFloat(e.target.value);
+            speedValue.textContent = manualSpeed.toFixed(1);
+        });
+
+        colorPicker.addEventListener('input', (e) => {
+            baseColor = e.target.value;
+        });
     </script>
 </body>
 </html> 
