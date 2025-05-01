@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" href="../index_files/logo%201.svg">
     <title>Калидоскопод</title>
     <style>
         :root {
@@ -148,7 +149,7 @@
             border-radius: 15px;
             padding: 1rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            z-index: 100;
+            z-index: 1;
         }
 
         .changemode_ {
@@ -233,7 +234,7 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -254,7 +255,7 @@
             height: 1%;
             background: var(--card-bg);
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 100;
+            z-index: 1;
             color: var(--text);
             text-align: center;
             display: flex;
@@ -367,6 +368,51 @@
             color: white;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
+
+        .container, .controls, footer {
+            transition: opacity 0.5s ease;
+        }
+
+        .reload-controls {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+        }
+
+        .reload-slider {
+            width: 150px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .reload-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        .reload-slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        #reloadValue {
+            min-width: 30px;
+            text-align: center;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
@@ -427,6 +473,11 @@
                     <span>Скачать PNG</span>
                 </div>
             </div>
+            <div class="reload-controls">
+                <label for="reloadInterval">Интервал перезагрузки (сек):</label>
+                <input type="range" id="reloadInterval" min="2" max="120" value="25" class="reload-slider">
+                <span id="reloadValue">25</span>
+            </div>
         </div>
     </div>
 
@@ -468,6 +519,8 @@
         let animationMode = 'poly';
         let isPaused = false;
         let animationFrameId;
+        let reloadTimer;
+        let reloadInterval = 25000; // 25 секунд по умолчанию
         
         // Элементы интерфейса
         const startBtn = document.querySelector('.start_btn');
@@ -524,35 +577,80 @@
             });
         });
 
+        // Обработчик изменения ползунка
+        const reloadSlider = document.getElementById('reloadInterval');
+        const reloadValue = document.getElementById('reloadValue');
+        
+        reloadSlider.addEventListener('input', (e) => {
+            reloadInterval = e.target.value * 1000; // Конвертируем в миллисекунды
+            reloadValue.textContent = e.target.value;
+            
+            // Перезапускаем таймер с новым интервалом
+            if (!isPaused) {
+                clearTimeout(reloadTimer);
+                startReloadTimer();
+            }
+        });
+
+        function startReloadTimer() {
+            reloadTimer = setTimeout(() => {
+                if (!isPaused) {
+                    resetVisualizer();
+                    startReloadTimer();
+                }
+            }, reloadInterval);
+        }
+
         function startApp() {
             startSection.style.display = 'none';
             uploadSection.style.display = 'block';
         }
 
-        function isAudioFile(file) {
-            const acceptedTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/flac'];
-            return acceptedTypes.includes(file.type) || 
-                file.name.endsWith('.mp3') || 
-                file.name.endsWith('.wav') || 
-                file.name.endsWith('.flac');
-        }
-
         function handleAudioFile(file) {
+            console.log('Начало обработки файла:', file.name);
+            if (!window.AudioContext && !window.webkitAudioContext) {
+                alert('Ваш браузер не поддерживает Web Audio API. Пожалуйста, используйте современный браузер.');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => {
+                console.log('Файл успешно прочитан');
                 setupAudioContext(e.target.result);
+            };
+            reader.onerror = (error) => {
+                console.error('Ошибка при чтении файла:', error);
+                alert('Ошибка при чтении файла. Пожалуйста, попробуйте другой файл.');
             };
             reader.readAsArrayBuffer(file);
         }
 
+        function isAudioFile(file) {
+            console.log('Проверка типа файла:', file.type, file.name);
+            const acceptedTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/flac'];
+            const isAccepted = acceptedTypes.includes(file.type) || 
+                file.name.endsWith('.mp3') || 
+                file.name.endsWith('.wav') || 
+                file.name.endsWith('.flac');
+            
+            if (!isAccepted) {
+                alert('Пожалуйста, выберите аудиофайл в формате MP3, WAV или FLAC');
+            }
+            
+            return isAccepted;
+        }
+
         function setupAudioContext(arrayBuffer) {
+            console.log('Начало setupAudioContext');
             // Инициализируем WebAudio API
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('AudioContext создан');
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 2048;
             
             // Декодируем аудиофайл
             audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+                console.log('Аудиофайл декодирован');
                 audioBuffer = buffer;
                 
                 // Скрываем загрузчик и показываем интерфейс
@@ -565,10 +663,13 @@
                 
                 // Запускаем аудио
                 playAudio();
+            }, (error) => {
+                console.error('Ошибка при декодировании аудио:', error);
             });
         }
 
         function playAudio() {
+            console.log('Начало playAudio');
             if (audioSource) {
                 audioSource.disconnect();
             }
@@ -579,37 +680,82 @@
             analyser.connect(audioContext.destination);
             audioSource.loop = true;
             audioSource.start(0);
+            console.log('Аудио запущено');
             
             isPaused = false;
             pauseBtn.classList.remove('paused');
             pauseOverlay.classList.remove('active');
-            document.querySelector('.play').classList.remove('hidden');
-            document.querySelector('.pause').classList.add('hidden');
+            
+            // Отправляем элементы управления на задний план и делаем их полупрозрачными
+            document.querySelector('.container').style.opacity = '0.5';
+            document.querySelector('.controls').style.opacity = '0.5';
+            document.querySelector('footer').style.opacity = '0.5';
+            
+            // Запускаем таймер перезагрузки
+            startReloadTimer();
             
             // Запускаем анимацию
             animate();
         }
 
         function initVisualizer() {
-            // Инициализируем PIXI.js
-            const view = document.querySelector('.view');
-            app = new PIXI.Application({
-                view: view,
-                width: window.innerWidth,
-                height: window.innerHeight,
-                backgroundColor: 0x777777,
-                resolution: window.devicePixelRatio || 1
-            });
-            
-            // Создаем визуализатор
-            visualizer = new Visualizer(app, analyser, animationMode);
-            
-            // Обработчик изменения размера окна
-            window.addEventListener('resize', () => {
+            console.log('Начало initVisualizer');
+            try {
+                // Проверяем наличие PIXI
+                if (typeof PIXI === 'undefined') {
+                    throw new Error('PIXI.js не загружен');
+                }
+
+                // Инициализируем PIXI.js
+                const view = document.querySelector('.view');
+                if (!view) {
+                    throw new Error('Элемент canvas не найден');
+                }
+
+                app = new PIXI.Application({
+                    view: view,
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    backgroundColor: 0x777777,
+                    resolution: window.devicePixelRatio || 1,
+                    autoDensity: true
+                });
+                console.log('PIXI.Application создан');
+                
+                // Проверяем создание приложения
+                if (!app) {
+                    throw new Error('Не удалось создать PIXI.Application');
+                }
+                
+                // Создаем визуализатор
+                visualizer = new Visualizer(app, analyser, animationMode);
+                console.log('Visualizer создан');
+                
+                // Принудительно обновляем размеры и центрирование
+                setTimeout(() => {
+                    app.renderer.resize(window.innerWidth, window.innerHeight);
+                    visualizer.resize(window.innerWidth, window.innerHeight);
+                }, 100);
+                
+                // Обработчик изменения размера окна
+                window.addEventListener('resize', () => {
+                    app.renderer.resize(window.innerWidth, window.innerHeight);
+                    visualizer.resize(window.innerWidth, window.innerHeight);
+                });
+            } catch (error) {
+                console.error('Ошибка при инициализации визуализатора:', error);
+                alert('Ошибка при инициализации визуализатора. Пожалуйста, обновите страницу и попробуйте снова.');
+            }
+        }
+
+        // Добавляем обработчик загрузки страницы
+        window.addEventListener('load', () => {
+            // Если визуализатор уже создан, обновляем его позиционирование
+            if (visualizer) {
                 app.renderer.resize(window.innerWidth, window.innerHeight);
                 visualizer.resize(window.innerWidth, window.innerHeight);
-            });
-        }
+            }
+        });
 
         function animate() {
             if (!isPaused) {
@@ -624,17 +770,15 @@
             if (isPaused) {
                 pauseBtn.classList.add('paused');
                 pauseOverlay.classList.add('active');
-                document.querySelector('.play').classList.add('hidden');
-                document.querySelector('.pause').classList.remove('hidden');
                 audioContext.suspend();
                 cancelAnimationFrame(animationFrameId);
+                clearTimeout(reloadTimer);
             } else {
                 pauseBtn.classList.remove('paused');
                 pauseOverlay.classList.remove('active');
-                document.querySelector('.play').classList.remove('hidden');
-                document.querySelector('.pause').classList.add('hidden');
                 audioContext.resume();
                 animate();
+                startReloadTimer();
             }
         }
 
@@ -663,56 +807,111 @@
         // Визуализатор
         class Visualizer {
             constructor(app, analyser, mode) {
-                this.app = app;
-                this.analyser = analyser;
-                this.mode = mode;
-                this.width = app.renderer.width;
-                this.height = app.renderer.height;
-                
-                this.dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
-                this.particles = [];
-                this.lines = [];
-                this.triangles = [];
-                this.colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF];
-                
-                this.container = new PIXI.Container();
-                this.app.stage.addChild(this.container);
-                
-                this.graphics = new PIXI.Graphics();
-                this.container.addChild(this.graphics);
-                
-                this.center = {
-                    x: this.width / 2,
-                    y: this.height / 2
-                };
-                
-                this.generateParticles();
+                try {
+                    if (!app || !analyser) {
+                        throw new Error('Неверные параметры для Visualizer');
+                    }
+                    
+                    this.app = app;
+                    this.analyser = analyser;
+                    this.mode = mode;
+                    this.width = app.renderer.width;
+                    this.height = app.renderer.height;
+                    
+                    this.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    
+                    this.particles = [];
+                    this.lines = [];
+                    this.triangles = [];
+                    
+                    // Массив текущих цветов для каждой частицы
+                    this.particleColors = [];
+                    
+                    this.container = new PIXI.Container();
+                    this.app.stage.addChild(this.container);
+                    
+                    this.graphics = new PIXI.Graphics();
+                    this.container.addChild(this.graphics);
+                    
+                    this.center = {
+                        x: this.width / 2,
+                        y: this.height / 2
+                    };
+                    
+                    this.generateParticles();
+                } catch (error) {
+                    console.error('Ошибка при создании Visualizer:', error);
+                    throw error;
+                }
             }
             
             generateParticles() {
-                const count = 120; // Количество частиц
+                const count = 140; // Количество частиц
                 
                 for (let i = 0; i < count; i++) {
                     const angle = (i / count) * Math.PI * 2;
                     const distance = Math.random() * 100 + 50;
                     
+                    // Создаем начальный цвет для каждой частицы
+                    this.particleColors[i] = {
+                        current: {
+                            r: Math.random() * 255,
+                            g: Math.random() * 255,
+                            b: Math.random() * 255
+                        },
+                        target: {
+                            r: Math.random() * 255,
+                            g: Math.random() * 255,
+                            b: Math.random() * 255
+                        }
+                    };
+                    
                     this.particles.push({
-                        x: this.center.x + Math.cos(angle) * distance,
-                        y: this.center.y + Math.sin(angle) * distance,
+                        x: Math.cos(angle) * distance,
+                        y: Math.sin(angle) * distance,
                         angle: angle,
                         speed: Math.random() * 0.01 + 0.005,
                         distance: distance,
-                        originalDistance: distance,
-                        color: this.colors[Math.floor(Math.random() * this.colors.length)]
+                        originalDistance: distance
                     });
                 }
             }
             
-
+            updateColors() {
+                const colors = [];
+                for (let i = 0; i < this.particles.length; i++) {
+                    const color = this.particleColors[i];
+                    
+                    // Плавное изменение текущего цвета к целевому
+                    color.current.r += (color.target.r - color.current.r) * 0.001;
+                    color.current.g += (color.target.g - color.current.g) * 0.001;
+                    color.current.b += (color.target.b - color.current.b) * 0.001;
+                    
+                    // Если цвет почти достиг целевого, выбираем новый целевой цвет
+                    if (Math.abs(color.current.r - color.target.r) < 1 &&
+                        Math.abs(color.current.g - color.target.g) < 1 &&
+                        Math.abs(color.current.b - color.target.b) < 1) {
+                        color.target = {
+                            r: Math.random() * 255,
+                            g: Math.random() * 255,
+                            b: Math.random() * 255
+                        };
+                    }
+                    
+                    // Преобразуем RGB в шестнадцатеричный цвет
+                    colors.push((Math.floor(color.current.r) << 16) | 
+                               (Math.floor(color.current.g) << 8) | 
+                               Math.floor(color.current.b));
+                }
+                return colors;
+            }
+            
             update() {
                 // Получаем данные из аудио
                 this.analyser.getByteFrequencyData(this.dataArray);
+                
+                // Обновляем цвета
+                const colors = this.updateColors();
                 
                 // Обновляем частицы
                 for (let i = 0; i < this.particles.length; i++) {
@@ -723,29 +922,33 @@
                     particle.distance = particle.originalDistance + frequencyValue;
                     particle.angle += particle.speed;
                     
-                    particle.x = this.center.x + Math.cos(particle.angle) * particle.distance;
-                    particle.y = this.center.y + Math.sin(particle.angle) * particle.distance;
+                    particle.x = Math.cos(particle.angle) * particle.distance;
+                    particle.y = Math.sin(particle.angle) * particle.distance;
                 }
                 
                 // Рисуем в зависимости от выбранного режима
-                this.draw();
+                this.draw(colors);
             }
             
-            draw() {
+            draw(colors) {
                 this.graphics.clear();
                 
+                // Перемещаем графику в центр экрана
+                this.graphics.x = this.center.x;
+                this.graphics.y = this.center.y;
+                
                 if (this.mode === 'poly') {
-                    this.drawPolygon();
+                    this.drawPolygon(colors[0]);
                 } else if (this.mode === 'triangles') {
-                    this.drawTriangles();
+                    this.drawTriangles(colors);
                 } else if (this.mode === 'lines') {
-                    this.drawLines();
+                    this.drawLines(colors);
                 }
             }
             
-            drawPolygon() {
+            drawPolygon(color) {
                 this.graphics.lineStyle(0);
-                this.graphics.beginFill(this.particles[0].color, 0.5);
+                this.graphics.beginFill(color, 0.5);
                 this.graphics.moveTo(this.particles[0].x, this.particles[0].y);
                 
                 for (let i = 1; i < this.particles.length; i++) {
@@ -756,10 +959,10 @@
                 this.graphics.endFill();
             }
             
-            drawTriangles() {
+            drawTriangles(colors) {
                 for (let i = 0; i < this.particles.length - 2; i += 3) {
                     this.graphics.lineStyle(0);
-                    this.graphics.beginFill(this.particles[i].color, 0.5);
+                    this.graphics.beginFill(colors[i], 0.5);
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[i + 1].x, this.particles[i + 1].y);
                     this.graphics.lineTo(this.particles[i + 2].x, this.particles[i + 2].y);
@@ -768,10 +971,10 @@
                 }
             }
             
-            drawLines() {
+            drawLines(colors) {
                 for (let i = 0; i < this.particles.length; i++) {
                     const nextIndex = (i + 1) % this.particles.length;
-                    this.graphics.lineStyle(2, this.particles[i].color, 1);
+                    this.graphics.lineStyle(2, colors[i], 1);
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[nextIndex].x, this.particles[nextIndex].y);
                 }
@@ -788,15 +991,6 @@
                     x: width / 2,
                     y: height / 2
                 };
-                
-                // Обновляем позиции частиц
-                for (let i = 0; i < this.particles.length / 2; i++) {
-                    const angle = this.particles[i].angle;
-                    const distance = this.particles[i].distance;
-                    
-                    this.particles[i].x = this.center.x + Math.cos(angle) * distance;
-                    this.particles[i].y = this.center.y + Math.sin(angle) * distance;
-                }
             }
             
             reset() {
