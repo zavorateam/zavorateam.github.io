@@ -94,7 +94,6 @@ MIT License - свободное использование и модифика�
 - GitHub: [zavorateam](https://github.com/zavorateam)
 - GitVerse: [zavorateam](https://gitverse.ru/zavorateam)
 - Telegram: [zavorateam](https://t.me/zavorateam)
-- ВКонтакте: [zavorateam](https://vk.com/zavorateam)
 
 ## Благодарности
 

@@ -228,6 +228,30 @@
             object-fit: contain;
         }
 
+        .rutube-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        .rutube-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 0.5rem;
+            max-width: 64px;
+            max-height: 64px;
+            object-fit: contain;
+            border-radius: 80%;
+        }
+
+        .rutube-btn:hover {
+            transform: translateY(-5px);
+            background: var(--primary);
+            color: white;
+        }
+        
         .menu-section {
             margin-top: 3rem;
         }
@@ -524,12 +548,8 @@
                     <img src="../index_files/favicon-32x32.png" alt="YouTube" width="24" height="24">
                     YouTube
                 </a>
-                <a href="https://vk.com/alexgyver" class="social-btn" target="_blank">
-                    <img src="../index_files/favicon-32x32.png" alt="VK" width="24" height="24">
-                    ВКонтакте
-                </a>
-                <a href="https://rutube.ru/channel/26330627/" class="social-btn" target="_blank">
-                    <img src="../index_files/favicon-32x32.png" alt="RuTube" width="24" height="24">
+                <a href="https://rutube.ru/channel/26330627/" class="rutube-btn" target="_blank">
+                    <img src="../index_files/favicon-48x48.png" alt="RuTube" width="24" height="24">
                     RuTube
                 </a>
             </div>
