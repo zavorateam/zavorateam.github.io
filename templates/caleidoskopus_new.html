@@ -723,7 +723,7 @@
         let reloadTimer;
         let reloadInterval = 25000; // 25 секунд по умолчанию
         let manualSpeed = 1;
-        let baseColor = '#ff0000';
+        let baseColor = '#22ff00';
         
         // Элементы интерфейса
         const startBtn = document.querySelector('.start_btn');
@@ -1223,8 +1223,8 @@
             }
             
             drawPolygon(color) {
-                this.graphics.lineStyle(0);
-                this.graphics.beginFill(color, 0.7); // Увеличиваем непрозрачность с 0.3 до 0.7
+                this.graphics.lineStyle(3, color, 1.0); // Полностью непрозрачный контур
+                this.graphics.beginFill(color, 1.0); // Полностью непрозрачная заливка
                 this.graphics.moveTo(this.particles[0].x, this.particles[0].y);
                 
                 for (let i = 1; i < this.particles.length; i++) {
@@ -1237,8 +1237,8 @@
             
             drawTriangles(colors) {
                 for (let i = 0; i < this.particles.length - 2; i += 3) {
-                    this.graphics.lineStyle(0);
-                    this.graphics.beginFill(colors[i], 0.7); // Увеличиваем непрозрачность с 0.3 до 0.7
+                    this.graphics.lineStyle(3, colors[i], 1.0); // Полностью непрозрачный контур
+                    this.graphics.beginFill(colors[i], 1.0); // Полностью непрозрачная заливка
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[i + 1].x, this.particles[i + 1].y);
                     this.graphics.lineTo(this.particles[i + 2].x, this.particles[i + 2].y);
@@ -1250,7 +1250,7 @@
             drawLines(colors) {
                 for (let i = 0; i < this.particles.length; i++) {
                     const nextIndex = (i + 1) % this.particles.length;
-                    this.graphics.lineStyle(2, colors[i], 0.7); // Увеличиваем толщину линии с 1 до 2 и непрозрачность с 0.5 до 0.7
+                    this.graphics.lineStyle(4, colors[i], 1.0); // Полностью непрозрачные линии
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[nextIndex].x, this.particles[nextIndex].y);
                 }
@@ -1304,7 +1304,7 @@
                         const nextIndex = (i + 1) % this.particles.length;
                         svg.push(`<line x1="${this.particles[i].x + this.center.x}" y1="${this.particles[i].y + this.center.y}" ` +
                                 `x2="${this.particles[nextIndex].x + this.center.x}" y2="${this.particles[nextIndex].y + this.center.y}" ` +
-                                `stroke="#${colors[i].toString(16).padStart(6, '0')}" stroke-width="2" />`);
+                                `stroke="#${colors[i].toString(16).padStart(6, '0')}" stroke-width="4" />`);
                     }
                 }
                 

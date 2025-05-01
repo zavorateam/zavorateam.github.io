@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>По-сути файловый менеджер</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Link to main.css -->
+    <link rel="stylesheet" href="css/main.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Modak&display=swap');
+        .modak-regular {
+             font-family: "Modak", system-ui;
+             font-weight: 400;
+            font-style: normal;
+        }
+    </style>
+    <style meta="dropdown">
+        /* Existing styles here */
+
+        /* CSS-only Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block; /* Needed to contain the dropdown */
+        }
+
+        .dropdown > button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 5; /* Ensure dropdown is on top */
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {background-color: #ddd;}
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show the dropdown on hover */
+        }
+
+         /* Optional: Style the dropdown button when the dropdown is open */
+        .dropdown:hover > button {
+            background-color: #2980b9;
+        }
+    </style>
+    <style>
+        .photo-tile {
+            height: 210px;
+            width: 200px; /* Placeholder value */
+            max-width: 300px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3em;
+            overflow: hidden;
+            position: relative;
+            background-size: cover;
+            background-position: top;
+            display: inline-block;
+            z-index: 1;
+        }
+
+        .photo-tile.dragging {
+            transform: rotate(7deg) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .collection {
+            width: fit-content;
+            height: fit-content;
+            min-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 2em;
+            padding: 10px;
+            margin: 5px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+       .collection-group {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* CSS-only Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block; /* Needed to contain the dropdown */
+        }
+
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {background-color: #ddd;}
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show the dropdown on hover */
+        }
+
+         /* Optional: Style the dropdown button when the dropdown is open */
+        .dropdown:hover > button {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <h1><strong>А вот тут будут мощны сиське</strong></h1>
+
+    <div class="row">
+        <div class="col-md-6 left-panel">
+            <h2>Фото Слева: (<span id="total-count-left">0</span>)(<span id="total-size-left">0 MB</span>)</h2>
+
+            <!-- Выпадающее меню для загрузки -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button">
+                    Загрузка
+                </button>
+                <div class="dropdown-content">
+                    <!-- Загрузка файлов -->
+                    <form method="post" action="/upload" enctype="multipart/form-data">
+                        <div class="dropdown-item">
+                            <label for="file">Выберите файл:</label>
+                            <input type="file" class="form-control-file" id="file" name="file">
+                             <button type="submit" class="btn btn-primary btn-sm">Загрузить файл</button>
+                        </div>
+                    </form>
+
+                    <!-- Загрузка директории -->
+                    <form method="post" action="/upload_directory">
+                        <div class="dropdown-item">
+                            <label for="directory">Путь к директории:</label>
+                            <input type="text" class="form-control" id="directory" name="directory" required>
+                            <button type="submit" class="btn btn-primary btn-sm">Загрузить директорию</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+               <button class="btn btn-reld" onclick="location.reload()">Перезагрузить загруженное</button>
+
+            <!-- Контейнер для фото -->
+            <div id="photo-list">
+                <!-- Photos will be loaded here dynamically -->
+            </div>
+
+            <!-- Кнопки "Вперед" и "Назад" -->
+            <div>
+               <a href="/" class="btn btn-primary">&laquo; Назад</a>
+               <a href="/" class="btn btn-primary">Вперед &raquo;</a>
+            </div>
+        </div>
+
+        <div class="col-md-6 right-panel">
+            <h2>Фото Справа: (<span id="total-count-right">0</span>)(<span id="total-size-right">0 MB</span>)</h2>
+
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button">
+                    Коллекции
+                </button>
+                <div class="dropdown-content">
+                    <!-- Создание коллекции -->
+                    <form method="post" action="/create_collection">
+                        <div class="dropdown-item">
+                            <label for="collection_name">Название коллекции:</label>
+                            <input type="text" class="form-control" id="collection_name" name="collection_name" required>
+                        </div>
+
+                        <div class="dropdown-item">
+                            <label for="group_name">Группа:</label>
+                            <select class="form-control" id="group_name" name="group_name">
+                                <option value="">Без группы</option>
+                                <!--Collection groups will be loaded here dynamically-->
+                            </select>
+                        </div>
+                         <button type="submit" class="btn btn-primary btn-sm">Создать коллекцию</button>
+                    </form>
+
+                    <!-- Создание группы коллекций -->
+                    <form method="post" action="/create_collection_group">
+                        <div class="dropdown-item">
+                            <label for="group_name">Название группы:</label>
+                            <input type="text" class="form-control" id="group_name" name="group_name" required>
+                            <button type="submit" class="btn btn-primary btn-sm">Создать группу</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Collection Groups and Collections -->
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для коллекции -->
+<div id="collectionModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title"></h2>
+        <div id="modal-photos">
+        </div>
+        <button class="btn btn-danger" onclick="deleteCollection()">Удалить коллекцию</button>
+        <button class="btn btn-info" onclick="openCollectionFolder()">Открыть папку</button>
+    </div>
+</div>
+
+<script src="./index.js"></script>
+</body>
+</html>
