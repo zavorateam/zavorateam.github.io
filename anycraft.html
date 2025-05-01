@@ -25,6 +25,40 @@
     align-items: center;
     padding-bottom: 20px;
     background-color: rgba(0, 0, 0, 0.404);
+    /* Добавляем прокрутку */
+    max-height: 75vh;
+    overflow-y: auto;
+    /* Сглаживание прокрутки */
+    scroll-behavior: smooth;
+    /* Внутренние отступы для контента */
+    padding: 15px;
+    /* Граница с радиусом */
+    border-radius: 8px;
+  }
+
+  /* Стилизация полосы прокрутки для Webkit (Chrome, Safari, Opera) */
+  .cont::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cont::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  .cont::-webkit-scrollbar-thumb {
+    background: rgba(0, 194, 0, 0.5);
+    border-radius: 3px;
+  }
+
+  .cont::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 194, 0, 0.8);
+  }
+
+  /* Стилизация полосы прокрутки для Firefox */
+  .cont {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 194, 0, 0.5) rgba(0, 0, 0, 0.1);
   }
 
   h1 {
