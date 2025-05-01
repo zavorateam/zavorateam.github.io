@@ -1,268 +1,499 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Генератор CSS-анимаций</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f0f0f0;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .tool-section {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-top: 0;
-      color: #333;
-    }
-    .preview-box {
-      width: 100px;
-      height: 100px;
-      background: #4CAF50;
-      margin: 20px auto;
-      position: relative;
-    }
-    .controls {
-      display: grid;
-      gap: 10px;
-      margin: 20px 0;
-    }
-    .control-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #666;
-    }
-    select, input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    .code-output {
-      background: #f8f8f8;
-      padding: 10px;
-      border-radius: 4px;
-      font-family: monospace;
-      white-space: pre-wrap;
-      margin-top: 20px;
-    }
-    .keyframes {
-      margin-top: 20px;
-    }
-    .keyframe {
-      display: grid;
-      grid-template-columns: 50px 1fr 1fr;
-      gap: 10px;
-      margin: 10px 0;
-      padding: 10px;
-      background: #f5f5f5;
-      border-radius: 4px;
-    }
-    .add-keyframe {
-      text-align: center;
-      margin: 10px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор CSS-анимаций</title>
+    <link href="./common_styles.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .animation-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-area {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .control-panel {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .animation-target {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .keyframes-container {
+            margin-top: 15px;
+        }
+
+        .keyframe {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .keyframe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .remove-keyframe {
+            background: none;
+            border: none;
+            color: #ff3333;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .properties-container {
+            margin-top: 10px;
+        }
+
+        .property-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .add-property {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        .remove-property {
+            background: none;
+            border: none;
+            color: #ff3333;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .output-container {
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .css-output {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+
+        @media (max-width: 768px) {
+            .animation-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="tool-section">
-      <h2>Предпросмотр анимации</h2>
-      <div class="preview-box" id="previewBox"></div>
-      
-      <div class="controls">
-        <div class="control-group">
-          <div>
-            <label>Тип анимации</label>
-            <select id="animationType">
-              <option value="transform">Трансформация</option>
-              <option value="opacity">Прозрачность</option>
-              <option value="background">Цвет фона</option>
-              <option value="scale">Масштаб</option>
-              <option value="rotate">Вращение</option>
-            </select>
-          </div>
-          <div>
-            <label>Длительность (сек)</label>
-            <input type="number" id="duration" value="1" min="0.1" step="0.1">
-          </div>
-        </div>
+    <div class="cont">
+        <h1>Генератор CSS-анимаций</h1>
         
-        <div class="control-group">
-          <div>
-            <label>Задержка (сек)</label>
-            <input type="number" id="delay" value="0" min="0" step="0.1">
-          </div>
-          <div>
-            <label>Повторение</label>
-            <select id="iteration">
-              <option value="1">1 раз</option>
-              <option value="2">2 раза</option>
-              <option value="3">3 раза</option>
-              <option value="infinite">Бесконечно</option>
-            </select>
-          </div>
+        <div class="container">
+            <p>Создайте свою CSS-анимацию и получите готовый код</p>
+            
+            <div class="animation-panel">
+                <div class="preview-area">
+                    <div class="animation-target" id="animationTarget"></div>
+                </div>
+                
+                <div class="control-panel">
+                    <div class="form-group">
+                        <label for="animationName">Название анимации</label>
+                        <input type="text" id="animationName" value="myAnimation">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="animationDuration">Длительность (секунды)</label>
+                        <input type="number" id="animationDuration" min="0.1" step="0.1" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="animationTimingFunction">Функция времени</label>
+                        <select id="animationTimingFunction">
+                            <option value="linear">Линейная</option>
+                            <option value="ease" selected>Плавная</option>
+                            <option value="ease-in">Плавное начало</option>
+                            <option value="ease-out">Плавное окончание</option>
+                            <option value="ease-in-out">Плавное начало и окончание</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="animationIterationCount">Количество повторений</label>
+                        <select id="animationIterationCount">
+                            <option value="1">1 раз</option>
+                            <option value="2">2 раза</option>
+                            <option value="3">3 раза</option>
+                            <option value="infinite" selected>Бесконечно</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="animationDirection">Направление</label>
+                        <select id="animationDirection">
+                            <option value="normal">Нормальное</option>
+                            <option value="reverse">Обратное</option>
+                            <option value="alternate" selected>Чередование</option>
+                            <option value="alternate-reverse">Обратное чередование</option>
+                        </select>
+                    </div>
+                    
+                    <h3>Ключевые кадры</h3>
+                    <div id="keyframesContainer" class="keyframes-container">
+                        <!-- Ключевые кадры будут добавлены здесь -->
+                    </div>
+                    
+                    <button id="addKeyframeBtn" class="btn">Добавить ключевой кадр</button>
+                </div>
+            </div>
+            
+            <div class="output-container">
+                <h3>CSS код</h3>
+                <textarea id="cssOutput" class="css-output" readonly></textarea>
+                <button id="copyCodeBtn" class="btn">Копировать код</button>
+            </div>
         </div>
-        
-        <div class="control-group">
-          <div>
-            <label>Направление</label>
-            <select id="direction">
-              <option value="normal">Нормальное</option>
-              <option value="reverse">Обратное</option>
-              <option value="alternate">Чередующееся</option>
-              <option value="alternate-reverse">Чередующееся обратное</option>
-            </select>
-          </div>
-          <div>
-            <label>Функция времени</label>
-            <select id="timing">
-              <option value="linear">Линейная</option>
-              <option value="ease">Плавная</option>
-              <option value="ease-in">Ускорение</option>
-              <option value="ease-out">Замедление</option>
-              <option value="ease-in-out">Ускорение-замедление</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div class="keyframes">
-        <h3>Ключевые кадры</h3>
-        <div id="keyframesList">
-          <div class="keyframe">
-            <input type="number" value="0" min="0" max="100" class="keyframe-percent">%
-            <input type="text" class="keyframe-value" placeholder="Значение">
-            <button onclick="removeKeyframe(this)">Удалить</button>
-          </div>
-          <div class="keyframe">
-            <input type="number" value="100" min="0" max="100" class="keyframe-percent">%
-            <input type="text" class="keyframe-value" placeholder="Значение">
-            <button onclick="removeKeyframe(this)">Удалить</button>
-          </div>
-        </div>
-        <div class="add-keyframe">
-          <button onclick="addKeyframe()">Добавить ключевой кадр</button>
-        </div>
-      </div>
-      
-      <button onclick="generateAnimation()">Сгенерировать анимацию</button>
     </div>
 
-    <div class="tool-section">
-      <h2>CSS код</h2>
-      <div class="code-output" id="cssCode"></div>
-    </div>
-  </div>
-
-  <script>
-    const previewBox = document.getElementById('previewBox');
-    const keyframesList = document.getElementById('keyframesList');
-    const cssCode = document.getElementById('cssCode');
-
-    function addKeyframe() {
-      const keyframe = document.createElement('div');
-      keyframe.className = 'keyframe';
-      keyframe.innerHTML = `
-        <input type="number" value="50" min="0" max="100" class="keyframe-percent">%
-        <input type="text" class="keyframe-value" placeholder="Значение">
-        <button onclick="removeKeyframe(this)">Удалить</button>
-      `;
-      keyframesList.appendChild(keyframe);
-    }
-
-    function removeKeyframe(button) {
-      button.parentElement.remove();
-    }
-
-    function generateAnimation() {
-      const animationType = document.getElementById('animationType').value;
-      const duration = document.getElementById('duration').value;
-      const delay = document.getElementById('delay').value;
-      const iteration = document.getElementById('iteration').value;
-      const direction = document.getElementById('direction').value;
-      const timing = document.getElementById('timing').value;
-
-      // Собираем ключевые кадры
-      const keyframes = Array.from(keyframesList.children).map(frame => {
-        const percent = frame.querySelector('.keyframe-percent').value;
-        const value = frame.querySelector('.keyframe-value').value;
-        return `${percent}% { ${getProperty(animationType, value)} }`;
-      }).join('\n  ');
-
-      // Генерируем CSS код
-      const animationName = `animation-${Date.now()}`;
-      const css = `@keyframes ${animationName} {
-  ${keyframes}
-}
-
-.element {
-  animation: ${animationName} ${duration}s ${timing} ${delay}s ${iteration} ${direction};
-}`;
-
-      cssCode.textContent = css;
-
-      // Применяем анимацию к превью
-      previewBox.style.animation = `${animationName} ${duration}s ${timing} ${delay}s ${iteration} ${direction}`;
-    }
-
-    function getProperty(type, value) {
-      switch(type) {
-        case 'transform':
-          return `transform: ${value};`;
-        case 'opacity':
-          return `opacity: ${value};`;
-        case 'background':
-          return `background-color: ${value};`;
-        case 'scale':
-          return `transform: scale(${value});`;
-        case 'rotate':
-          return `transform: rotate(${value}deg);`;
-        default:
-          return '';
-      }
-    }
-
-    // Инициализация значений по умолчанию
-    document.querySelectorAll('.keyframe-value').forEach((input, index) => {
-      if (index === 0) {
-        input.value = 'translateX(0)';
-      } else {
-        input.value = 'translateX(100px)';
-      }
-    });
-
-    // Генерируем начальную анимацию
-    generateAnimation();
-  </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Основные элементы
+            const animationTarget = document.getElementById('animationTarget');
+            const keyframesContainer = document.getElementById('keyframesContainer');
+            const addKeyframeBtn = document.getElementById('addKeyframeBtn');
+            const cssOutput = document.getElementById('cssOutput');
+            const copyCodeBtn = document.getElementById('copyCodeBtn');
+            
+            // Элементы управления анимацией
+            const animationName = document.getElementById('animationName');
+            const animationDuration = document.getElementById('animationDuration');
+            const animationTimingFunction = document.getElementById('animationTimingFunction');
+            const animationIterationCount = document.getElementById('animationIterationCount');
+            const animationDirection = document.getElementById('animationDirection');
+            
+            // Массив для хранения данных ключевых кадров
+            let keyframes = [
+                { percentage: 0, properties: [{ name: 'transform', value: 'scale(1)' }] },
+                { percentage: 50, properties: [{ name: 'transform', value: 'scale(1.5)' }] },
+                { percentage: 100, properties: [{ name: 'transform', value: 'scale(1)' }] }
+            ];
+            
+            // Доступные CSS свойства для анимации
+            const availableProperties = [
+                'transform',
+                'opacity',
+                'background-color',
+                'width',
+                'height',
+                'border-radius',
+                'margin',
+                'padding',
+                'color',
+                'font-size',
+                'letter-spacing'
+            ];
+            
+            // Инициализация
+            renderKeyframes();
+            updateAnimation();
+            updateCSSOutput();
+            
+            // Обработчики событий
+            addKeyframeBtn.addEventListener('click', addKeyframe);
+            copyCodeBtn.addEventListener('click', copyCSS);
+            
+            animationName.addEventListener('input', updateAnimation);
+            animationDuration.addEventListener('input', updateAnimation);
+            animationTimingFunction.addEventListener('change', updateAnimation);
+            animationIterationCount.addEventListener('change', updateAnimation);
+            animationDirection.addEventListener('change', updateAnimation);
+            
+            // Функции
+            function renderKeyframes() {
+                keyframesContainer.innerHTML = '';
+                
+                keyframes.forEach((keyframe, index) => {
+                    const keyframeElement = document.createElement('div');
+                    keyframeElement.className = 'keyframe';
+                    
+                    // Заголовок ключевого кадра
+                    const keyframeHeader = document.createElement('div');
+                    keyframeHeader.className = 'keyframe-header';
+                    
+                    const percentageLabel = document.createElement('label');
+                    percentageLabel.textContent = 'Процент (%)';
+                    
+                    const percentageInput = document.createElement('input');
+                    percentageInput.type = 'number';
+                    percentageInput.min = 0;
+                    percentageInput.max = 100;
+                    percentageInput.value = keyframe.percentage;
+                    percentageInput.addEventListener('input', (e) => {
+                        keyframe.percentage = parseInt(e.target.value);
+                        updateAnimation();
+                        updateCSSOutput();
+                    });
+                    
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'remove-keyframe';
+                    removeButton.textContent = '✕';
+                    removeButton.addEventListener('click', () => {
+                        if (keyframes.length > 2) {
+                            keyframes.splice(index, 1);
+                            renderKeyframes();
+                            updateAnimation();
+                            updateCSSOutput();
+                        } else {
+                            alert('Минимум 2 ключевых кадра требуется для анимации');
+                        }
+                    });
+                    
+                    keyframeHeader.appendChild(percentageLabel);
+                    keyframeHeader.appendChild(percentageInput);
+                    keyframeHeader.appendChild(removeButton);
+                    keyframeElement.appendChild(keyframeHeader);
+                    
+                    // Контейнер для свойств
+                    const propertiesContainer = document.createElement('div');
+                    propertiesContainer.className = 'properties-container';
+                    
+                    // Отображение свойств
+                    keyframe.properties.forEach((property, propIndex) => {
+                        const propertyRow = createPropertyRow(keyframe, property, propIndex);
+                        propertiesContainer.appendChild(propertyRow);
+                    });
+                    
+                    // Кнопка добавления свойства
+                    const addPropertyBtn = document.createElement('button');
+                    addPropertyBtn.className = 'add-property';
+                    addPropertyBtn.textContent = '+ Добавить свойство';
+                    addPropertyBtn.addEventListener('click', () => {
+                        keyframe.properties.push({ name: 'opacity', value: '1' });
+                        renderKeyframes();
+                        updateAnimation();
+                        updateCSSOutput();
+                    });
+                    
+                    propertiesContainer.appendChild(addPropertyBtn);
+                    keyframeElement.appendChild(propertiesContainer);
+                    
+                    keyframesContainer.appendChild(keyframeElement);
+                });
+            }
+            
+            function createPropertyRow(keyframe, property, propIndex) {
+                const row = document.createElement('div');
+                row.className = 'property-row';
+                
+                // Выбор свойства
+                const propertySelect = document.createElement('select');
+                availableProperties.forEach(propName => {
+                    const option = document.createElement('option');
+                    option.value = propName;
+                    option.textContent = propName;
+                    propertySelect.appendChild(option);
+                });
+                propertySelect.value = property.name;
+                propertySelect.addEventListener('change', (e) => {
+                    property.name = e.target.value;
+                    updateAnimation();
+                    updateCSSOutput();
+                });
+                
+                // Значение свойства
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.value = property.value;
+                valueInput.addEventListener('input', (e) => {
+                    property.value = e.target.value;
+                    updateAnimation();
+                    updateCSSOutput();
+                });
+                
+                // Кнопка удаления свойства
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-property';
+                removeButton.textContent = '✕';
+                removeButton.addEventListener('click', () => {
+                    if (keyframe.properties.length > 1) {
+                        keyframe.properties.splice(propIndex, 1);
+                        renderKeyframes();
+                        updateAnimation();
+                        updateCSSOutput();
+                    } else {
+                        alert('Требуется хотя бы одно свойство для каждого ключевого кадра');
+                    }
+                });
+                
+                row.appendChild(propertySelect);
+                row.appendChild(valueInput);
+                row.appendChild(removeButton);
+                
+                return row;
+            }
+            
+            function addKeyframe() {
+                const newPercentage = keyframes.length === 0 ? 0 : 
+                    keyframes[keyframes.length - 1].percentage < 100 ? 
+                    keyframes[keyframes.length - 1].percentage + 25 : 
+                    (keyframes[keyframes.length - 2].percentage + keyframes[keyframes.length - 1].percentage) / 2;
+                
+                keyframes.push({
+                    percentage: Math.min(100, newPercentage),
+                    properties: [{ name: 'transform', value: 'scale(1)' }]
+                });
+                
+                // Сортировка ключевых кадров по проценту
+                keyframes.sort((a, b) => a.percentage - b.percentage);
+                
+                renderKeyframes();
+                updateAnimation();
+                updateCSSOutput();
+            }
+            
+            function updateAnimation() {
+                // Создаем стиль для анимации
+                const name = animationName.value || 'myAnimation';
+                const duration = animationDuration.value + 's';
+                const timingFunction = animationTimingFunction.value;
+                const iterationCount = animationIterationCount.value;
+                const direction = animationDirection.value;
+                
+                // Применяем анимацию к элементу
+                animationTarget.style.animation = `${name} ${duration} ${timingFunction} ${iterationCount} ${direction}`;
+                
+                // Создаем и добавляем стиль @keyframes
+                updateKeyframesStyle(name);
+            }
+            
+            function updateKeyframesStyle(name) {
+                // Удаляем старый стиль, если есть
+                const oldStyle = document.getElementById('keyframesStyle');
+                if (oldStyle) {
+                    oldStyle.remove();
+                }
+                
+                // Создаем новый стиль
+                const styleElement = document.createElement('style');
+                styleElement.id = 'keyframesStyle';
+                
+                let keyframesCSS = `@keyframes ${name} {\n`;
+                
+                // Добавляем каждый ключевой кадр
+                keyframes.forEach(keyframe => {
+                    keyframesCSS += `  ${keyframe.percentage}% {\n`;
+                    
+                    // Добавляем свойства
+                    keyframe.properties.forEach(property => {
+                        keyframesCSS += `    ${property.name}: ${property.value};\n`;
+                    });
+                    
+                    keyframesCSS += `  }\n`;
+                });
+                
+                keyframesCSS += `}`;
+                
+                styleElement.textContent = keyframesCSS;
+                document.head.appendChild(styleElement);
+            }
+            
+            function updateCSSOutput() {
+                const name = animationName.value || 'myAnimation';
+                const duration = animationDuration.value + 's';
+                const timingFunction = animationTimingFunction.value;
+                const iterationCount = animationIterationCount.value;
+                const direction = animationDirection.value;
+                
+                let css = `.element {\n`;
+                css += `  animation: ${name} ${duration} ${timingFunction} ${iterationCount} ${direction};\n`;
+                css += `}\n\n`;
+                
+                css += `@keyframes ${name} {\n`;
+                
+                // Добавляем каждый ключевой кадр
+                keyframes.forEach(keyframe => {
+                    css += `  ${keyframe.percentage}% {\n`;
+                    
+                    // Добавляем свойства
+                    keyframe.properties.forEach(property => {
+                        css += `    ${property.name}: ${property.value};\n`;
+                    });
+                    
+                    css += `  }\n`;
+                });
+                
+                css += `}`;
+                
+                cssOutput.value = css;
+            }
+            
+            function copyCSS() {
+                cssOutput.select();
+                document.execCommand('copy');
+                
+                // Визуальная обратная связь
+                const originalText = copyCodeBtn.textContent;
+                copyCodeBtn.textContent = 'Скопировано!';
+                setTimeout(() => {
+                    copyCodeBtn.textContent = originalText;
+                }, 1500);
+            }
+        });
+    </script>
 </body>
 </html> 
