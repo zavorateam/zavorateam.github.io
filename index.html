@@ -1,128 +1,42 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Zavorateam Projects</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/websites/index_files/logo%201.svg">
-  <link href="./index_files/all.css" rel="stylesheet">
-  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
+  <meta http-equiv="refresh" content="0; url=./templates/index.html">
   <link href="./common_styles.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-
-<style>
-  .cont {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 400px;
-    width: auto;
-    top: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 20px;
-    background-color: rgba(0, 0, 0, 0.404);
-  }
-  
-  h1 {
-    color: white;
-  }
-
-  body {
-    background-color: rgb(100, 100, 100);
-  }
-
-  span {
-    cursor: pointer;
-    display: block;
-    width: 200px;
-    padding: 10px;
-    margin: 5px;
-    background-color: rgb(0, 194, 0);
-    text-align: center;
-    font-weight: bold;
-  }
-
-  span:hover {
-    background-color: rgb(0, 155, 0);
-  }
-
-  .btn {
-    color: rgb(0, 0, 0);
-  }
-
-  a{
-    color:rgb(240, 240, 240);
-    padding: 0px;
-  }
-
-  h2{
-    color: white;
-    font-family: YS Text;
-  }
-</style></head>
-<body style="background-color:rgb(100,100,100)">
-  <div class="cont">
-    <h1>zavorateam.github.io</h1>
-    <h2>Главная страница</h2>
-    <span><a class="btn" href="./mod.html">BezmatMOD ZavoraMOD</a></span>
-    <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
-    <span><a class="btn" href="./anycraft.html">Форматтер/Эникрафт</a></span>
-    <span><a class="btn" href="./accums.html">Аккумуляторы</a></span>
-    <span><a class="btn" href="./menu.html">Обучалка</a></span>
-    <span><a class="btn" href="./readme.html">Документация</a></span>
-    <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+  <style>
+    body {
+      font-family: "YSMusic Headline", sans-serif;
+      background-color: rgb(100, 100, 100);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .message {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.404);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    a {
+      color: rgb(0, 194, 0);
+      text-decoration: none;
+    }
+    a:hover {
+      color: rgb(0, 155, 0);
+    }
+  </style>
+</head>
+<body>
+  <div class="message">
+    <h1>Перенаправление на новую версию сайта...</h1>
+    <p>Если вы не были автоматически перенаправлены, <a href="./templates/index.html">нажмите здесь</a>.</p>
   </div>
-  <script>
-    let boxes = [];
-    let bsize = 40;
-    let amx, amy;
-    function setup() {
-      createCanvas(windowWidth, windowHeight, WEBGL);
-      stroke(0, 0, 0, 200);
-      strokeWeight(0.5);
-
-      rectMode(CENTER);
-      ortho(-width / 2, width / 2, -height / 2, height / 2, 10, 2000);
-      amx = Math.ceil(width / bsize + 1);
-      amy = Math.ceil(height / bsize + 1)
-      boxes = new Array(amx * amy).fill(400);
-      fill(110);
-    }
-
-    function draw() {
-      //orbitControl();
-      background(100);
-      directionalLight(255, 255, 255, -PI * 0.3, PI * 0.3, -PI * 0.6);
-      translate(0, -10, 250);
-      rotateX(-0.2);
-      rotateY(0.2);
-
-      for (let x = 0; x < width + bsize; x += bsize) {
-        for (let y = 0; y < height + bsize; y += bsize) {
-
-          let h = noise(frameCount * 0.01, x / width * 10, y / height * 10) * 10 * 25;
-          /*let xx = x/bsize;
-          let yy = y/bsize;
-          h = 400 + 200 * sin(sqrt(xx*xx+yy*yy)/1 + frameCount*0.03);*/
-
-          let offs = -35;
-          if (mouseX + offs >= x - bsize / 2 && mouseX + offs <= x + bsize / 2 &&
-            mouseY + offs >= y - bsize / 2 && mouseY + offs <= y + bsize / 2) {
-            h = 400;
-          }
-          let idx = Math.round(x / bsize + (width / bsize) * (y / bsize));
-          let k = boxes[idx] < h ? 0.4 : 0.02;
-          boxes[idx] += (h - boxes[idx]) * k;
-          push();
-          translate(-width / 2 + x, -height / 2 + y);
-          box(bsize, bsize, boxes[idx]);
-          pop();
-        }
-      }
-    }
-  </script>
-  <main></main>
-</body></html>
+</body>
+</html>
