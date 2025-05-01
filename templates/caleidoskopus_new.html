@@ -141,7 +141,7 @@
             bottom: 4rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 300px;
+            width: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -149,7 +149,7 @@
             border-radius: 15px;
             padding: 1rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            z-index: 1;
+            z-index: 2;
             transition: all 0.3s ease;
         }
 
@@ -445,6 +445,139 @@
         .container, .controls, footer {
             transition: opacity 0.5s ease;
         }
+
+        .changemode_ {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .changemode {
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text);
+        }
+
+        .changemode:hover, .changemode.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            padding: 2rem 1rem;
+            transition: right 0.3s ease;
+            z-index: 3;
+            overflow-y: auto;
+        }
+
+        .settings-panel.active {
+            right: 0;
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 4;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .settings-toggle img {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-toggle.active img {
+            transform: rotate(180deg);
+        }
+
+        .settings-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-group h3 {
+            margin: 0 0 1rem 0;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .control-row label {
+            min-width: 100px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 200px;
+        }
+
+        .slider {
+            width: 150px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        .value-display {
+            min-width: 30px;
+            text-align: center;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
@@ -505,20 +638,6 @@
                     <span>Скачать PNG</span>
                 </div>
             </div>
-            <div class="reload-controls">
-                <label for="reloadInterval">Перезагрузка (сек):</label>
-                <input type="range" id="reloadInterval" min="2" max="120" value="25" class="reload-slider">
-                <span id="reloadValue">25</span>
-            </div>
-            <div class="speed-controls">
-                <label for="speedControl">Скорость:</label>
-                <input type="range" id="speedControl" min="0.1" max="5" step="0.1" value="1" class="speed-slider">
-                <span id="speedValue">1.0</span>
-            </div>
-            <div class="color-controls">
-                <label for="baseColor">Цвет:</label>
-                <input type="color" id="baseColor" class="color-picker" value="#ff0000">
-            </div>
         </div>
     </div>
 
@@ -526,6 +645,44 @@
     <button class="toggle-controls" title="Скрыть/показать панель управления">
         <img src="../caleidoskopus_files/ico-02.svg" alt="">
     </button>
+
+    <button class="settings-toggle" title="Настройки">
+        <img src="../caleidoskopus_files/ico-02.svg" alt="">
+    </button>
+
+    <div class="settings-panel">
+        <div class="settings-group">
+            <h3>Основные настройки</h3>
+            <div class="control-row">
+                <label for="speedControl">Скорость:</label>
+                <div class="slider-container">
+                    <input type="range" id="speedControl" min="0.1" max="5" step="0.1" value="1" class="slider">
+                    <span class="value-display" id="speedValue">1.0</span>
+                </div>
+            </div>
+            <div class="control-row">
+                <label for="colorSpeed">Скорость смены цвета:</label>
+                <div class="slider-container">
+                    <input type="range" id="colorSpeed" min="0.1" max="2" step="0.1" value="1" class="slider">
+                    <span class="value-display" id="colorSpeedValue">1.0</span>
+                </div>
+            </div>
+            <div class="control-row">
+                <label for="baseColor">Базовый цвет:</label>
+                <input type="color" id="baseColor" class="color-picker" value="#ff0000">
+            </div>
+        </div>
+        <div class="settings-group">
+            <h3>Дополнительные настройки</h3>
+            <div class="control-row">
+                <label for="reloadInterval">Перезагрузка (сек):</label>
+                <div class="slider-container">
+                    <input type="range" id="reloadInterval" min="2" max="120" value="25" class="slider">
+                    <span class="value-display" id="reloadValue">25</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="desktop">
         <div class="footer-copy">
@@ -946,19 +1103,20 @@
                 for (let i = 0; i < this.particles.length; i++) {
                     const color = this.particleColors[i];
                     
-                    // Используем базовый цвет как отправную точку
-                    const targetR = baseRGB.r + Math.random() * 100 - 50;
-                    const targetG = baseRGB.g + Math.random() * 100 - 50;
-                    const targetB = baseRGB.b + Math.random() * 100 - 50;
+                    // Увеличиваем диапазон изменения цветов для большей насыщенности
+                    const targetR = baseRGB.r + Math.random() * 150 - 75;
+                    const targetG = baseRGB.g + Math.random() * 150 - 75;
+                    const targetB = baseRGB.b + Math.random() * 150 - 75;
                     
-                    color.current.r += (targetR - color.current.r) * 0.0005;
-                    color.current.g += (targetG - color.current.g) * 0.0005;
-                    color.current.b += (targetB - color.current.b) * 0.0005;
+                    const speed = 0.0005 * colorChangeSpeed;
+                    color.current.r += (targetR - color.current.r) * speed;
+                    color.current.g += (targetG - color.current.g) * speed;
+                    color.current.b += (targetB - color.current.b) * speed;
                     
-                    // Ограничиваем значения RGB
-                    color.current.r = Math.max(0, Math.min(255, color.current.r));
-                    color.current.g = Math.max(0, Math.min(255, color.current.g));
-                    color.current.b = Math.max(0, Math.min(255, color.current.b));
+                    // Ограничиваем значения RGB для более насыщенных цветов
+                    color.current.r = Math.max(50, Math.min(255, color.current.r));
+                    color.current.g = Math.max(50, Math.min(255, color.current.g));
+                    color.current.b = Math.max(50, Math.min(255, color.current.b));
                     
                     colors.push((Math.floor(color.current.r) << 16) | 
                                (Math.floor(color.current.g) << 8) | 
@@ -1066,7 +1224,7 @@
             
             drawPolygon(color) {
                 this.graphics.lineStyle(0);
-                this.graphics.beginFill(color, 0.3); // Уменьшим прозрачность для более мягкого эффекта
+                this.graphics.beginFill(color, 0.7); // Увеличиваем непрозрачность с 0.3 до 0.7
                 this.graphics.moveTo(this.particles[0].x, this.particles[0].y);
                 
                 for (let i = 1; i < this.particles.length; i++) {
@@ -1080,7 +1238,7 @@
             drawTriangles(colors) {
                 for (let i = 0; i < this.particles.length - 2; i += 3) {
                     this.graphics.lineStyle(0);
-                    this.graphics.beginFill(colors[i], 0.3); // Уменьшим прозрачность
+                    this.graphics.beginFill(colors[i], 0.7); // Увеличиваем непрозрачность с 0.3 до 0.7
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[i + 1].x, this.particles[i + 1].y);
                     this.graphics.lineTo(this.particles[i + 2].x, this.particles[i + 2].y);
@@ -1092,7 +1250,7 @@
             drawLines(colors) {
                 for (let i = 0; i < this.particles.length; i++) {
                     const nextIndex = (i + 1) % this.particles.length;
-                    this.graphics.lineStyle(1, colors[i], 0.5); // Уменьшим толщину и прозрачность линий
+                    this.graphics.lineStyle(2, colors[i], 0.7); // Увеличиваем толщину линии с 1 до 2 и непрозрачность с 0.5 до 0.7
                     this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
                     this.graphics.lineTo(this.particles[nextIndex].x, this.particles[nextIndex].y);
                 }
@@ -1176,6 +1334,22 @@
 
         colorPicker.addEventListener('input', (e) => {
             baseColor = e.target.value;
+        });
+
+        const settingsPanel = document.querySelector('.settings-panel');
+        const settingsToggle = document.querySelector('.settings-toggle');
+        const colorSpeedControl = document.getElementById('colorSpeed');
+        const colorSpeedValue = document.getElementById('colorSpeedValue');
+        let colorChangeSpeed = 1;
+
+        settingsToggle.addEventListener('click', () => {
+            settingsPanel.classList.toggle('active');
+            settingsToggle.classList.toggle('active');
+        });
+
+        colorSpeedControl.addEventListener('input', (e) => {
+            colorChangeSpeed = parseFloat(e.target.value);
+            colorSpeedValue.textContent = colorChangeSpeed.toFixed(1);
         });
     </script>
 </body>
