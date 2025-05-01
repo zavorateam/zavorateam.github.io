@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Проверка битых ссылок</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    .input-area {
+      margin: 20px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    .link-item {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .link-item.good {
+      background: #e8f5e9;
+    }
+    .link-item.bad {
+      background: #ffebee;
+    }
+    .link-item.loading {
+      background: #e3f2fd;
+    }
+    .status {
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .status.good {
+      background: #4CAF50;
+      color: white;
+    }
+    .status.bad {
+      background: #f44336;
+      color: white;
+    }
+    .status.loading {
+      background: #2196F3;
+      color: white;
+    }
+    .progress {
+      margin: 20px 0;
+      height: 20px;
+      background: #f5f5f5;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #4CAF50;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .stats {
+      margin: 20px 0;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Проверка битых ссылок</h1>
+    
+    <div class="input-area">
+      <textarea id="urls" placeholder="Введите URL-адреса для проверки (каждый с новой строки)"></textarea>
+      <button onclick="startChecking()" id="checkButton">Начать проверку</button>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="stats" id="stats">
+      Всего ссылок: 0 | Рабочих: 0 | Битых: 0 | В процессе: 0
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    const urlsTextarea = document.getElementById('urls');
+    const checkButton = document.getElementById('checkButton');
+    const progressBar = document.getElementById('progressBar');
+    const resultsDiv = document.getElementById('results');
+    const statsDiv = document.getElementById('stats');
+
+    let totalLinks = 0;
+    let checkedLinks = 0;
+    let workingLinks = 0;
+    let brokenLinks = 0;
+
+    function startChecking() {
+      const urls = urlsTextarea.value.split('\n').filter(url => url.trim());
+      if (urls.length === 0) {
+        alert('Пожалуйста, введите хотя бы один URL');
+        return;
+      }
+
+      // Сброс статистики
+      totalLinks = urls.length;
+      checkedLinks = 0;
+      workingLinks = 0;
+      brokenLinks = 0;
+      resultsDiv.innerHTML = '';
+      updateStats();
+      checkButton.disabled = true;
+
+      // Проверка каждой ссылки
+      urls.forEach((url, index) => {
+        checkLink(url.trim(), index);
+      });
+    }
+
+    function checkLink(url, index) {
+      const linkItem = document.createElement('div');
+      linkItem.className = 'link-item loading';
+      linkItem.innerHTML = `
+        <span>${url}</span>
+        <span class="status loading">Проверка...</span>
+      `;
+      resultsDiv.appendChild(linkItem);
+
+      // Используем CORS прокси для обхода ограничений
+      const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+      
+      fetch(proxyUrl, {
+        method: 'HEAD',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        checkedLinks++;
+        if (response.ok) {
+          workingLinks++;
+          linkItem.className = 'link-item good';
+          linkItem.querySelector('.status').className = 'status good';
+          linkItem.querySelector('.status').textContent = 'OK';
+        } else {
+          brokenLinks++;
+          linkItem.className = 'link-item bad';
+          linkItem.querySelector('.status').className = 'status bad';
+          linkItem.querySelector('.status').textContent = `Ошибка ${response.status}`;
+        }
+        updateProgress();
+      })
+      .catch(error => {
+        checkedLinks++;
+        brokenLinks++;
+        linkItem.className = 'link-item bad';
+        linkItem.querySelector('.status').className = 'status bad';
+        linkItem.querySelector('.status').textContent = 'Ошибка';
+        updateProgress();
+      });
+    }
+
+    function updateProgress() {
+      const progress = (checkedLinks / totalLinks) * 100;
+      progressBar.style.width = `${progress}%`;
+      updateStats();
+
+      if (checkedLinks === totalLinks) {
+        checkButton.disabled = false;
+      }
+    }
+
+    function updateStats() {
+      statsDiv.textContent = `Всего ссылок: ${totalLinks} | Рабочих: ${workingLinks} | Битых: ${brokenLinks} | В процессе: ${totalLinks - checkedLinks}`;
+    }
+  </script>
+</body>
+</html> 

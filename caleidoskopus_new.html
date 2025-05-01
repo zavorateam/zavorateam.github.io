@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Калидоскопод</title>
+    <style>
+        :root {
+            --primary: #155799;
+            --secondary: #159957;
+            --text: #2c3e50;
+            --bg-light: #ffffff;
+            --bg-dark: #1e1e21;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg-dark: rgba(43, 43, 45, 0.9);
+            --body-bg: #f8f9fa;
+            --body-bg-dark: #121212;
+        }
+        
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background: var(--body-bg);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        body.dark-mode {
+            --text: #bebebe;
+            --bg-light: #2b2b2d;
+            --card-bg: var(--card-bg-dark);
+            --body-bg: var(--body-bg-dark);
+            color: var(--text);
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin-top: 10px;
+            color: var(--text);
+        }
+
+        .start-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .upload-section {
+            display: none;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 600px;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(21, 87, 153, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .app {
+            display: none;
+            text-align: center;
+            margin: 0 auto;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 4rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .changemode_ {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .changemode {
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .changemode:hover, .changemode.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .controls-drawing {
+            margin-top: 10px;
+        }
+
+        .download {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-drawing_ {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls-drawing_:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .controls-drawing_ img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0.8);
+        }
+
+        .controls-drawing_:hover img {
+            filter: brightness(2);
+        }
+
+        .p.j {
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .p.j:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            height: 1%;
+            background: var(--card-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            color: var(--text);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-info, .footer-copy {
+            font-size: 0.85rem;
+        }
+
+        .footer-info-share {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-info-share a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .footer-info-share a:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .footer-info-share img {
+            width: 16px;
+            height: 16px;
+            filter: brightness(0.8);
+        }
+
+        .footer-info-share a:hover img {
+            filter: brightness(2);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary);
+        }
+
+        .white {
+            color: var(--text);
+        }
+
+        .mobile {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .desktop {
+                display: none;
+            }
+
+            .mobile {
+                display: block;
+            }
+
+            .controls {
+                width: 90%;
+                bottom: 5rem;
+            }
+
+            .theme-toggle {
+                bottom: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .pause-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .pause-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pause-overlay span {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <canvas class="view"></canvas>
+
+    <div class="container">
+        <header class="header">
+            <h1>Калидоскопод</h1>
+            <p>Превращает звук в иллюстрации</p>
+        </header>
+
+        <div class="start-section" id="startSection">
+            <button class="btn start_btn">Начать</button>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <h2>Загрузите аудиофайл</h2>
+            <div class="upload-area" id="uploadArea">
+                <p>Перетащите аудиофайл сюда или нажмите для выбора файла</p>
+                <p><small>Поддерживаемые форматы: MP3, WAV, FLAC</small></p>
+                <input type="file" id="fileInput" accept=".mp3,.wav,.flac" class="hidden">
+            </div>
+        </div>
+    </div>
+
+    <div class="app">
+        <div class="pause-overlay" id="pauseOverlay">
+            <span>ПАУЗА</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="changemode_">
+            <div class="changemode active" data-mode="poly">
+                <span>Заливкой</span>
+            </div>
+            <div class="changemode" data-mode="triangles">
+                <span>Треугольниками</span>
+            </div>
+            <div class="changemode" data-mode="lines">
+                <span>Линиями</span>
+            </div>
+        </div>
+        <div class="controls-drawing">
+            <div class="download">
+                <div class="p l g controls-drawing_ controls-drawing_pause">
+                    <img class="play" src="./caleidoskopus_files/pause.svg" alt="">
+                    <img class="pause hidden" src="./caleidoskopus_files/p-02.svg" alt="">
+                </div>
+                <div class="p l g controls-drawing_ controls-drawing_refresh">
+                    <img src="./caleidoskopus_files/ico-02.svg" alt="">
+                </div>
+                <div class="p j download_svg">
+                    <span>Скачать SVG</span>
+                </div>
+                <div class="p j download_png">
+                    <span>Скачать PNG</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
+
+    <footer class="desktop">
+        <div class="footer-copy">
+            <p>тут лебедев <a href="https://www.artlebedev.ru/kaleidoskopus/" class="white">сделал круто</a></p>
+        </div>
+
+        <div class="footer-info">
+        </div>
+    </footer>
+    
+    <footer class="mobile">
+        <div class="footer-copy">
+            <p>Тут лебедев <a href="https://www.artlebedev.ru/kaleidoskopus/" class="white">сделал круто</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"></script>
+    <script>
+        // Переключение темы
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+
+        // Проверка сохраненной темы
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+        }
+
+        // Глобальные переменные
+        let app, visualizer, audioContext, analyser, audioSource, audioBuffer;
+        let animationMode = 'poly';
+        let isPaused = false;
+        let animationFrameId;
+        
+        // Элементы интерфейса
+        const startBtn = document.querySelector('.start_btn');
+        const startSection = document.getElementById('startSection');
+        const uploadSection = document.getElementById('uploadSection');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const appContainer = document.querySelector('.app');
+        const pauseBtn = document.querySelector('.controls-drawing_pause');
+        const refreshBtn = document.querySelector('.controls-drawing_refresh');
+        const downloadSvgBtn = document.querySelector('.download_svg');
+        const downloadPngBtn = document.querySelector('.download_png');
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const modeBtns = document.querySelectorAll('.changemode');
+
+        // Обработчики событий
+        startBtn.addEventListener('click', startApp);
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            const file = e.dataTransfer.files[0];
+            if (file && isAudioFile(file)) {
+                handleAudioFile(file);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleAudioFile(file);
+            }
+        });
+
+        pauseBtn.addEventListener('click', togglePause);
+        refreshBtn.addEventListener('click', resetVisualizer);
+        downloadSvgBtn.addEventListener('click', downloadSVG);
+        downloadPngBtn.addEventListener('click', downloadPNG);
+
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                animationMode = btn.getAttribute('data-mode');
+                if (visualizer) {
+                    visualizer.changeMode(animationMode);
+                }
+            });
+        });
+
+        function startApp() {
+            startSection.style.display = 'none';
+            uploadSection.style.display = 'block';
+        }
+
+        function isAudioFile(file) {
+            const acceptedTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/flac'];
+            return acceptedTypes.includes(file.type) || 
+                file.name.endsWith('.mp3') || 
+                file.name.endsWith('.wav') || 
+                file.name.endsWith('.flac');
+        }
+
+        function handleAudioFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setupAudioContext(e.target.result);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function setupAudioContext(arrayBuffer) {
+            // Инициализируем WebAudio API
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            
+            // Декодируем аудиофайл
+            audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+                audioBuffer = buffer;
+                
+                // Скрываем загрузчик и показываем интерфейс
+                uploadSection.style.display = 'none';
+                appContainer.style.display = 'block';
+                document.querySelector('.controls').style.display = 'flex';
+                
+                // Инициализируем визуализатор
+                initVisualizer();
+                
+                // Запускаем аудио
+                playAudio();
+            });
+        }
+
+        function playAudio() {
+            if (audioSource) {
+                audioSource.disconnect();
+            }
+            
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            audioSource.loop = true;
+            audioSource.start(0);
+            
+            isPaused = false;
+            pauseBtn.classList.remove('paused');
+            pauseOverlay.classList.remove('active');
+            document.querySelector('.play').classList.remove('hidden');
+            document.querySelector('.pause').classList.add('hidden');
+            
+            // Запускаем анимацию
+            animate();
+        }
+
+        function initVisualizer() {
+            // Инициализируем PIXI.js
+            const view = document.querySelector('.view');
+            app = new PIXI.Application({
+                view: view,
+                width: window.innerWidth,
+                height: window.innerHeight,
+                backgroundColor: 0x777777,
+                resolution: window.devicePixelRatio || 1
+            });
+            
+            // Создаем визуализатор
+            visualizer = new Visualizer(app, analyser, animationMode);
+            
+            // Обработчик изменения размера окна
+            window.addEventListener('resize', () => {
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                visualizer.resize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function animate() {
+            if (!isPaused) {
+                visualizer.update();
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                pauseBtn.classList.add('paused');
+                pauseOverlay.classList.add('active');
+                document.querySelector('.play').classList.add('hidden');
+                document.querySelector('.pause').classList.remove('hidden');
+                audioContext.suspend();
+                cancelAnimationFrame(animationFrameId);
+            } else {
+                pauseBtn.classList.remove('paused');
+                pauseOverlay.classList.remove('active');
+                document.querySelector('.play').classList.remove('hidden');
+                document.querySelector('.pause').classList.add('hidden');
+                audioContext.resume();
+                animate();
+            }
+        }
+
+        function resetVisualizer() {
+            if (visualizer) {
+                visualizer.reset();
+            }
+        }
+
+        function downloadSVG() {
+            if (visualizer) {
+                const svgString = visualizer.getSVG();
+                const blob = new Blob([svgString], {type: 'image/svg+xml'});
+                saveAs(blob, 'kaleidoskopus.svg');
+            }
+        }
+
+        function downloadPNG() {
+            if (app) {
+                app.renderer.extract.canvas(app.stage).toBlob((blob) => {
+                    saveAs(blob, 'kaleidoskopus.png');
+                });
+            }
+        }
+
+        // Визуализатор
+        class Visualizer {
+            constructor(app, analyser, mode) {
+                this.app = app;
+                this.analyser = analyser;
+                this.mode = mode;
+                this.width = app.renderer.width;
+                this.height = app.renderer.height;
+                
+                this.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                this.particles = [];
+                this.lines = [];
+                this.triangles = [];
+                this.colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF];
+                
+                this.container = new PIXI.Container();
+                this.app.stage.addChild(this.container);
+                
+                this.graphics = new PIXI.Graphics();
+                this.container.addChild(this.graphics);
+                
+                this.center = {
+                    x: this.width / 2,
+                    y: this.height / 2
+                };
+                
+                this.generateParticles();
+            }
+            
+            generateParticles() {
+                const count = 120; // Количество частиц
+                
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2;
+                    const distance = Math.random() * 100 + 50;
+                    
+                    this.particles.push({
+                        x: this.center.x + Math.cos(angle) * distance,
+                        y: this.center.y + Math.sin(angle) * distance,
+                        angle: angle,
+                        speed: Math.random() * 0.01 + 0.005,
+                        distance: distance,
+                        originalDistance: distance,
+                        color: this.colors[Math.floor(Math.random() * this.colors.length)]
+                    });
+                }
+            }
+            
+
+            update() {
+                // Получаем данные из аудио
+                this.analyser.getByteFrequencyData(this.dataArray);
+                
+                // Обновляем частицы
+                for (let i = 0; i < this.particles.length; i++) {
+                    const particle = this.particles[i];
+                    const frequencyIndex = Math.floor(i / this.particles.length * this.dataArray.length);
+                    const frequencyValue = this.dataArray[frequencyIndex];
+                    
+                    particle.distance = particle.originalDistance + frequencyValue;
+                    particle.angle += particle.speed;
+                    
+                    particle.x = this.center.x + Math.cos(particle.angle) * particle.distance;
+                    particle.y = this.center.y + Math.sin(particle.angle) * particle.distance;
+                }
+                
+                // Рисуем в зависимости от выбранного режима
+                this.draw();
+            }
+            
+            draw() {
+                this.graphics.clear();
+                
+                if (this.mode === 'poly') {
+                    this.drawPolygon();
+                } else if (this.mode === 'triangles') {
+                    this.drawTriangles();
+                } else if (this.mode === 'lines') {
+                    this.drawLines();
+                }
+            }
+            
+            drawPolygon() {
+                this.graphics.lineStyle(0);
+                this.graphics.beginFill(this.particles[0].color, 0.5);
+                this.graphics.moveTo(this.particles[0].x, this.particles[0].y);
+                
+                for (let i = 1; i < this.particles.length; i++) {
+                    this.graphics.lineTo(this.particles[i].x, this.particles[i].y);
+                }
+                
+                this.graphics.lineTo(this.particles[0].x, this.particles[0].y);
+                this.graphics.endFill();
+            }
+            
+            drawTriangles() {
+                for (let i = 0; i < this.particles.length - 2; i += 3) {
+                    this.graphics.lineStyle(0);
+                    this.graphics.beginFill(this.particles[i].color, 0.5);
+                    this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
+                    this.graphics.lineTo(this.particles[i + 1].x, this.particles[i + 1].y);
+                    this.graphics.lineTo(this.particles[i + 2].x, this.particles[i + 2].y);
+                    this.graphics.lineTo(this.particles[i].x, this.particles[i].y);
+                    this.graphics.endFill();
+                }
+            }
+            
+            drawLines() {
+                for (let i = 0; i < this.particles.length; i++) {
+                    const nextIndex = (i + 1) % this.particles.length;
+                    this.graphics.lineStyle(2, this.particles[i].color, 1);
+                    this.graphics.moveTo(this.particles[i].x, this.particles[i].y);
+                    this.graphics.lineTo(this.particles[nextIndex].x, this.particles[nextIndex].y);
+                }
+            }
+            
+            changeMode(mode) {
+                this.mode = mode;
+            }
+            
+            resize(width, height) {
+                this.width = width;
+                this.height = height;
+                this.center = {
+                    x: width / 2,
+                    y: height / 2
+                };
+                
+                // Обновляем позиции частиц
+                for (let i = 0; i < this.particles.length / 2; i++) {
+                    const angle = this.particles[i].angle;
+                    const distance = this.particles[i].distance;
+                    
+                    this.particles[i].x = this.center.x + Math.cos(angle) * distance;
+                    this.particles[i].y = this.center.y + Math.sin(angle) * distance;
+                }
+            }
+            
+            reset() {
+                this.particles = [];
+                this.generateParticles();
+            }
+            
+            getSVG() {
+                const svg = [
+                    '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+                    `<svg width="${this.width}" height="${this.height}" xmlns="http://www.w3.org/2000/svg">`
+                ];
+                
+                if (this.mode === 'poly') {
+                    let points = '';
+                    for (let i = 0; i < this.particles.length; i++) {
+                        points += `${this.particles[i].x},${this.particles[i].y} `;
+                    }
+                    
+                    svg.push(`<polygon points="${points}" fill="#${this.particles[0].color.toString(16)}" opacity="0.5" />`);
+                    
+                } else if (this.mode === 'triangles') {
+                    for (let i = 0; i < this.particles.length - 2; i += 3) {
+                        const points = `${this.particles[i].x},${this.particles[i].y} ${this.particles[i+1].x},${this.particles[i+1].y} ${this.particles[i+2].x},${this.particles[i+2].y}`;
+                        svg.push(`<polygon points="${points}" fill="#${this.particles[i].color.toString(16)}" opacity="0.5" />`);
+                    }
+                    
+                } else if (this.mode === 'lines') {
+                    for (let i = 0; i < this.particles.length; i++) {
+                        const nextIndex = (i + 1) % this.particles.length;
+                        svg.push(`<line x1="${this.particles[i].x}" y1="${this.particles[i].y}" x2="${this.particles[nextIndex].x}" y2="${this.particles[nextIndex].y}" stroke="#${this.particles[i].color.toString(16)}" stroke-width="2" />`);
+                    }
+                }
+                
+                svg.push('</svg>');
+                return svg.join('\n');
+            }
+        }
+    </script>
+</body>
+</html> 
