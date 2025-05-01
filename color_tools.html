@@ -2,13 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Цветовые инструменты</title>
+  <link href="./common_styles.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
       background: #f0f0f0;
+      color: #333;
+    }
+    .header-nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: var(--green-main);
+      color: #000;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    .back-btn:hover {
+      background-color: var(--green-hover);
+      transform: translateY(-2px);
     }
     .container {
       max-width: 1200px;
@@ -22,6 +44,12 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 20px;
+      text-align: center;
     }
     h2 {
       margin-top: 0;
@@ -94,9 +122,21 @@
       font-family: monospace;
       white-space: pre-wrap;
     }
+    
+    /* Адаптивная верстка */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="header-nav">
+    <a href="./anycraft.html" class="back-btn">← Вернуться на главную</a>
+    <h1>Цветовые инструменты</h1>
+  </div>
+
   <div class="container">
     <div class="tool-section">
       <h2>Генератор цветовых палитр</h2>
@@ -248,10 +288,21 @@
       updateGradient();
     }
 
-    gradientControls.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', updateGradient);
+    // Настраиваем слушателей событий для изменения градиента
+    document.addEventListener('DOMContentLoaded', function() {
+      gradientControls.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', function() {
+          if (input.type === 'range') {
+            input.nextElementSibling.textContent = input.value + '%';
+          }
+          updateGradient();
+        });
+      });
+      
+      updateGradient();
     });
-
+    
+    // Инициализация градиента при загрузке
     updateGradient();
   </script>
 </body>
