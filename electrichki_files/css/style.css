@@ -25,6 +25,13 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'RussianRailGProBold';
+    src: url('../css/RussianRail G Pro Extended Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
 body {
     font-family: 'LED', monospace;
     background: var(--primary-bg);
@@ -550,27 +557,32 @@ body {
 
 .platform-header {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
     background: #4a555e;
-    border-radius: 8px 8px 0 0;
+    border-radius: 0;
     padding: 18px 32px 10px 32px;
     margin-bottom: 0;
     box-shadow: 0 2px 8px #000a;
+    height: 90px;
+    gap: 60px;
 }
 .platform-title {
     color: #fff;
-    font-size: 2.5em;
-    font-weight: 600;
-    line-height: 1.1;
+    font-size: 2.7em;
+    font-family: 'RussianRailGProBold', 'Arial', sans-serif;
+    font-weight: bold;
+    line-height: 1;
     letter-spacing: 1px;
-    position: relative;
-    bottom: 0.4em;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .platform-tracknum {
     color: #fff;
-    font-size: 3.8em;
-    font-family: 'DSEG7 Classic', 'LED', monospace;
+    font-size: 2.2em;
+    font-family: 'RussianRailGProBold', 'Arial', sans-serif;
     font-weight: bold;
     margin-left: 30px;
     letter-spacing: 0.05em;
@@ -580,6 +592,7 @@ body {
     box-shadow: 0 0 18px #23272b;
     display: flex;
     align-items: center;
-    position: relative;
-    bottom: 0.15em;
+    position: static;
+    height: 60px;
+    line-height: 1;
 } 
