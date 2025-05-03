@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание электричек</title>
+    <link rel="stylesheet" href="../electrichki_files/css/style.css">
+</head>
+<body>
+    <div class="display-stand">
+        <div class="station-title">Расписание станции БАЛАШИХА</div>
+        <div class="container">
+            <div class="board">
+                <div class="board-header">
+                    <div class="header-titles">
+                        <div class="header-title">Прибытие и отправление поездов</div>
+                        <div class="header-subtitle">Arrivals and departures</div>
+                    </div>
+                    <div class="current-time-bg"><div class="current-time" id="currentTime"></div></div>
+                </div>
+                <div class="table-container">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Номер поезда</th>
+                                <th>Назначение</th>
+                                <th>Отправление</th>
+                                <th>Путь</th>
+                                <th>Опоздание</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                        </tbody>
+                </div>
+            </div>
+        </div>
+        <div class="stand-legs">
+            <div class="leg"></div>
+            <div class="leg"></div>
+        </div>
+    </div>
+    <script src="../electrichki_files/js/main.js"></script>
+</body>
+</html>
