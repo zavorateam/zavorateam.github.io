@@ -35,6 +35,18 @@ async function updateSchedule() {
         const response = await fetch(fileName);
         let trains = await response.json();
         
+        // Преобразуем данные в нужный формат
+        trains = trains.map(train => ({
+            number: train.trainNumber,
+            destination: train.finishStationName,
+            departure: new Date(train.departureTime).toLocaleTimeString('ru-RU', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            }),
+            platform: train.arrivalStationName || getRandomPlatform(),
+            delay: train.deviation || null
+        }));
+        
         // Фильтруем только те, что отправятся позже текущего времени
         const now = new Date();
         const nowMinutes = getMinutes(now);
