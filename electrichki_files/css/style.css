@@ -77,8 +77,8 @@ body {
 }
 
 .board {
-    background: var(--header-bg);
     position: relative;
+    background: var(--header-bg);
     height: 100%;
 }
 
@@ -359,8 +359,29 @@ body {
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0;
     pointer-events: none;
-    background: repeating-radial-gradient(circle at 2px 2px, #1f3d1f 1px, #39ff14 1.5px, transparent 3px, transparent 18px);
-    opacity: 0.5;
+    opacity: 0.06;
+    background:
+      repeating-linear-gradient(0deg, #ffe066 0 2px, transparent 2px 8px),
+      repeating-linear-gradient(90deg, #ffe066 0 2px, transparent 2px 8px);
+    height: 100%;
+    width: 100%;
+}
+
+.schedule-table tbody {
+    position: relative;
+}
+
+.schedule-table tbody .led-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background:
+      repeating-linear-gradient(0deg, #ffe066 0 2px, transparent 2px 8px),
+      repeating-linear-gradient(90deg, #ffe066 0 2px, transparent 2px 8px);
 }
 
 .train-row, .marquee-row {
@@ -525,4 +546,40 @@ body {
     font-weight: 400;
 }
 
-/* --- КОНЕЦ ДОБАВЛЕНИЯ --- */ 
+/* --- КОНЕЦ ДОБАВЛЕНИЯ --- */
+
+.platform-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: #4a555e;
+    border-radius: 8px 8px 0 0;
+    padding: 18px 32px 10px 32px;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px #000a;
+}
+.platform-title {
+    color: #fff;
+    font-size: 2.5em;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    position: relative;
+    bottom: 0.4em;
+}
+.platform-tracknum {
+    color: #fff;
+    font-size: 3.8em;
+    font-family: 'DSEG7 Classic', 'LED', monospace;
+    font-weight: bold;
+    margin-left: 30px;
+    letter-spacing: 0.05em;
+    background: #23272b;
+    border-radius: 10px;
+    padding: 0 32px;
+    box-shadow: 0 0 18px #23272b;
+    display: flex;
+    align-items: center;
+    position: relative;
+    bottom: 0.15em;
+} 

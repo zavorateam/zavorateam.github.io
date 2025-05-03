@@ -134,4 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateCurrentTime, 1000);
     updateSchedule();
     setInterval(updateSchedule, 90000);
+    // Устанавливаем случайный путь (2 или 5)
+    const randomTrack = Math.random() < 0.5 ? 2 : 5;
+    const trackElem = document.getElementById('randomTrack');
+    if (trackElem) trackElem.textContent = randomTrack;
 }); 
