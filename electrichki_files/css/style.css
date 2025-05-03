@@ -227,6 +227,8 @@ body {
 }
 
 .marquee-row-train {
+    overflow: hidden;
+    position: relative;
     height: 22px;
     background: var(--header-bg);
     border-bottom: none;
@@ -359,7 +361,7 @@ body {
     z-index: 0;
     pointer-events: none;
     background: repeating-radial-gradient(circle at 2px 2px, #1f3d1f 1px, #39ff14 1.5px, transparent 3px, transparent 18px);
-    opacity: 0.18;
+    opacity: 0.5;
 }
 
 .train-row, .marquee-row {
