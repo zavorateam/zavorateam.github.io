@@ -51,7 +51,7 @@ body {
     bottom: -100px;
     left: 0;
     right: 0;
-    height: 100px;
+    height: 110px;
     display: flex;
     justify-content: space-between;
     padding: 0 200px;
@@ -414,4 +414,114 @@ body {
     margin: 0;
     position: absolute;
     left: 0; right: 0; top: 0;
-} 
+}
+
+/* --- ДОБАВЛЕНО ДЛЯ СТИЛЯ ТАБЛО --- */
+
+.platform-track {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: #2d3338;
+    padding: 18px 32px 10px 32px;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+}
+.platform-track .track-label {
+    color: #fff;
+    font-size: 2.2em;
+    font-weight: 600;
+    line-height: 1.1;
+}
+.platform-track .track-number {
+    font-family: 'DSEG7 Classic', 'LED', monospace;
+    color: #fff;
+    font-size: 5em;
+    font-weight: bold;
+    margin-left: 10px;
+    letter-spacing: 0.05em;
+}
+.platform-track .local-time-label {
+    color: #fff;
+    font-size: 1.5em;
+    font-weight: 500;
+    margin-right: 20px;
+    text-align: right;
+}
+.platform-track .local-time {
+    font-family: 'DSEG7 Classic', 'LED', monospace;
+    color: #fff;
+    font-size: 3.2em;
+    background: #23272b;
+    border-radius: 10px;
+    padding: 6px 24px;
+    margin-left: 10px;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 18px #ffe600, 0 0 2px #fff;
+}
+
+/* Красная полоса для заголовков */
+.schedule-table thead tr {
+    background: #d60000;
+}
+.schedule-table th {
+    color: #fff;
+    font-size: 1.6em;
+    font-weight: 600;
+    padding: 10px 0 2px 0;
+    border: none;
+    text-align: center;
+    position: relative;
+}
+.schedule-table th .en {
+    display: block;
+    font-size: 0.55em;
+    font-style: italic;
+    color: #fff;
+    opacity: 0.8;
+    margin-top: 2px;
+    font-weight: 400;
+}
+
+/* Ячейки таблицы под LED */
+.schedule-table td {
+    background: #181b1f;
+    color: #ffe600;
+    font-family: 'LED', monospace;
+    font-size: 1.5em;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 6px #ffe600, 0 0 2px #fff;
+}
+
+/* Эффект точек для LED */
+.led-dot-bg {
+    background: repeating-linear-gradient(90deg, #1a1a1a 0 2px, transparent 2px 8px),
+                repeating-linear-gradient(0deg, #1a1a1a 0 2px, transparent 2px 8px);
+    opacity: 0.18;
+    z-index: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* Станция назначения — отдельная красная полоса */
+.destination-row {
+    background: #d60000;
+    color: #fff;
+    font-size: 1.3em;
+    font-weight: 600;
+    text-align: center;
+}
+.destination-row .en {
+    display: block;
+    font-size: 0.6em;
+    font-style: italic;
+    color: #fff;
+    opacity: 0.8;
+    margin-top: 2px;
+    font-weight: 400;
+}
+
+/* --- КОНЕЦ ДОБАВЛЕНИЯ --- */ 
