@@ -26,7 +26,7 @@ function getRandomPlatform() {
 function getScheduleFileName() {
     const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
     const now = new Date();
-    return `./days/data-${days[now.getDay()]}.json`;
+    return `../electrichki_files/days/data-${days[now.getDay()]}.json`;
 }
 
 async function updateSchedule() {
