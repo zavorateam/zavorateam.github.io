@@ -220,7 +220,6 @@ body {
 .train-row {
     position: relative;
     overflow: hidden;
-    border-bottom: 3px solid #fff;
 }
 .train-row:last-of-type {
     border-bottom: none;
