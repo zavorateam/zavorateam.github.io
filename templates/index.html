@@ -24,14 +24,45 @@
     align-items: center;
     padding-bottom: 20px;
     background-color: rgba(0, 0, 0, 0.404);
+    max-height: 75vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  /* Scrollbar styling for Webkit */
+  .cont::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cont::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  .cont::-webkit-scrollbar-thumb {
+    background: rgba(0, 194, 0, 0.5);
+    border-radius: 3px;
   }
   
+  .cont::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 194, 0, 0.8);
+  }
+
+  /* Firefox scrollbar */
+  .cont {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 194, 0, 0.5) rgba(0, 0, 0, 0.1);
+  }
+
   h1 {
     color: white;
   }
 
   body {
     background-color: rgb(100, 100, 100);
+    overflow: hidden;
   }
 
   span {
@@ -62,6 +93,34 @@
     color: white;
     font-family: YS Text;
   }
+
+  @media (max-width: 768px) {
+    .cont {
+      max-width: 90%;
+      top: 50px;
+      padding: 10px;
+    }
+
+    span {
+      width: 85%;
+      padding: 15px 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+
+  /* Touch device support */
+  @media (hover: none) {
+    span:active {
+      background-color: rgb(0, 155, 0);
+    }
+  }
 </style>
 </head>
 <body style="background-color:rgb(100,100,100)">
@@ -84,49 +143,86 @@
     let boxes = [];
     let bsize = 40;
     let amx, amy;
+    let isMobile = false;
+  
+    // Check if device is mobile
+    function checkMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+             || window.innerWidth <= 768;
+    }
+  
     function setup() {
       createCanvas(windowWidth, windowHeight, WEBGL);
       stroke(0, 0, 0, 200);
       strokeWeight(0.5);
-
+      
+      isMobile = checkMobile();
+      // Increase box size on mobile for better performance
+      bsize = isMobile ? 60 : 40;
+  
       rectMode(CENTER);
       ortho(-width / 2, width / 2, -height / 2, height / 2, 10, 2000);
       amx = Math.ceil(width / bsize + 1);
-      amy = Math.ceil(height / bsize + 1)
+      amy = Math.ceil(height / bsize + 1);
       boxes = new Array(amx * amy).fill(400);
       fill(110);
+  
+      // Add touch event listeners
+      canvas.addEventListener('touchstart', handleTouch);
+      canvas.addEventListener('touchmove', handleTouch);
     }
-
+  
+    function handleTouch(event) {
+      event.preventDefault();
+      const touch = event.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      mouseX = touch.clientX - rect.left;
+      mouseY = touch.clientY - rect.top;
+    }
+  
     function draw() {
-      //orbitControl();
       background(100);
       directionalLight(255, 255, 255, -PI * 0.3, PI * 0.3, -PI * 0.6);
       translate(0, -10, 250);
       rotateX(-0.2);
       rotateY(0.2);
-
-      for (let x = 0; x < width + bsize; x += bsize) {
-        for (let y = 0; y < height + bsize; y += bsize) {
-
+  
+      // Optimize rendering by only drawing visible boxes
+      const visibleRange = isMobile ? 1.2 : 1.5;
+      const startX = max(0, floor((mouseX - width * visibleRange) / bsize));
+      const endX = min(amx, ceil((mouseX + width * visibleRange) / bsize));
+      const startY = max(0, floor((mouseY - height * visibleRange) / bsize));
+      const endY = min(amy, ceil((mouseY + height * visibleRange) / bsize));
+  
+      for (let x = startX * bsize; x < endX * bsize; x += bsize) {
+        for (let y = startY * bsize; y < endY * bsize; y += bsize) {
           let h = noise(frameCount * 0.01, x / width * 10, y / height * 10) * 10 * 25;
-          /*let xx = x/bsize;
-          let yy = y/bsize;
-          h = 400 + 200 * sin(sqrt(xx*xx+yy*yy)/1 + frameCount*0.03);*/
-
-          let offs = -35;
+  
+          let offs = isMobile ? -25 : -35;
           if (mouseX + offs >= x - bsize / 2 && mouseX + offs <= x + bsize / 2 &&
-            mouseY + offs >= y - bsize / 2 && mouseY + offs <= y + bsize / 2) {
+              mouseY + offs >= y - bsize / 2 && mouseY + offs <= y + bsize / 2) {
             h = 400;
           }
+  
           let idx = Math.round(x / bsize + (width / bsize) * (y / bsize));
           let k = boxes[idx] < h ? 0.4 : 0.02;
           boxes[idx] += (h - boxes[idx]) * k;
+          
           push();
           translate(-width / 2 + x, -height / 2 + y);
           box(bsize, bsize, boxes[idx]);
           pop();
         }
       }
+    }
+  
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+      isMobile = checkMobile();
+      bsize = isMobile ? 60 : 40;
+      amx = Math.ceil(width / bsize + 1);
+      amy = Math.ceil(height / bsize + 1);
+      boxes = new Array(amx * amy).fill(400);
     }
   </script>
   <main></main>
