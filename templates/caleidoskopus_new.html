@@ -51,6 +51,7 @@
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+
         }
 
         .header {
@@ -60,10 +61,11 @@
             background: var(--card-bg);
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            max-height: 4em;
         }
 
         .header h1 {
-            margin-top: 10px;
+            margin-top: -10px;
             color: var(--text);
         }
 
@@ -578,11 +580,72 @@
             min-width: 30px;
             text-align: center;
         }
+
+        .liquid-visualizer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .liquid-visualizer.active {
+            display: block;
+        }
+
+        .view.inactive {
+            display: none;
+        }
+
+        #visualizer-toggle {
+            width: 100%;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text);
+        }
+
+        #visualizer-toggle:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .visualizers {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .view.inactive {
+            display: none;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-    <canvas class="view"></canvas>
+    <div class="visualizers">
+        <canvas id="default-canvas" class="view"></canvas>
+        <div class="liquid-visualizer">
+            <canvas id="liquid-canvas"></canvas>
+        </div>
+    </div>
 
     <div class="container">
         <header class="header">
@@ -673,6 +736,14 @@
             </div>
         </div>
         <div class="settings-group">
+            <h3>Визуализатор</h3>
+            <div class="control-row">
+                <button id="visualizer-toggle" class="changemode">
+                    Переключить стиль
+                </button>
+            </div>
+        </div>
+        <div class="settings-group">
             <h3>Дополнительные настройки</h3>
             <div class="control-row">
                 <label for="reloadInterval">Перезагрузка (сек):</label>
@@ -701,318 +772,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"></script>
     <script>
-        // Переключение темы
-        const themeToggle = document.querySelector('.theme-toggle');
-        const body = document.body;
-        
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
-
-        // Проверка сохраненной темы
-        if (localStorage.getItem('darkMode') === 'true') {
-            body.classList.add('dark-mode');
-        }
-
-        // Глобальные переменные
-        let app, visualizer, audioContext, analyser, audioSource, audioBuffer;
-        let animationMode = 'poly';
-        let isPaused = false;
-        let animationFrameId;
-        let reloadTimer;
-        let reloadInterval = 25000; // 25 секунд по умолчанию
-        let manualSpeed = 1;
-        let baseColor = '#22ff00';
-        
-        // Элементы интерфейса
-        const startBtn = document.querySelector('.start_btn');
-        const startSection = document.getElementById('startSection');
-        const uploadSection = document.getElementById('uploadSection');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const appContainer = document.querySelector('.app');
-        const pauseBtn = document.querySelector('.controls-drawing_pause');
-        const refreshBtn = document.querySelector('.controls-drawing_refresh');
-        const downloadSvgBtn = document.querySelector('.download_svg');
-        const downloadPngBtn = document.querySelector('.download_png');
-        const pauseOverlay = document.getElementById('pauseOverlay');
-        const modeBtns = document.querySelectorAll('.changemode');
-        const controls = document.querySelector('.controls');
-        const toggleControlsBtn = document.querySelector('.toggle-controls');
-        const speedControl = document.getElementById('speedControl');
-        const speedValue = document.getElementById('speedValue');
-        const colorPicker = document.getElementById('baseColor');
-
-        // Обработчики событий
-        startBtn.addEventListener('click', startApp);
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = 'var(--primary)';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#ccc';
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#ccc';
-            const file = e.dataTransfer.files[0];
-            if (file && isAudioFile(file)) {
-                handleAudioFile(file);
-            }
-        });
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                handleAudioFile(file);
-            }
-        });
-
-        pauseBtn.addEventListener('click', togglePause);
-        refreshBtn.addEventListener('click', resetVisualizer);
-        downloadSvgBtn.addEventListener('click', downloadSVG);
-        downloadPngBtn.addEventListener('click', downloadPNG);
-
-        modeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                modeBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                animationMode = btn.getAttribute('data-mode');
-                if (visualizer) {
-                    visualizer.changeMode(animationMode);
-                }
-            });
-        });
-
-        // Обработчик изменения ползунка
-        const reloadSlider = document.getElementById('reloadInterval');
-        const reloadValue = document.getElementById('reloadValue');
-        
-        reloadSlider.addEventListener('input', (e) => {
-            reloadInterval = e.target.value * 1000; // Конвертируем в миллисекунды
-            reloadValue.textContent = e.target.value;
-            
-            // Перезапускаем таймер с новым интервалом
-            if (!isPaused) {
-                clearTimeout(reloadTimer);
-                startReloadTimer();
-            }
-        });
-
-        function startReloadTimer() {
-            reloadTimer = setTimeout(() => {
-                if (!isPaused) {
-                    resetVisualizer();
-                    startReloadTimer();
-                }
-            }, reloadInterval);
-        }
-
-        function startApp() {
-            startSection.style.display = 'none';
-            uploadSection.style.display = 'block';
-        }
-
-        function handleAudioFile(file) {
-            console.log('Начало обработки файла:', file.name);
-            if (!window.AudioContext && !window.webkitAudioContext) {
-                alert('Ваш браузер не поддерживает Web Audio API. Пожалуйста, используйте современный браузер.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                console.log('Файл успешно прочитан');
-                setupAudioContext(e.target.result);
-            };
-            reader.onerror = (error) => {
-                console.error('Ошибка при чтении файла:', error);
-                alert('Ошибка при чтении файла. Пожалуйста, попробуйте другой файл.');
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function isAudioFile(file) {
-            console.log('Проверка типа файла:', file.type, file.name);
-            const acceptedTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/flac'];
-            const isAccepted = acceptedTypes.includes(file.type) || 
-                file.name.endsWith('.mp3') || 
-                file.name.endsWith('.wav') || 
-                file.name.endsWith('.flac');
-            
-            if (!isAccepted) {
-                alert('Пожалуйста, выберите аудиофайл в формате MP3, WAV или FLAC');
-            }
-            
-            return isAccepted;
-        }
-
-        function setupAudioContext(arrayBuffer) {
-            console.log('Начало setupAudioContext');
-            // Инициализируем WebAudio API
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('AudioContext создан');
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
-            
-            // Декодируем аудиофайл
-            audioContext.decodeAudioData(arrayBuffer, (buffer) => {
-                console.log('Аудиофайл декодирован');
-                audioBuffer = buffer;
-                
-                // Скрываем загрузчик и показываем интерфейс
-                uploadSection.style.display = 'none';
-                appContainer.style.display = 'block';
-                document.querySelector('.controls').style.display = 'flex';
-                
-                // Инициализируем визуализатор
-                initVisualizer();
-                
-                // Запускаем аудио
-                playAudio();
-            }, (error) => {
-                console.error('Ошибка при декодировании аудио:', error);
-            });
-        }
-
-        function playAudio() {
-            console.log('Начало playAudio');
-            if (audioSource) {
-                audioSource.disconnect();
-            }
-            
-            audioSource = audioContext.createBufferSource();
-            audioSource.buffer = audioBuffer;
-            audioSource.connect(analyser);
-            analyser.connect(audioContext.destination);
-            audioSource.loop = true;
-            audioSource.start(0);
-            console.log('Аудио запущено');
-            
-            isPaused = false;
-            pauseBtn.classList.remove('paused');
-            pauseOverlay.classList.remove('active');
-            
-            // Отправляем элементы управления на задний план и делаем их полупрозрачными
-            document.querySelector('.container').style.opacity = '0.5';
-            document.querySelector('.controls').style.opacity = '0.5';
-            document.querySelector('footer').style.opacity = '0.5';
-            
-            // Запускаем таймер перезагрузки
-            startReloadTimer();
-            
-            // Запускаем анимацию
-            animate();
-        }
-
-        function initVisualizer() {
-            console.log('Начало initVisualizer');
-            try {
-                // Проверяем наличие PIXI
-                if (typeof PIXI === 'undefined') {
-                    throw new Error('PIXI.js не загружен');
-                }
-
-                // Инициализируем PIXI.js
-                const view = document.querySelector('.view');
-                if (!view) {
-                    throw new Error('Элемент canvas не найден');
-                }
-
-                app = new PIXI.Application({
-                    view: view,
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                    backgroundColor: 0x777777,
-                    resolution: window.devicePixelRatio || 1,
-                    autoDensity: true
-                });
-                console.log('PIXI.Application создан');
-                
-                // Проверяем создание приложения
-                if (!app) {
-                    throw new Error('Не удалось создать PIXI.Application');
-                }
-                
-                // Создаем визуализатор
-                visualizer = new Visualizer(app, analyser, animationMode);
-                console.log('Visualizer создан');
-                
-                // Принудительно обновляем размеры и центрирование
-                setTimeout(() => {
-                    app.renderer.resize(window.innerWidth, window.innerHeight);
-                    visualizer.resize(window.innerWidth, window.innerHeight);
-                }, 100);
-                
-                // Обработчик изменения размера окна
-                window.addEventListener('resize', () => {
-                    app.renderer.resize(window.innerWidth, window.innerHeight);
-                    visualizer.resize(window.innerWidth, window.innerHeight);
-                });
-            } catch (error) {
-                console.error('Ошибка при инициализации визуализатора:', error);
-                alert('Ошибка при инициализации визуализатора. Пожалуйста, обновите страницу и попробуйте снова.');
-            }
-        }
-
-        // Добавляем обработчик загрузки страницы
-        window.addEventListener('load', () => {
-            // Если визуализатор уже создан, обновляем его позиционирование
-            if (visualizer) {
-                app.renderer.resize(window.innerWidth, window.innerHeight);
-                visualizer.resize(window.innerWidth, window.innerHeight);
-            }
-        });
-
-        function animate() {
-            if (!isPaused) {
-                visualizer.update();
-                animationFrameId = requestAnimationFrame(animate);
-            }
-        }
-
-        function togglePause() {
-            isPaused = !isPaused;
-            
-            if (isPaused) {
-                pauseBtn.classList.add('paused');
-                pauseOverlay.classList.add('active');
-                audioContext.suspend();
-                cancelAnimationFrame(animationFrameId);
-                clearTimeout(reloadTimer);
-            } else {
-                pauseBtn.classList.remove('paused');
-                pauseOverlay.classList.remove('active');
-                audioContext.resume();
-                animate();
-                startReloadTimer();
-            }
-        }
-
-        function resetVisualizer() {
-            if (visualizer) {
-                visualizer.reset();
-            }
-        }
-
-        function downloadSVG() {
-            if (visualizer) {
-                const svgString = visualizer.getSVG();
-                const blob = new Blob([svgString], {type: 'image/svg+xml'});
-                saveAs(blob, 'kaleidoskopus.svg');
-            }
-        }
-
-        function downloadPNG() {
-            if (app) {
-                app.renderer.extract.canvas(app.stage).toBlob((blob) => {
-                    saveAs(blob, 'kaleidoskopus.png');
-                });
-            }
-        }
-
-        // Визуализатор
+                // Визуализатор
         class Visualizer {
             constructor(app, analyser, mode) {
                 try {
@@ -1273,52 +1033,414 @@
                 this.particles = [];
                 this.generateParticles();
             }
+
+            updateBaseColor(color) {
+                const rgb = this.hexToRgb(color);
+                // Update base color for particle generation
+                this.particleColors.forEach(pc => {
+                    pc.current = rgb;
+                    pc.target = rgb;
+                });
+            }
             
             getSVG() {
                 const svg = [
                     '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
                     `<svg width="${this.width}" height="${this.height}" xmlns="http://www.w3.org/2000/svg">`
                 ];
-                
-                // Получаем текущие цвета
-                const colors = this.updateColors();
-                
-                if (this.mode === 'poly') {
-                    let points = '';
-                    for (let i = 0; i < this.particles.length; i++) {
-                        points += `${this.particles[i].x + this.center.x},${this.particles[i].y + this.center.y} `;
-                    }
-                    
-                    svg.push(`<polygon points="${points}" fill="#${colors[0].toString(16).padStart(6, '0')}" opacity="0.5" />`);
-                    
-                } else if (this.mode === 'triangles') {
-                    for (let i = 0; i < this.particles.length - 2; i += 3) {
-                        const points = `${this.particles[i].x + this.center.x},${this.particles[i].y + this.center.y} ` +
-                                      `${this.particles[i+1].x + this.center.x},${this.particles[i+1].y + this.center.y} ` +
-                                      `${this.particles[i+2].x + this.center.x},${this.particles[i+2].y + this.center.y}`;
-                        svg.push(`<polygon points="${points}" fill="#${colors[i].toString(16).padStart(6, '0')}" opacity="0.5" />`);
-                    }
-                    
-                } else if (this.mode === 'lines') {
-                    for (let i = 0; i < this.particles.length; i++) {
-                        const nextIndex = (i + 1) % this.particles.length;
-                        svg.push(`<line x1="${this.particles[i].x + this.center.x}" y1="${this.particles[i].y + this.center.y}" ` +
-                                `x2="${this.particles[nextIndex].x + this.center.x}" y2="${this.particles[nextIndex].y + this.center.y}" ` +
-                                `stroke="#${colors[i].toString(16).padStart(6, '0')}" stroke-width="4" />`);
-                    }
+
+                switch (this.mode) {
+                    case 'poly':
+                        // Add polygon path
+                        svg.push('<g transform="translate(' + this.center.x + ',' + this.center.y + ')">');
+                        let pathData = 'M ' + this.particles[0].x + ',' + this.particles[0].y;
+                        for (let i = 1; i < this.particles.length; i++) {
+                            pathData += ' L ' + this.particles[i].x + ',' + this.particles[i].y;
+                        }
+                        pathData += ' Z';
+                        const color = this.particleColors[0].current;
+                        svg.push(`<path d="${pathData}" fill="rgb(${color.r},${color.g},${color.b})" />`);
+                        svg.push('</g>');
+                        break;
+
+                    case 'triangles':
+                        // Add triangles
+                        svg.push('<g transform="translate(' + this.center.x + ',' + this.center.y + ')">');
+                        for (let i = 0; i < this.particles.length - 2; i += 3) {
+                            const color = this.particleColors[i].current;
+                            const pathData = `M ${this.particles[i].x},${this.particles[i].y} ` +
+                                        `L ${this.particles[i + 1].x},${this.particles[i + 1].y} ` +
+                                        `L ${this.particles[i + 2].x},${this.particles[i + 2].y} Z`;
+                            svg.push(`<path d="${pathData}" fill="rgb(${color.r},${color.g},${color.b})" />`);
+                        }
+                        svg.push('</g>');
+                        break;
+
+                    case 'lines':
+                        // Add lines
+                        svg.push('<g transform="translate(' + this.center.x + ',' + this.center.y + ')">');
+                        for (let i = 0; i < this.particles.length; i++) {
+                            const nextIndex = (i + 1) % this.particles.length;
+                            const color = this.particleColors[i].current;
+                            svg.push(`<line x1="${this.particles[i].x}" y1="${this.particles[i].y}" ` +
+                                    `x2="${this.particles[nextIndex].x}" y2="${this.particles[nextIndex].y}" ` +
+                                    `stroke="rgb(${color.r},${color.g},${color.b})" stroke-width="4" />`);
+                        }
+                        svg.push('</g>');
+                        break;
                 }
-                
+
                 svg.push('</svg>');
                 return svg.join('\n');
             }
 
+            // Add if not exists
             hexToRgb(hex) {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
                     r: parseInt(result[1], 16),
                     g: parseInt(result[2], 16),
                     b: parseInt(result[3], 16)
-                } : { r: 255, g: 0, b: 0 };
+                } : null;
+            }
+        }
+
+    </script>
+    <script>
+        // Переключение темы
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+
+        // Проверка сохраненной темы
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+        }
+
+        // Глобальные переменные
+        let app, visualizer, audioContext, analyser, audioSource, audioBuffer;
+        let animationMode = 'poly';
+        let isPaused = false;
+        let animationFrameId;
+        let reloadTimer;
+        let reloadInterval = 25000; // 25 секунд по умолчанию
+        let manualSpeed = 1;
+        let baseColor = '#22ff00';
+        
+        // Элементы интерфейса
+        const startBtn = document.querySelector('.start_btn');
+        const startSection = document.getElementById('startSection');
+        const uploadSection = document.getElementById('uploadSection');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const appContainer = document.querySelector('.app');
+        const pauseBtn = document.querySelector('.controls-drawing_pause');
+        const refreshBtn = document.querySelector('.controls-drawing_refresh');
+        const downloadSvgBtn = document.querySelector('.download_svg');
+        const downloadPngBtn = document.querySelector('.download_png');
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const modeBtns = document.querySelectorAll('.changemode');
+        const controls = document.querySelector('.controls');
+        const toggleControlsBtn = document.querySelector('.toggle-controls');
+        const speedControl = document.getElementById('speedControl');
+        const speedValue = document.getElementById('speedValue');
+        const colorPicker = document.getElementById('baseColor');
+
+        // Обработчики событий
+        startBtn.addEventListener('click', startApp);
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            const file = e.dataTransfer.files[0];
+            if (file && isAudioFile(file)) {
+                handleAudioFile(file);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleAudioFile(file);
+            }
+        });
+        pauseBtn.addEventListener('click', togglePause);
+        refreshBtn.addEventListener('click', resetVisualizer);
+        downloadSvgBtn.addEventListener('click', downloadSVG);
+        downloadPngBtn.addEventListener('click', downloadPNG);
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                animationMode = btn.getAttribute('data-mode');
+                if (visualizer) {
+                    visualizer.changeMode(animationMode);
+                }
+            });
+        });
+        // Обработчик изменения ползунка
+        const reloadSlider = document.getElementById('reloadInterval');
+        const reloadValue = document.getElementById('reloadValue');
+        
+        reloadSlider.addEventListener('input', (e) => {
+            reloadInterval = e.target.value * 1000; // Конвертируем в миллисекунды
+            reloadValue.textContent = e.target.value;
+            
+            // Перезапускаем таймер с новым интервалом
+            if (!isPaused) {
+                clearTimeout(reloadTimer);
+                startReloadTimer();
+            }
+        });
+
+        function startReloadTimer() {
+            reloadTimer = setTimeout(() => {
+                if (!isPaused) {
+                    resetVisualizer();
+                    startReloadTimer();
+                }
+            }, reloadInterval);
+        }
+
+        function startApp() {
+            startSection.style.display = 'none';
+            uploadSection.style.display = 'block';
+        }
+
+        function handleAudioFile(file) {
+            console.log('Начало обработки файла:', file.name);
+            if (!window.AudioContext && !window.webkitAudioContext) {
+                alert('Ваш браузер не поддерживает Web Audio API. Пожалуйста, используйте современный браузер.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                console.log('Файл успешно прочитан');
+                setupAudioContext(e.target.result);
+            };
+            reader.onerror = (error) => {
+                console.error('Ошибка при чтении файла:', error);
+                alert('Ошибка при чтении файла. Пожалуйста, попробуйте другой файл.');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function isAudioFile(file) {
+            console.log('Проверка типа файла:', file.type, file.name);
+            const acceptedTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/flac'];
+            const isAccepted = acceptedTypes.includes(file.type) || 
+                file.name.endsWith('.mp3') || 
+                file.name.endsWith('.wav') || 
+                file.name.endsWith('.flac');
+            
+            if (!isAccepted) {
+                alert('Пожалуйста, выберите аудиофайл в формате MP3, WAV или FLAC');
+            }
+            
+            return isAccepted;
+        }
+
+        function setupAudioContext(arrayBuffer) {
+            console.log('Начало setupAudioContext');
+            // Инициализируем WebAudio API
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('AudioContext создан');
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            
+            // Декодируем аудиофайл
+            audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+                console.log('Аудиофайл декодирован');
+                audioBuffer = buffer;
+                
+                // Скрываем загрузчик и показываем интерфейс
+                uploadSection.style.display = 'none';
+                appContainer.style.display = 'block';
+                document.querySelector('.controls').style.display = 'flex';
+                
+                // Инициализируем визуализатор
+                initVisualizer();
+                
+                // Запускаем аудио
+                playAudio();
+            }, (error) => {
+                console.error('Ошибка при декодировании аудио:', error);
+            });
+        }
+
+        function playAudio() {
+    console.log('Начало playAudio');
+    try {
+        if (audioSource) {
+            audioSource.disconnect();
+        }
+        
+        audioSource = audioContext.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(analyser);
+        analyser.connect(audioContext.destination);
+        audioSource.loop = true;
+        audioSource.start(0);
+        console.log('Аудио запущено');
+        
+        isPaused = false;
+        pauseBtn.classList.remove('paused');
+        pauseOverlay.classList.remove('active');
+        
+        document.querySelector('.container').style.opacity = '0.5';
+        document.querySelector('.controls').style.opacity = '0.5';
+        document.querySelector('footer').style.opacity = '0.5';
+        
+        startReloadTimer();
+        
+        // Only start animation if visualizer exists
+        if (visualizer) {
+            animate();
+        } else {
+            console.error('Визуализатор не инициализирован');
+        }
+    } catch (error) {
+        console.error('Ошибка воспроизведения аудио:', error);
+    }
+}
+
+        function initVisualizer() {
+            console.log('Начало initVisualizer');
+            try {
+                // Проверяем наличие PIXI
+                if (typeof PIXI === 'undefined') {
+                    throw new Error('PIXI.js не загружен');
+                }
+
+                // Fix: Correct canvas selector
+                const view = document.getElementById('default-canvas');
+                if (!view) {
+                    throw new Error('Элемент canvas не найден');
+                }
+
+                app = new PIXI.Application({
+                    view: view,
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    backgroundColor: 0x000000,
+                    resolution: window.devicePixelRatio || 1,
+                    autoDensity: true,
+                    transparent: true
+                });
+
+                console.log('PIXI.Application создан');
+                
+                if (app) {
+                    visualizer = new Visualizer(app, analyser, animationMode);
+                    console.log('Visualizer создан');
+                    
+                    app.renderer.resize(window.innerWidth, window.innerHeight);
+                    if (visualizer) {
+                        visualizer.resize(window.innerWidth, window.innerHeight);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка при инициализации визуализатора:', error);
+                throw error;
+            }
+        }
+
+        // Добавляем обработчик загрузки страницы
+        window.addEventListener('load', () => {
+            // Если визуализатор уже создан, обновляем его позиционирование
+            if (visualizer) {
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                visualizer.resize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        function animate() {
+            if (!isPaused && visualizer) {
+                try {
+                    visualizer.update();
+                    animationFrameId = requestAnimationFrame(animate);
+                } catch (error) {
+                    console.error('Ошибка анимации:', error);
+                    isPaused = true;
+                }
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                pauseBtn.classList.add('paused');
+                pauseOverlay.classList.add('active');
+                audioContext.suspend();
+                cancelAnimationFrame(animationFrameId);
+                clearTimeout(reloadTimer);
+                
+                if (currentVisualizer === 'liquid' && liquidVisualizer) {
+                    liquidVisualizer.isPlaying = false;
+                }
+            } else {
+                pauseBtn.classList.remove('paused');
+                pauseOverlay.classList.remove('active');
+                audioContext.resume();
+                
+                if (currentVisualizer === 'default') {
+                    animate();
+                } else if (currentVisualizer === 'liquid' && liquidVisualizer) {
+                    liquidVisualizer.isPlaying = true;
+                    liquidVisualizer.animate();
+                }
+                
+                startReloadTimer();
+            }
+        }
+
+        function resetVisualizer() {
+            if (currentVisualizer === 'default' && visualizer) {
+                visualizer.reset();
+            } else if (currentVisualizer === 'liquid' && liquidVisualizer) {
+                liquidVisualizer.liquidMass = new LiquidMass(liquidCanvas);
+                liquidVisualizer.liquidMass.setBaseColor(baseColor);
+            }
+        }
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const newFileNamesvg = `kaleidoskopod-${timestamp}.svg`;
+        const newFileNamepng = `kaleidoskopod-${timestamp}.png`;
+
+        function downloadSVG() {
+            if (currentVisualizer === 'default' && visualizer) {
+                const svgString = visualizer.getSVG();
+                const blob = new Blob([svgString], {type: 'image/svg+xml'});
+                saveAs(blob, newFileNamesvg);
+            } else if (currentVisualizer === 'liquid' && liquidVisualizer) {
+                const svgString = liquidVisualizer.liquidMass.getSVG();
+                const blob = new Blob([svgString], {type: 'image/svg+xml'});
+                saveAs(blob, newFileNamesvg);
+            }
+        }
+
+        function downloadPNG() {
+            if (currentVisualizer === 'default' && app) {
+                app.renderer.extract.canvas(app.stage).toBlob((blob) => {
+                    saveAs(blob, newFileNamepng);
+                });
+            } else if (currentVisualizer === 'liquid' && liquidVisualizer) {
+                const canvas = liquidVisualizer.canvas;
+                canvas.toBlob((blob) => {
+                    saveAs(blob, newFileNamepng);
+                });
             }
         }
 
@@ -1330,6 +1452,10 @@
         speedControl.addEventListener('input', (e) => {
             manualSpeed = parseFloat(e.target.value);
             speedValue.textContent = manualSpeed.toFixed(1);
+            
+            if (liquidVisualizer) {
+                liquidVisualizer.liquidMass.speed = manualSpeed;
+            }
         });
 
         colorPicker.addEventListener('input', (e) => {
@@ -1341,6 +1467,15 @@
         const colorSpeedControl = document.getElementById('colorSpeed');
         const colorSpeedValue = document.getElementById('colorSpeedValue');
         let colorChangeSpeed = 1;
+        let savedVisualizationMode = 'poly'; // Default mode
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const defaultModeBtn = document.querySelector('[data-mode="poly"]');
+            if (defaultModeBtn) {
+                defaultModeBtn.classList.add('active');
+                animationMode = 'poly';
+            }
+        });
 
         settingsToggle.addEventListener('click', () => {
             settingsPanel.classList.toggle('active');
@@ -1351,6 +1486,550 @@
             colorChangeSpeed = parseFloat(e.target.value);
             colorSpeedValue.textContent = colorChangeSpeed.toFixed(1);
         });
+    </script>
+    <!-- Add before the visualizer toggle code -->
+    <script>
+        class ColorPalettes {
+            constructor() {
+                this.palettes = {
+                    spring: [
+                        {r: 255, g: 192, b: 203},
+                        {r: 152, g: 251, b: 152},
+                        {r: 173, g: 216, b: 230},
+                        {r: 238, g: 221, b: 130},
+                        {r: 221, g: 160, b: 221}
+                    ],
+                    summer: [
+                        {r: 255, g: 69, b: 0},
+                        {r: 0, g: 191, b: 255},
+                        {r: 60, g: 179, b: 113},
+                        {r: 255, g: 105, b: 180},
+                        {r: 255, g: 255, b: 0}
+                    ],
+                    autumn: [
+                        {r: 210, g: 105, b: 30},
+                        {r: 255, g: 165, b: 0},
+                        {r: 184, g: 134, b: 11},
+                        {r: 139, g: 69, b: 19},
+                        {r: 205, g: 133, b: 63}
+                    ],
+                    winter: [
+                        {r: 176, g: 224, b: 230},
+                        {r: 135, g: 206, b: 250},
+                        {r: 169, g: 169, b: 169},
+                        {r: 255, g: 250, b: 250},
+                        {r: 0, g: 191, b: 255}
+                    ]
+                };
+                this.currentPalette = 'spring';
+                this.transitionSpeed = 0.005;
+                this.currentIndex = 0;
+                this.transitionProgress = 0;
+            }
+
+            lerpColor(color1, color2, factor) {
+                return {
+                    r: Math.round(color1.r + (color2.r - color1.r) * factor),
+                    g: Math.round(color1.g + (color2.g - color1.g) * factor),
+                    b: Math.round(color1.b + (color2.b - color1.b) * factor)
+                };
+            }
+
+            getColors(time) {
+                const palette = this.palettes[this.currentPalette];
+                const colors = [];
+                
+                // Плавный переход между цветами
+                for(let i = 0; i < palette.length; i++) {
+                    const timeOffset = time * 0.5 + (i / palette.length) * Math.PI * 2;
+                    const factor = (Math.sin(timeOffset) + 1) / 2;
+                    
+                    const color1 = palette[i];
+                    const color2 = palette[(i + 1) % palette.length];
+                    colors.push(this.lerpColor(color1, color2, factor));
+                }
+                
+                return colors;
+            }
+
+            nextPalette() {
+                const palettes = Object.keys(this.palettes);
+                const currentIndex = palettes.indexOf(this.currentPalette);
+                this.currentPalette = palettes[(currentIndex + 1) % palettes.length];
+            }
+        
+            generatePaletteFromBase(hsl) {
+                const colors = [];
+                for (let i = 0; i < 5; i++) {
+                    const newHue = (hsl.h + (i * 0.2)) % 1;
+                    colors.push(this.hslToRgb(newHue, hsl.s, hsl.l));
+                }
+                this.palettes.custom = colors;
+                this.currentPalette = 'custom';
+            }
+
+            hslToRgb(h, s, l) {
+                let r, g, b;
+
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+
+                return {
+                    r: Math.round(r * 255),
+                    g: Math.round(g * 255),
+                    b: Math.round(b * 255)
+                };
+            }
+        }
+
+        class LiquidMass {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.points = [];
+                this.layers = 8;
+                this.pointsPerLayer = 180;
+                this.centerX = canvas.width / 2;
+                this.centerY = canvas.height / 2;
+                this.time = 0;
+                this.smoothedAudioData = new Array(32).fill(0);
+                this.colorPalettes = new ColorPalettes();
+                this.smoothingFactor = 0.8;
+                this.baseSize = Math.min(canvas.width, canvas.height) * 0.3;
+                this.lastAverageColor = {r: 0, g: 0, b: 0};
+                this.initPoints();
+            }
+
+            initPoints() {
+                this.points = [];
+                for(let layer = 0; layer < this.layers; layer++) {
+                    let layerPoints = [];
+                    for(let i = 0; i < this.pointsPerLayer; i++) {
+                        const angle = (i / this.pointsPerLayer) * Math.PI * 2;
+                        layerPoints.push({
+                            baseAngle: angle,
+                            angle: angle,
+                            radius: this.baseSize * (0.3 + layer * 0.15),
+                            baseRadius: this.baseSize * (0.3 + layer * 0.15),
+                            x: 0,
+                            y: 0,
+                            vx: 0,
+                            vy: 0,
+                            noise: Math.random() * 0.8
+                        });
+                    }
+                    this.points.push(layerPoints);
+                }
+            }
+
+            calculateAverageColor(colors) {
+                const avg = colors.reduce((acc, color) => ({
+                    r: acc.r + color.r,
+                    g: acc.g + color.g,
+                    b: acc.b + color.b
+                }), {r: 0, g: 0, b: 0});
+
+                return {
+                    r: Math.round(avg.r / colors.length),
+                    g: Math.round(avg.g / colors.length),
+                    b: Math.round(avg.b / colors.length)
+                };
+            }
+
+            updatePoints(frequencyData) {
+                this.time += 0.01;
+                
+                for(let i = 0; i < frequencyData.length; i++) {
+                    this.smoothedAudioData[i] = this.smoothedAudioData[i] * 0.7 + 
+                                              frequencyData[i] * 0.3;
+                }
+
+                const maxFreq = Math.max(...this.smoothedAudioData);
+                const audioScale = maxFreq / 255;
+                
+                this.points.forEach((layer, layerIndex) => {
+                    const layerFactor = 1 - (layerIndex / this.layers);
+                    
+                    layer.forEach((point, index) => {
+                        const freqIndex = Math.floor((index / this.pointsPerLayer) * 32);
+                        const freq = this.smoothedAudioData[freqIndex] / 255;
+                        
+                        const timeScale = 1 + layerIndex * 0.1;
+                        const wave1 = Math.sin(this.time * timeScale + point.baseAngle * 3) * 15;
+                        const wave2 = Math.cos(this.time * 0.7 * timeScale + point.baseAngle * 2) * 12;
+                        const wave3 = Math.sin(this.time * 1.3 * timeScale + point.baseAngle * 4 + point.noise) * 10;
+                        
+                        const audioEffect = freq * 120 * layerFactor;
+                        
+                        point.radius = point.baseRadius + wave1 + wave2 + wave3 + audioEffect;
+                        
+                        const targetX = this.centerX + Math.cos(point.angle) * point.radius;
+                        const targetY = this.centerY + Math.sin(point.angle) * point.radius;
+                        
+                        point.x = point.x * 0.85 + targetX * 0.15;
+                        point.y = point.y * 0.85 + targetY * 0.15;
+                    });
+                });
+            }
+
+            draw() {
+                const colors = this.colorPalettes.getColors(this.time);
+                this.lastAverageColor = this.calculateAverageColor(colors);
+                
+                document.body.style.backgroundColor = `rgb(${Math.round(this.lastAverageColor.r * 0.15)}, 
+                                                         ${Math.round(this.lastAverageColor.g * 0.15)}, 
+                                                         ${Math.round(this.lastAverageColor.b * 0.15)})`;
+                
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for(let i = this.layers - 1; i >= 0; i--) {
+                    const layer = this.points[i];
+                    const alpha = 0.8 - (i * 0.07);
+                    
+                    const gradient = this.ctx.createRadialGradient(
+                        this.centerX, this.centerY, 0,
+                        this.centerX, this.centerY, layer[0].baseRadius * 1.5
+                    );
+
+                    const color1 = colors[i % colors.length];
+                    const color2 = colors[(i + 1) % colors.length];
+                    
+                    gradient.addColorStop(0, `rgba(${color1.r}, ${color1.g}, ${color1.b}, ${alpha})`);
+                    gradient.addColorStop(1, `rgba(${color2.r}, ${color2.g}, ${color2.b}, ${alpha * 0.5})`);
+
+                    this.ctx.beginPath();
+                    
+                    layer.forEach((point, index) => {
+                        const nextPoint = layer[(index + 1) % layer.length];
+                        const prevPoint = layer[(index - 1 + layer.length) % layer.length];
+                        
+                        if (index === 0) {
+                            const lastPoint = layer[layer.length - 1];
+                            this.ctx.moveTo((lastPoint.x + point.x) / 2, (lastPoint.y + point.y) / 2);
+                        }
+                        
+                        const cp1x = point.x + (nextPoint.x - prevPoint.x) * 0.15; // Уменьшили с 0.2 до 0.15
+                        const cp1y = point.y + (nextPoint.y - prevPoint.y) * 0.15;
+                        const cp2x = nextPoint.x - (nextPoint.x - point.x) * 0.15;
+                        const cp2y = nextPoint.y - (nextPoint.y - point.y) * 0.15;
+                        
+                        this.ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, nextPoint.x, nextPoint.y);
+                    });
+
+                    this.ctx.closePath();
+                    this.ctx.fillStyle = gradient;
+                    
+                    this.ctx.shadowBlur = 30;
+                    this.ctx.shadowColor = `rgba(${color1.r}, ${color1.g}, ${color1.b}, 0.5)`;
+                    this.ctx.fill();
+                }
+
+                const glowGradient = this.ctx.createRadialGradient(
+                    this.centerX, this.centerY, 0,
+                    this.centerX, this.centerY, this.baseSize
+                );
+                
+                const glowColor = colors[0];
+                glowGradient.addColorStop(0, `rgba(${glowColor.r}, ${glowColor.g}, ${glowColor.b}, 0.3)`);
+                glowGradient.addColorStop(0.5, `rgba(${glowColor.r}, ${glowColor.g}, ${glowColor.b}, 0.15)`);
+                glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                
+                this.ctx.fillStyle = glowGradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            setBaseColor(color) {
+                const rgb = this.hexToRgb(color);
+                const hsl = this.rgbToHsl(rgb.r, rgb.g, rgb.b);
+                
+                // Generate palette from base color
+                this.colorPalettes.generatePaletteFromBase(hsl);
+            }
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            rgbToHsl(r, g, b) {
+                r /= 255; g /= 255; b /= 255;
+                const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+                return { h, s, l };
+            }
+
+            getSVG() {
+                const svg = [
+                    '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+                    `<svg width="${this.canvas.width}" height="${this.canvas.height}" xmlns="http://www.w3.org/2000/svg">`
+                ];
+                
+                // Get current colors from colorPalettes
+                const colors = this.colorPalettes.getColors(this.time);
+                
+                // Draw each layer
+                for(let i = this.layers - 1; i >= 0; i--) {
+                    const layer = this.points[i];
+                    const color = colors[i % colors.length];
+                    
+                    // Create path for each layer
+                    let pathData = 'M ';
+                    layer.forEach((point, index) => {
+                        if (index === 0) {
+                            pathData += `${point.x},${point.y} `;
+                        } else {
+                            const prevPoint = layer[(index - 1 + layer.length) % layer.length];
+                            const nextPoint = layer[(index + 1) % layer.length];
+                            
+                            const cp1x = point.x + (nextPoint.x - prevPoint.x) * 0.15;
+                            const cp1y = point.y + (nextPoint.y - prevPoint.y) * 0.15;
+                            const cp2x = nextPoint.x - (nextPoint.x - point.x) * 0.15;
+                            const cp2y = nextPoint.y - (nextPoint.y - point.y) * 0.15;
+                            
+                            pathData += `C ${cp1x},${cp1y} ${cp2x},${cp2y} ${nextPoint.x},${nextPoint.y} `;
+                        }
+                    });
+                    pathData += 'Z';
+                    
+                    // Add path element with current color and opacity
+                    const alpha = 0.8 - (i * 0.07);
+                    svg.push(`<path d="${pathData}" fill="rgb(${color.r},${color.g},${color.b})" opacity="${alpha}"/>`);
+                }
+                
+                svg.push('</svg>');
+                return svg.join('\n');
+            }
+        }
+
+        class AudioVisualizer {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.liquidMass = new LiquidMass(canvas);
+                this.audioContext = null;
+                this.analyser = null;
+                this.audioSource = null;
+                this.dataArray = null;
+                this.isPlaying = false;
+                this.animate = this.animate.bind(this);
+            }
+
+            animate() {
+                if (this.analyser && this.isPlaying) {
+                    this.analyser.getByteFrequencyData(this.dataArray || new Uint8Array(32));
+                    this.liquidMass.updatePoints(this.dataArray || new Uint8Array(32));
+                    this.liquidMass.draw();
+                }
+                requestAnimationFrame(this.animate);
+            }
+        }
+    </script>
+    <!-- Add before the closing </body> tag -->
+    <script>
+        // Add the LiquidMass and ColorPalettes classes from vis2.html here
+        // [Previous class definitions...]
+
+        let currentVisualizer = 'default';
+        let liquidVisualizer = null;
+        const visualizerToggle = document.getElementById('visualizer-toggle');
+        const defaultCanvas = document.getElementById('default-canvas');
+        const liquidCanvas = document.getElementById('liquid-canvas');
+        const liquidContainer = document.querySelector('.liquid-visualizer');
+
+
+        // Set initial canvas sizes
+        liquidCanvas.width = window.innerWidth;
+        liquidCanvas.height = window.innerHeight;
+
+        // Update resize handler
+        window.addEventListener('resize', () => {
+            if (app) {
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                if (visualizer) {
+                    visualizer.resize(window.innerWidth, window.innerHeight);
+                }
+            }
+            liquidCanvas.width = window.innerWidth;
+            liquidCanvas.height = window.innerHeight;
+            if (liquidVisualizer) {
+                liquidVisualizer.liquidMass = new LiquidMass(liquidCanvas);
+            }
+        });
+
+        function switchVisualizer() {
+            console.log('Switching visualizer from:', currentVisualizer);
+            
+            const modeControls = document.querySelector('.changemode_');
+            const colorSpeedControl = document.querySelector('#colorSpeed').parentElement.parentElement;
+            const reloadControl = document.querySelector('#reloadInterval').parentElement.parentElement;
+            const additionalSettings = document.querySelector('.settings-group:last-child');
+            
+            if (currentVisualizer === 'default') {
+                // Save current visualization mode
+                const activeMode = document.querySelector('.changemode.active');
+                if (activeMode) {
+                    savedVisualizationMode = activeMode.getAttribute('data-mode');
+                    console.log('Saved mode:', savedVisualizationMode);
+                }
+                
+                // Switch to liquid visualizer
+                defaultCanvas.classList.add('inactive');
+                liquidContainer.classList.add('active');
+                currentVisualizer = 'liquid';
+                
+                // Hide controls
+                modeControls.style.display = 'none';
+                colorSpeedControl.style.display = 'none';
+                reloadControl.style.display = 'none';
+                additionalSettings.style.display = 'none';
+
+                liquidVisualizer = new AudioVisualizer(liquidCanvas);
+                console.log('Created new liquid visualizer');
+        
+                if (audioContext && analyser) {
+                        liquidVisualizer.audioContext = audioContext;
+                        liquidVisualizer.analyser = analyser;
+                        liquidVisualizer.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                        liquidVisualizer.isPlaying = !isPaused;
+                        liquidVisualizer.animate();
+                }
+
+                // Apply base color
+                if (baseColor) {
+                    liquidVisualizer.liquidMass.setBaseColor(baseColor);
+                }
+
+                if (!isPaused) {
+                    liquidVisualizer.animate();
+                }
+        
+            } else {
+                // Clean up liquid visualizer
+                if (liquidVisualizer) {
+                    liquidVisualizer.isPlaying = false;
+                    const ctx = liquidCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, liquidCanvas.width, liquidCanvas.height);
+                    document.body.style.backgroundColor = '';
+                    liquidVisualizer = null; // Destroy old instance
+                }
+
+
+                // Switch to default visualizer
+                defaultCanvas.classList.remove('inactive');
+                liquidContainer.classList.remove('active');
+                currentVisualizer = 'default';
+                
+                // Show controls
+                modeControls.style.display = 'flex';
+                colorSpeedControl.style.display = 'flex';
+                reloadControl.style.display = 'flex';
+                additionalSettings.style.display = 'block';
+                
+                // Restore saved visualization mode
+                if (savedVisualizationMode == null) {
+                    savedVisualizationMode = 'poly'; // Default mode if none saved
+                    console.log('No saved mode found, using default:', savedVisualizationMode);
+                }
+                
+                if (visualizer) {
+                    console.log('Restoring mode:', savedVisualizationMode);
+                    modeBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('data-mode') === savedVisualizationMode) {
+                            btn.classList.add('active');
+                            animationMode = savedVisualizationMode;
+                            visualizer.changeMode(savedVisualizationMode);
+                        }
+                    });
+                }
+                
+                if (!isPaused) {
+                    animate();
+                }
+            }
+            
+            console.log('Switched to:', currentVisualizer);
+        }
+
+        visualizerToggle.addEventListener('click', () => {
+            console.log('Visualizer toggle clicked');
+            switchVisualizer();
+        });
+
+        // Update playAudio function to handle both visualizers
+        const originalPlayAudio = playAudio;
+        playAudio = function() {
+            originalPlayAudio();
+            if (liquidVisualizer) {
+                liquidVisualizer.audioContext = audioContext;
+                liquidVisualizer.analyser = analyser;
+                liquidVisualizer.isPlaying = true;
+            }
+        };
+
+        // Update togglePause function to handle both visualizers
+        const originalTogglePause = togglePause;
+        function togglePause() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                pauseBtn.classList.add('paused');
+                pauseOverlay.classList.add('active');
+                audioContext.suspend();
+                cancelAnimationFrame(animationFrameId);
+                clearTimeout(reloadTimer);
+                
+                if (liquidVisualizer) {
+                    liquidVisualizer.isPlaying = false;
+                }
+            } else {
+                pauseBtn.classList.remove('paused');
+                pauseOverlay.classList.remove('active');
+                audioContext.resume();
+                
+                if (currentVisualizer === 'default') {
+                    animate();
+                } else if (liquidVisualizer) {
+                    liquidVisualizer.isPlaying = true;
+                    liquidVisualizer.animate();
+                }
+                
+                startReloadTimer();
+            }
+        }
     </script>
 </body>
 </html> 
