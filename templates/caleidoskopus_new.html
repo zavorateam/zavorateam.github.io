@@ -321,6 +321,55 @@
             transform: scale(1.1);
         }
 
+        .interface-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 5rem; /* Position it to the left of theme-toggle */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .interface-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .interface-toggle img {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .interface-hidden .container,
+        .interface-hidden .controls,
+        .interface-hidden .settings-toggle,
+        .interface-hidden .toggle-controls,
+        .interface-hidden .theme-toggle,
+        .interface-hidden .settings-panel,
+        .interface-hidden footer {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Adjust for mobile */
+        @media (max-width: 768px) {
+            .interface-toggle {
+                bottom: 1rem;
+                right: 4rem;
+                width: 40px;
+                height: 40px;
+            }
+        }
         footer {
             position: fixed;
             bottom: 0;
@@ -705,6 +754,7 @@
     </div>
 
     <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
+    <button class="interface-toggle" title="Скрыть/показать интерфейс">👁️</button>
     <button class="toggle-controls" title="Скрыть/показать панель управления">
         <img src="../caleidoskopus_files/ico-02.svg" alt="">
     </button>
@@ -1116,9 +1166,23 @@
             localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
         });
 
+        const interfaceToggle = document.querySelector('.interface-toggle');
+
+        interfaceToggle.addEventListener('click', () => {
+            body.classList.toggle('interface-hidden');
+            localStorage.setItem('interfaceHidden', body.classList.contains('interface-hidden'));
+            interfaceToggle.style.opacity = '1';
+            interfaceToggle.style.pointerEvents = 'auto';
+        });
+
         // Проверка сохраненной темы
         if (localStorage.getItem('darkMode') === 'true') {
             body.classList.add('dark-mode');
+        }
+
+        // Check saved state on load
+        if (localStorage.getItem('interfaceHidden') === 'true') {
+            body.classList.add('interface-hidden');
         }
 
         // Глобальные переменные
@@ -1486,8 +1550,8 @@
             colorChangeSpeed = parseFloat(e.target.value);
             colorSpeedValue.textContent = colorChangeSpeed.toFixed(1);
         });
+
     </script>
-    <!-- Add before the visualizer toggle code -->
     <script>
         class ColorPalettes {
             constructor() {
@@ -1859,8 +1923,6 @@
     </script>
     <!-- Add before the closing </body> tag -->
     <script>
-        // Add the LiquidMass and ColorPalettes classes from vis2.html here
-        // [Previous class definitions...]
 
         let currentVisualizer = 'default';
         let liquidVisualizer = null;
