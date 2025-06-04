@@ -1,0 +1,303 @@
+{
+  "cover300": "https://avatars.yandex.net/get-music-user-playlist/11418140/favorit-playlist-cover.bb48fdb9b9f4/300x300",
+  "author": "Vaultek",
+  "title": "Моё? любимое",
+  "disk": [
+    {
+      "name": "Часть 1",
+      "description": "Тогда всё шло хорошо",
+      "tracks": [
+        {
+          "label": "One More Time",
+          "artist": "Daft Punk",
+          "length": 320,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/32236/a833e47a.a.35654-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170831/Daft_Punk_-_One_More_Time_47896725.mp3"
+        },
+        {
+          "label": "Научиться бы не париться",
+          "artist": "Градусы",
+          "length": 207,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/33216/c0235ab2.a.1949855-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170830/Gradusy_-_Nauchitsya_by_ne_paritsya_47837858.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Диск 2",
+      "description": "А вот тут я решил измениться...",
+      "tracks": [
+        {
+          "label": "абсолютно похуй",
+          "artist": "валюша",
+          "length": 153,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/5503671/8f20a18f.a.30585717-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20241110/valyusha_-_absolyutno_pokhujj_78515293.mp3"
+        },
+        {
+          "label": "Да, со мной не просто",
+          "artist": "The Hatters",
+          "length": 127,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/113160/5d05a5aa.a.4288331-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170902/The_Hatters_-_Da_so_mnojj_ne_prosto_47951467.mp3"
+        },
+        {
+          "label": "Лицо",
+          "artist": "Созвездие Отрезок",
+          "length": 207,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/5696151/783198f1.a.21189384-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20220305/Sozvezdie_Otrezok_-_Lico_73889624.mp3"
+        },
+        {
+          "label": "Супермаркет",
+          "artist": "Пошлая Молли",
+          "length": 214,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/8096180/699d52cd.a.25431818-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20180607/Poshlaya_Molli_-_Supermarket_56508748.mp3"
+        },
+        {
+          "label": "Переживу",
+          "artist": "Монеточка",
+          "length": 248,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/2808981/a8ebc303.a.12298441-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20201003/Monetochka_-_Perezhivu_71131694.mp3"
+        },
+        {
+          "label": "Вот так",
+          "artist": "Алиса",
+          "length": 288,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/38044/f8e01abb.a.168939-3/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20220208/Alisa_-_Vot_tak_73780689.mp3"
+        },
+        {
+          "label": "Последний герой",
+          "artist": "КИНО",
+          "length": 187,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/10874616/ed78ad50.a.10374-6/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20180425/Kino_-_Poslednijj_gerojj_55527253.mp3"
+        },
+        {
+          "label": "12 обезьян",
+          "artist": "Ляпис Трубецкой",
+          "length": 173,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/63210/680ae5bc.a.3271841-3/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20180207/Lyapis_Trubeckojj_-_12_obezyan_53618573.mp3"
+        },
+        {
+          "label": "Владивосток 2000",
+          "artist": "Мумий Тролль",
+          "length": 158,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/42108/53d0769f.a.217019-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170901/Mumijj_Troll_-_Vladivostok_2000_47950004.mp3"
+        },
+        {
+          "label": "Планы",
+          "artist": "Владимир Клявин",
+          "length": 205,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/6300975/0b3ae001.a.22411594-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20241114/Vladimir_Klyavin_-_Plany_78545170.mp3"
+        },
+        {
+          "label": "Беспонтовый пирожок",
+          "artist": "Гражданская оборона",
+          "length": 191,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/95061/e1175358.a.4784595-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20171121/Grazhdanskaya_oborona_-_Bespontovyjj_pirozhok_50884182.mp3"
+        },
+        {
+          "label": "Вечером на лавочке",
+          "artist": "Сектор Газа",
+          "length": 245,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/49876/4c1c3963.a.3059438-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170905/Sektor_Gaza_-_Vecherom_na_lavochke_48202419.mp3"
+        },
+        {
+          "label": "Цветы в вазе",
+          "artist": "Кровосток",
+          "length": 142,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/176019/d595f8ab.a.6554921-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20180403/Krovostok_-_Cvety_v_vaze_55028827.mp3"
+        },
+        {
+          "label": "Чёрные очки",
+          "artist": "Комсомольск",
+          "length": 165,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/38044/5c47c2b0.a.4894560-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20171215/Komsomolsk_-_CHjornye_ochki_51604674.mp3"
+        },
+        {
+          "label": "Всем пиздец",
+          "artist": "Anacondaz",
+          "length": 183,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/41288/2fd35ce6.a.479580-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20190528/Anacondaz_-_Vsem_pizdec_64578020.mp3"
+        },
+        {
+          "label": "Дорога",
+          "artist": "АукцЫое",
+          "length": 198,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/5375761/8a1a349e.a.298444-4/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20211116/AukcYon_-_Doroga_73330124.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Часть 3",
+      "description": "Почему никто меня не поймёт",
+      "tracks": [
+        {
+          "label": "Gimme the loot",
+          "artist": "Big Baby Tape",
+          "length": 140,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/99892/2e5502a2.a.6072366-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20181117/Big_Baby_Tape_-_Gimme_The_Loot_60366687.mp3"
+        },
+        {
+          "label": "О любви",
+          "artist": "Чиж&Co",
+          "length": 276,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/6255016/2e3b5136.a.22517794-1/100x100 ",
+          "src": "https://rus.hitmotop.com/get/music/20170902/CHizh_Co_-_O_lyubvi_47951786.mp3"
+        },
+        {
+          "label": "Скованные одной цепью",
+          "artist": "Nautilus Pompilus",
+          "length": 251,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/42108/3fa1051b.a.10519-2/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20190521/Nautilus_Pompilius_-_Skovannye_odnojj_cepyu_64378449.mp3"
+        },
+        {
+          "label": "Мы сидели и курили",
+          "artist": "Сплин",
+          "length": 199,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/113160/89dd2d05.a.60060-2/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170902/Splin_-_My_sideli_i_kurili_47950814.mp3"
+        },
+        {
+          "label": "Гроза",
+          "artist": "Сова",
+          "length": 155,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/10874616/6d8249a2.a.30366558-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20240330/Sova_-_Groza_77657402.mp3"
+        },
+        {
+          "label": "Устрой дестрой",
+          "artist": "Noize MC",
+          "length": 240,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/193823/393db3f3.a.5195139-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20190614/Noze_MC_-_Ustrojj_Destrojj_65009419.mp3"
+        },
+        {
+          "label": "Ангел",
+          "artist": "Anacondaz",
+          "length": 187,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/97284/3b7daa6a.a.4154503-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170902/Anacondaz_-_Angel_47964872.mp3"
+        },
+        {
+          "label": "Дракон",
+          "artist": "Сергей Шнуров",
+          "length": 175,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/10129881/00c8ebdc.a.31332609-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20240526/Sergejj_SHnurov_-_Drakon_Muzyka_k_filmu_Majjor_Grom_Igra_77854470.mp3"
+        },
+        {
+          "label": "Заебался Улыбаться",
+          "artist": "Радиопомехи",
+          "length": 204,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/4468850/6900db20.a.14394321-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20210317/Radiopomekhi_-_Zaebalsya_ulybatsya_72854775.mp3"
+        },
+        {
+          "label": "Ты",
+          "artist": "Несладко",
+          "length": 261,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/6058982/090706cd.a.31735926-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20240614/Nesladko_-_Ty_77969204.mp3"
+        }
+      ]
+    },
+        {
+      "name": "Диск 1",
+      "description": "Стало лучше или я не изменился?",
+      "tracks": [
+        {
+          "label": "Электрический пейзаж",
+          "artist": "Комсомольск",
+          "length": 215,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/5413882/039e0d72.a.23802163-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20221022/Komsomolsk_-_JElektricheskijj_pejjzazh_74882199.mp3"
+        },
+        {
+          "label": "Get It Up",
+          "artist": "Mindless Self Indulgence",
+          "length": 155,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/41288/bf0c01b8.a.1891787-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20190518/Mindless_Self_Indulgence_-_Get_It_Up_64292243.mp3"
+        },
+        {
+          "label": "Они убили Кенни",
+          "artist": "СЛОТ",
+          "length": 223,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/32236/52846fa1.a.59791-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170902/SLOT_-_Oni_ubili_Kenni_47959891.mp3"
+        },
+        {
+          "label": "Шаганэ",
+          "artist": "Монеточка",
+          "length": 180,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/5587254/a04464b1.a.20152846-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20220208/Monetochka_-_SHaganje_73780569.mp3"
+        },
+        {
+          "label": "Невезуха - нету слуха",
+          "artist": "Сова",
+          "length": 163,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/42108/7013b03c.a.168831-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20170919/Aleksandr_Pushnojj_-_Nevezukha_netu_slukha_48712435.mp3"
+        },
+        {
+          "label": "Жюль Верн",
+          "artist": "Uma2rmaH",
+          "length": 237,
+          "codec": "MP3",
+          "cover100": "https://avatars.yandex.net/get-music-content/142001/33a56018.a.5318401-1/100x100",
+          "src": "https://rus.hitmotop.com/get/music/20180519/Uma2rmaH_-_ZHyul_Vern_56089640.mp33"
+        }
+      ]
+    }
+  ]
+}
