@@ -103,20 +103,5 @@
     "video_link": "https://www.youtube.com/watch?v=example7",
     "field1": "Продолжительность: 23 дня",
     "field2": "Капитуляция: 8 мая 1945"
-  },
-  {
-    "year": 1945,
-    "month": 8,
-    "week": 2,
-    "title": "Атомная бомбардировка Хиросимы",
-    "description": "Первое боевое применение ядерного оружия ознаменовало начало новой эры в истории человечества.",
-    "authors": "Акира Куросава",
-    "actors": "Тоширо Мифунэ",
-    "director": "Акира Куросава",
-    "history_link": "https://ru.wikipedia.org/wiki/Атомная_бомбардировка_Хиросимы",
-    "preview": "https://images.unsplash.com/photo-1600490749643-e3d0a4e37d4f?w=200&h=120&fit=crop",
-    "video_link": "https://www.youtube.com/watch?v=example8",
-    "field1": "Жертвы: 200,000 чел.",
-    "field2": "Бомба 'Малыш'"
   }
 ]
