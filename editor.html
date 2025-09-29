@@ -1,148 +1,320 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Timeline Editor (Supabase)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Timeline Editor — Supabase</title>
 <style>
-  body { font-family: sans-serif; margin:0; background: var(--bg); color: var(--fg); }
-  :root { --bg:#f6f8fa; --fg:#222; --card:#fff; }
-  [data-theme="dark"] { --bg:#0b1220; --fg:#eee; --card:#1c1c2c; }
-  .app { max-width:900px; margin:20px auto; padding:10px; }
-  .card { background:var(--card); padding:12px; margin-bottom:12px; border-radius:8px; }
-  input, textarea { width:100%; margin:4px 0; padding:6px; }
-  button { margin:4px; padding:6px 12px; }
-  .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  :root{ --bg:#f6f8fa; --fg:#111; --card:#fff; --muted:#556; }
+  [data-theme="dark"]{ --bg:#071020; --fg:#e6eef8; --card:#0f1724; --muted:#9db2c9; }
+  body{ margin:0; font-family:Inter, system-ui, Arial; background:var(--bg); color:var(--fg); }
+  .app{ max-width:1000px; margin:20px auto; padding:18px; }
+  .card{ background:var(--card); padding:12px; border-radius:10px; box-shadow:0 1px 0 rgba(0,0,0,0.04); margin-bottom:12px; }
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  input, textarea, select{ padding:8px; border-radius:6px; border:1px solid #ccc; background:transparent; color:var(--fg); }
+  button{ padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #999; cursor:pointer; }
+  .muted{ color:var(--muted); font-size:13px; }
+  textarea{ min-height:70px; }
+  .small{ font-size:13px; color:var(--muted); }
+  .error{ color:#c23; font-weight:600; }
+  .success{ color:#0a6; font-weight:600; }
+  .preview{ width:140px; height:90px; object-fit:cover; border-radius:6px; border:1px solid #ddd; }
+  .ep{ border:1px dashed rgba(0,0,0,0.06); padding:10px; border-radius:8px; margin-bottom:8px; }
 </style>
 </head>
 <body>
-<div id="app" class="app">
-  <h2>{{ t('title') }}</h2>
+<div id="app" class="app" :data-theme="theme">
+  <h1>Timeline Editor (Supabase)</h1>
 
-  <!-- Login box -->
-  <div v-if="!user" class="card">
-    <h3>{{ t('login') }}</h3>
-    <input v-model="authEmail" placeholder="Email">
-    <input v-model="authPassword" type="password" placeholder="Password">
-    <button @click="signIn">{{ t('signin') }}</button>
-    <button @click="signUp">{{ t('signup') }}</button>
+  <div class="card">
+    <div class="row">
+      <div style="flex:1">
+        <div class="small">Project URL</div>
+        <input v-model="localConfig.url" placeholder="https://xyz.supabase.co" />
+      </div>
+      <div style="flex:1">
+        <div class="small">anon public key</div>
+        <input v-model="localConfig.anon" placeholder="eyJhbGciOi..." />
+      </div>
+      <div style="width:180px;">
+        <div class="small">Bucket</div>
+        <input v-model="localConfig.bucket" />
+      </div>
+      <div class="row" style="align-self:flex-end;">
+        <button @click="applyConfig">Сохранить настройки</button>
+        <button @click="clearConfig" title="Удалить из localStorage">Сброс</button>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:8px;">
+      Настройки хранятся в localStorage. Можно вставить сюда значения из Supabase → Project → API (Project URL + anon key).
+    </div>
+  </div>
+
+  <!-- Auth box -->
+  <div class="card">
+    <div v-if="!user">
+      <h3>Вход / регистрация</h3>
+      <div class="row">
+        <input style="flex:1" v-model="authEmail" placeholder="Email" />
+        <input style="flex:1" v-model="authPassword" type="password" placeholder="Пароль" />
+        <button @click="signIn" :disabled="!clientReady">Войти</button>
+        <button @click="signUp" :disabled="!clientReady">Зарегистрироваться</button>
+      </div>
+      <div class="small muted" style="margin-top:8px;">
+        Если видите ошибку <strong>"missing email or phone"</strong> — просто введите email и пароль в поля слева.
+      </div>
+    </div>
+    <div v-else>
+      <div class="row">
+        <div style="flex:1"><strong>{{ user.email }}</strong> <span class="small muted"> (id: {{ user.id }})</span></div>
+        <div class="row">
+          <button @click="signOut">Выйти</button>
+          <button @click="loadFile">Загрузить файл</button>
+          <button @click="saveFile">Сохранить в Supabase</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <span v-if="message" :class="messageType">{{ message }}</span>
+    </div>
   </div>
 
   <!-- Editor -->
-  <div v-else>
-    <div class="flex">
-      <div>{{ user.email }}</div>
-      <button @click="signOut">{{ t('signout') }}</button>
-      <button @click="toggleTheme">{{ theme==='light'?t('dark'):t('light') }}</button>
-      <select v-model="lang">
-        <option value="ru">Русский</option>
-        <option value="en">English</option>
-      </select>
+  <div v-if="episodes" class="card">
+    <div class="row" style="margin-bottom:8px;">
+      <button @click="addEpisode">Добавить эпизод</button>
+      <input v-model.number="filterYear" type="number" placeholder="Фильтр по году" />
+      <button @click="clearFilter">Очистить фильтр</button>
+      <div class="small muted" style="margin-left:auto">Файл: <strong>{{ filePath }}</strong></div>
     </div>
 
-    <div class="flex">
-      <button @click="loadFile">{{ t('load') }}</button>
-      <button @click="saveFile">{{ t('save') }}</button>
-    </div>
+    <div v-if="filtered.length===0" class="small muted">Эпизоды не найдены</div>
 
-    <button @click="addEpisode">{{ t('addEpisode') }}</button>
-
-    <div v-for="(ep,idx) in episodes" :key="idx" class="card">
-      <input v-model="ep.title" placeholder="Title">
-      <div class="flex">
-        <input type="number" v-model.number="ep.year" placeholder="Year">
-        <input type="number" v-model.number="ep.month" placeholder="Month">
-        <input type="number" v-model.number="ep.week" placeholder="Week">
+    <div v-for="(ep, idx) in filtered" :key="idx" class="ep">
+      <div class="row">
+        <div style="flex:1">
+          <input v-model="ep.title" placeholder="Заголовок" />
+        </div>
+        <div style="width:120px">
+          <input v-model.number="ep.year" type="number" placeholder="Year" />
+        </div>
+        <div style="width:100px">
+          <input v-model.number="ep.month" type="number" placeholder="Month" />
+        </div>
+        <div style="width:90px">
+          <input v-model.number="ep.week" type="number" placeholder="Week" />
+        </div>
       </div>
-      <textarea v-model="ep.description" rows="3" placeholder="Description"></textarea>
-      <input v-model="ep.authors" placeholder="Authors">
-      <input v-model="ep.actors" placeholder="Actors">
-      <input v-model="ep.director" placeholder="Director">
-      <input v-model="ep.history_link" placeholder="History link">
-      <input v-model="ep.preview" placeholder="Preview URL">
-      <input v-model="ep.video_link" placeholder="Video link">
-      <div class="flex">
-        <button @click="remove(idx)">{{ t('delete') }}</button>
-        <button @click="duplicate(idx)">{{ t('duplicate') }}</button>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <div style="flex:1">
+          <textarea v-model="ep.description" placeholder="Описание"></textarea>
+          <div class="row" style="margin-top:6px;">
+            <input v-model="ep.authors" placeholder="Authors" />
+            <input v-model="ep.actors" placeholder="Actors" />
+            <input v-model="ep.director" placeholder="Director" />
+          </div>
+          <input v-model="ep.history_link" placeholder="History link" style="margin-top:6px;" />
+          <input v-model="ep.video_link" placeholder="Video link" style="margin-top:6px;" />
+        </div>
+        <div style="width:160px;">
+          <input v-model="ep.preview" placeholder="Preview URL" />
+          <div style="margin-top:8px;">
+            <img v-if="ep.preview" :src="ep.preview" class="preview" />
+            <div v-else class="small muted">Нет превью</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <button @click="duplicate(idx)">Дублировать</button>
+        <button @click="remove(idx)">Удалить</button>
+        <button @click="moveUp(idx)" :disabled="idx===0">↑</button>
+        <button @click="moveDown(idx)" :disabled="idx===episodes.length-1">↓</button>
       </div>
     </div>
   </div>
+
+  <div class="card small muted">
+    <b>Советы при проблемах:</b>
+    <ul>
+      <li>Убедитесь, что вы вставили <code>Project URL</code> и <code>anon key</code> (Project → API в Supabase).</li>
+      <li>В Supabase: Authentication → Settings → ENABLE email signups (Allow new signups = ON), если хотите регистрировать аккаунты.</li>
+      <li>Запускайте страницу через HTTP (не file://). Используйте <code>python -m http.server</code> или VS Code Live Server.</li>
+      <li>Откройте DevTools → Console — там видны подробные ошибки от Supabase.</li>
+      <li>Если видите <code>Anonymous sign-ins are disabled</code> — значит был вызов OAuth / anonymous flow. Убедитесь, что вы используете <strong>signInWithPassword</strong> и передаёте email+password.</li>
+    </ul>
+  </div>
 </div>
 
-<!-- Vue & Supabase -->
+<!-- libs -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <script>
-const { createApp, reactive } = Vue;
-
+const { createApp, reactive, computed } = Vue;
 createApp({
-  setup() {
-    // === CONFIG: вставьте свои данные ===
-    const SUPABASE_URL = "https://motldrpgprrgghzcybyq.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vdGxkcnBncHJyZ2doemN5YnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTU4NDIsImV4cCI6MjA3NDczMTg0Mn0.whhbvh_VmdSYsfHB34JuHAS2dOPVjf-lrsr0_XmybQA";
-    const FILE_PATH = "timeline-data.json";
-    const BUCKET = "timeline";
+  setup(){
+    const filePath = 'timeline-data.json';
+    const defaultBucket = 'timeline';
 
-    const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const state = reactive({
-      user:null,
-      authEmail:"",
-      authPassword:"",
-      episodes:[],
-      theme: localStorage.getItem("theme")||"light",
-      lang: localStorage.getItem("lang")||"ru"
+    // localConfig allows user to paste Project URL + anon key instead of editing file
+    const localConfig = reactive({
+      url: localStorage.getItem('S_URL') || '',
+      anon: localStorage.getItem('S_ANON') || '',
+      bucket: localStorage.getItem('S_BUCKET') || defaultBucket
     });
 
-    // i18n
-    const dict = {
-      ru:{title:"Редактор Timeline",login:"Вход",signin:"Войти",signup:"Регистрация",signout:"Выйти",load:"Загрузить",save:"Сохранить",addEpisode:"Добавить эпизод",delete:"Удалить",duplicate:"Дублировать",dark:"Тёмная",light:"Светлая"},
-      en:{title:"Timeline Editor",login:"Login",signin:"Sign in",signup:"Sign up",signout:"Sign out",load:"Load",save:"Save",addEpisode:"Add episode",delete:"Delete",duplicate:"Duplicate",dark:"Dark",light:"Light"}
-    };
-    const t = k => dict[state.lang][k]||k;
+    let supaClient = null;
 
-    // Auth
-    supa.auth.onAuthStateChange((_,session)=>{ state.user=session?.user||null; });
+    const state = reactive({
+      user: null,
+      authEmail: '',
+      authPassword: '',
+      episodes: [],
+      filterYear: null,
+      message: '',
+      messageType: '',
+      theme: localStorage.getItem('theme') || 'light'
+    });
 
+    // helpers
+    function setMsg(text, type='') { state.message = text; state.messageType = type ? (type==='err' ? 'error' : 'success') : ''; }
+    function clearMsg(){ state.message=''; state.messageType=''; }
+
+    const clientReady = computed(()=> !!(localConfig.url && localConfig.anon));
+
+    // initialize client if config present
+    function initClient(){
+      if (!localConfig.url || !localConfig.anon) { supaClient = null; setMsg('Supabase not configured — вставьте URL и ANON key.', 'err'); return; }
+      try {
+        supaClient = supabase.createClient(localConfig.url, localConfig.anon);
+        // подписка на состояние auth
+        supaClient.auth.onAuthStateChange((_, session) => {
+          state.user = session?.user ?? null;
+        });
+        // try get session
+        (async()=>{
+          const { data } = await supaClient.auth.getSession();
+          state.user = data?.session?.user ?? null;
+        })();
+        setMsg('Supabase client ready', 'ok');
+      } catch(e){
+        supaClient = null;
+        setMsg('Ошибка инициализации Supabase: ' + e.message, 'err');
+      }
+    }
+
+    // apply config button
+    function applyConfig(){
+      localStorage.setItem('S_URL', localConfig.url);
+      localStorage.setItem('S_ANON', localConfig.anon);
+      localStorage.setItem('S_BUCKET', localConfig.bucket);
+      setMsg('Сохранено в localStorage. Инициализирую клиент...');
+      initClient();
+    }
+    function clearConfig(){
+      localStorage.removeItem('S_URL'); localStorage.removeItem('S_ANON'); localStorage.removeItem('S_BUCKET');
+      localConfig.url=''; localConfig.anon=''; localConfig.bucket=defaultBucket;
+      supaClient = null;
+      setMsg('Настройки удалены.');
+    }
+
+    // AUTH
     async function signIn(){
-      const {error} = await supa.auth.signInWithPassword({email:state.authEmail,password:state.authPassword});
-      if(error) alert(error.message);
+      clearMsg();
+      if (!clientReady.value){ setMsg('Сначала сохраните Project URL и anon key', 'err'); return; }
+      if (!state.authEmail || !state.authPassword){ setMsg('Введите email и пароль', 'err'); return; }
+      try {
+        const { error, data } = await supaClient.auth.signInWithPassword({
+          email: state.authEmail,
+          password: state.authPassword
+        });
+        if (error) { setMsg('SignIn error: ' + error.message, 'err'); return; }
+        state.user = data.user ?? null;
+        setMsg('Вход успешен', 'ok');
+      } catch(e){
+        setMsg('SignIn exception: ' + e.message, 'err');
+      }
     }
+
     async function signUp(){
-      const {error} = await supa.auth.signUp({email:state.authEmail,password:state.authPassword});
-      if(error) alert(error.message); else alert("Check your email to confirm");
+      clearMsg();
+      if (!clientReady.value){ setMsg('Сначала сохраните Project URL и anon key', 'err'); return; }
+      if (!state.authEmail || !state.authPassword){ setMsg('Введите email и пароль', 'err'); return; }
+      try {
+        const { error } = await supaClient.auth.signUp({ email: state.authEmail, password: state.authPassword });
+        if (error) { setMsg('SignUp error: ' + error.message, 'err'); return; }
+        setMsg('Регистрация: проверьте почту для подтверждения (если включено)', 'ok');
+      } catch(e){ setMsg('SignUp exception: '+e.message, 'err'); }
     }
-    async function signOut(){ await supa.auth.signOut(); }
 
-    // Load file
+    async function signOut(){ if (!supaClient) return; await supaClient.auth.signOut(); state.user=null; setMsg('Вышли'); }
+
+    // file operations
     async function loadFile(){
-      const { data, error } = await supa.storage.from(BUCKET).download(FILE_PATH);
-      if(error){ alert("Error load: "+error.message); return; }
-      const text = await data.text();
-      try { state.episodes = JSON.parse(text)||[]; } catch(e){ alert("JSON parse error"); }
+      clearMsg();
+      if (!supaClient){ setMsg('Supabase не инициализирован', 'err'); return; }
+      try {
+        const { data, error } = await supaClient.storage.from(localConfig.bucket).download(filePath);
+        if (error){
+          setMsg('Download error: ' + error.message, 'err');
+          return;
+        }
+        const text = await data.text();
+        state.episodes = JSON.parse(text || '[]');
+        setMsg('Файл загружен ('+state.episodes.length+' эпизодов)', 'ok');
+      } catch(e){
+        setMsg('Ошибка загрузки: ' + e.message, 'err');
+      }
     }
 
-    // Save file
     async function saveFile(){
-      const blob = new Blob([JSON.stringify(state.episodes,null,2)],{type:"application/json"});
-      const { error } = await supa.storage.from(BUCKET).upload(FILE_PATH, blob, { upsert:true, contentType:"application/json" });
-      if(error) alert("Error save: "+error.message); else alert("Saved!");
+      clearMsg();
+      if (!supaClient){ setMsg('Supabase не инициализирован', 'err'); return; }
+      try {
+        const blob = new Blob([JSON.stringify(state.episodes, null, 2)], { type:'application/json' });
+        const { error } = await supaClient.storage.from(localConfig.bucket).upload(filePath, blob, { upsert:true, contentType:'application/json' });
+        if (error){ setMsg('Upload error: ' + error.message, 'err'); return; }
+        setMsg('Сохранено в Storage', 'ok');
+      } catch(e){ setMsg('Ошибка сохранения: ' + e.message, 'err'); }
     }
 
     // CRUD
     function addEpisode(){
-      state.episodes.push({year:new Date().getFullYear(),month:1,week:1,title:"New",description:"",authors:"",actors:"",director:"",history_link:"",preview:"",video_link:""});
+      state.episodes.push({ year:new Date().getFullYear(), month:1, week:1, title:'Новый эпизод', description:'', authors:'', actors:'', director:'', history_link:'', preview:'', video_link:'' });
     }
-    function remove(i){ state.episodes.splice(i,1); }
-    function duplicate(i){ state.episodes.splice(i+1,0,JSON.parse(JSON.stringify(state.episodes[i]))); }
+    function remove(i){ if(confirm('Удалить эпизод?')) state.episodes.splice(i,1); }
+    function duplicate(i){ state.episodes.splice(i+1,0, JSON.parse(JSON.stringify(state.episodes[i])) ); }
+    function moveUp(i){ if(i>0) state.episodes.splice(i-1,0, state.episodes.splice(i,1)[0]); }
+    function moveDown(i){ if(i < state.episodes.length-1) state.episodes.splice(i+1,0, state.episodes.splice(i,1)[0]); }
+    function clearFilter(){ state.filterYear = null; }
 
-    function toggleTheme(){ state.theme = (state.theme==="light"?"dark":"light"); localStorage.setItem("theme",state.theme); document.body.dataset.theme=state.theme; }
+    // computed filtered
+    const filtered = computed(()=> {
+      let arr = state.episodes || [];
+      if (state.filterYear) arr = arr.filter(e=>Number(e.year) === Number(state.filterYear));
+      return arr.sort((a,b)=> (a.year - b.year) || (a.month - b.month) || (a.week - b.week));
+    });
 
-    document.body.dataset.theme=state.theme;
+    // theme
+    const theme = state.theme;
+    document.body.setAttribute('data-theme', state.theme);
 
-    return {...state,signIn,signUp,signOut,loadFile,saveFile,addEpisode,remove,duplicate,t,toggleTheme};
+    // on start: try auto-init if config present
+    if (localConfig.url && localConfig.anon) initClient();
+
+    return {
+      localConfig, applyConfig, clearConfig, clientReady,
+      authEmail: state.authEmail, authPassword: state.authPassword,
+      signIn, signUp, signOut, user: state.user, loadFile, saveFile,
+      episodes: state.episodes, addEpisode, remove, duplicate, moveUp, moveDown,
+      filtered, filterYear: state.filterYear, clearFilter, filePath,
+      message: state.message, messageType: state.messageType, setMsg,
+      theme, clearMsg
+    };
   }
-}).mount("#app");
+}).mount('#app');
 </script>
 </body>
 </html>
