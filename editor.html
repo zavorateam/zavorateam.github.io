@@ -3,318 +3,688 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Timeline Editor — Supabase</title>
+<title>Timeline Admin</title>
+
+<!-- Supabase JS UMD -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+
 <style>
-  :root{ --bg:#f6f8fa; --fg:#111; --card:#fff; --muted:#556; }
-  [data-theme="dark"]{ --bg:#071020; --fg:#e6eef8; --card:#0f1724; --muted:#9db2c9; }
-  body{ margin:0; font-family:Inter, system-ui, Arial; background:var(--bg); color:var(--fg); }
-  .app{ max-width:1000px; margin:20px auto; padding:18px; }
-  .card{ background:var(--card); padding:12px; border-radius:10px; box-shadow:0 1px 0 rgba(0,0,0,0.04); margin-bottom:12px; }
-  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  input, textarea, select{ padding:8px; border-radius:6px; border:1px solid #ccc; background:transparent; color:var(--fg); }
-  button{ padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #999; cursor:pointer; }
-  .muted{ color:var(--muted); font-size:13px; }
-  textarea{ min-height:70px; }
-  .small{ font-size:13px; color:var(--muted); }
-  .error{ color:#c23; font-weight:600; }
-  .success{ color:#0a6; font-weight:600; }
-  .preview{ width:140px; height:90px; object-fit:cover; border-radius:6px; border:1px solid #ddd; }
-  .ep{ border:1px dashed rgba(0,0,0,0.06); padding:10px; border-radius:8px; margin-bottom:8px; }
+  /* -------------------
+     Theme variables
+     ------------------- */
+  :root{
+    --bg-dark: #0b1020;
+    --card-dark: #0f1724;
+    --glass-dark: rgba(255,255,255,0.06);
+    --text-dark: #e6eef8;
+    --muted-dark: #9aa7bd;
+    --accent-dark: rgba(120,170,255,0.12);
+
+    --bg-light: #f6f9fc;
+    --card-light: rgba(255,255,255,0.65);
+    --glass-light: rgba(255,255,255,0.75);
+    --text-light: #0b1220;
+    --muted-light: #475569;
+    --accent-light: rgba(20,120,255,0.06);
+
+    --control-radius: 14px;
+    --soft-shadow: 0 10px 30px rgba(2,6,23,0.45);
+  }
+
+  /* -------------------
+     Base body / fonts
+     ------------------- */
+  body {
+    margin:0; min-height:100vh;
+    font-family: Inter, "SF Pro Text", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    transition: background .28s ease, color .28s ease;
+    --mouse-x: 0; --mouse-y: 0;
+  }
+
+  /* Light theme overrides */
+  body[data-theme="light"]{
+    background: linear-gradient(180deg, #fbfdff, #f0f6fb);
+    color: var(--text-light);
+  }
+
+  /* Wrap / layout */
+  .wrap{
+    max-width:1480px; margin:44px auto; padding:30px;
+    transform-style:preserve-3d; perspective:1200px;
+    position: relative; z-index: 1;
+  }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:26px;
+  }
+  .brand{display:flex; gap:14px; align-items:center;}
+  .logo{
+    width:68px;height:68px;border-radius:18px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    box-shadow: 0 12px 40px rgba(2,8,25,0.6), inset 0 2px 6px rgba(255,255,255,0.02);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  h1{font-size:20px; margin:0;}
+  p.lead{margin:0; font-size:13px; color:var(--muted-dark);}
+  body[data-theme="light"] p.lead{color:var(--muted-light);}
+
+  /* Controls */
+  .controls{display:flex; gap:10px; align-items:center;}
+  .btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:var(--control-radius);
+    border: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    color: inherit; font-weight:700; cursor:pointer; font-size:13px;
+    box-shadow: var(--soft-shadow);
+    transition: transform .12s ease, box-shadow .18s ease, background .2s;
+    backdrop-filter: blur(12px) saturate(140%);
+  }
+  .btn:active{ transform: translateY(2px); box-shadow: 0 6px 18px rgba(2,6,23,0.35); }
+  .btn.ghost{
+    background: transparent; border:1px dashed rgba(255,255,255,0.06); font-weight:600;
+  }
+  .btn.small{ padding:8px 10px; font-size:13px; border-radius:12px; }
+
+  /* Language toggle: small pill with text */
+  .lang-toggle {
+    display:flex; gap:6px; align-items:center; padding:6px; border-radius:999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .lang-toggle button{ border-radius:10px; padding:6px 10px; font-weight:700; cursor:pointer; background:transparent; color:var(--muted-dark); border:none; }
+  .lang-toggle button.active{ background: rgba(255,255,255,0.06); color:inherit; }
+
+  /* Main layout: wider editor */
+  main{ display:grid; grid-template-columns: 1fr 520px; gap:28px; align-items:start; }
+
+  /* List (left) */
+  .list{
+    border-radius:22px; padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 18px 60px rgba(2,6,23,0.55);
+    border: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(14px) saturate(140%);
+    min-height:64vh;
+    transition: background .28s;
+  }
+  .list .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .episodes-count{ color:var(--muted-dark); font-size:13px; }
+
+  /* Episode card */
+  .episode{
+    display:flex; gap:14px; align-items:flex-start; padding:14px; margin-bottom:14px;
+    border-radius:14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.03);
+    transition: transform .15s ease, box-shadow .18s;
+  }
+  .episode:hover{ transform: translateY(-6px); box-shadow: 0 18px 50px rgba(5,10,20,0.32); }
+  .thumb{ width:140px; height:88px; border-radius:12px; overflow:hidden; background:#0e1115; flex:0 0 140px; }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .meta{ flex:1; min-width:0; } /* min-width for ellipsis behavior */
+  .title{ font-weight:800; margin:0 0 6px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .desc{ color:var(--muted-dark); margin:0 0 8px 0; font-size:13px; max-height:40px; overflow:hidden; }
+  body[data-theme="light"] .desc{ color:var(--muted-light); }
+  .ep-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  /* Editor (right) - make wider and consistent padding */
+  .editor{
+    position:sticky; top:30px; align-self:start;
+    border-radius:20px; padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 18px 60px rgba(2,6,23,0.45);
+    backdrop-filter: blur(14px) saturate(140%);
+    min-height:64vh;
+    transition: background .28s, color .28s;
+  }
+  /* Editor background must adapt to theme */
+  body[data-theme="dark"] .editor{
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    color: var(--text-dark);
+  }
+  body[data-theme="light"] .editor{
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+    border: 1px solid rgba(20,30,50,0.04);
+    color: var(--text-light);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06);
+    backdrop-filter: blur(8px) saturate(120%);
+  }
+
+  .editor h3{ margin:0 0 10px 0; font-size:16px; }
+  .editor .muted-small{ color:var(--muted-dark); font-size:13px; margin-bottom:8px; }
+  body[data-theme="light"] .editor .muted-small{ color:var(--muted-light); }
+
+  .field{ margin-bottom:12px; display:block; }
+  label{ display:block; font-size:13px; margin-bottom:6px; color:var(--muted-dark); }
+  body[data-theme="light"] label{ color:var(--muted-light); }
+  input[type="text"], input[type="number"], textarea{
+    width:100%; padding:12px; border-radius:12px; font-size:14px;
+    border:1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); color:inherit;
+    transition: box-shadow .12s, transform .08s;
+    outline: none;
+  }
+  body[data-theme="light"] input, body[data-theme="light"] textarea{
+    background: rgba(255,255,255,0.95); border:1px solid rgba(16,24,40,0.06); color:var(--text-light);
+  }
+  input:focus, textarea:focus{ box-shadow: 0 6px 18px rgba(30,60,120,0.08); transform: translateY(-2px); }
+
+  .row{ display:flex; gap:10px; }
+  .row .field{ flex:1; }
+
+  footer{ margin-top:26px; display:flex; align-items:center; justify-content:space-between; color:var(--muted-dark); font-size:13px; }
+  body[data-theme="light"] footer{ color:var(--muted-light); }
+
+  /* Add button area at bottom of list */
+  .add-area { margin-top:12px; text-align:center; }
+
+  /* glass-halo: only in dark theme, subtle */
+  .glass-halo {
+    position:absolute;
+    top:25px; left:25px; right:25px; bottom:25px;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.05), transparent 70%);
+    backdrop-filter: blur(30px) saturate(150%);
+    pointer-events:none;
+    z-index:0; /* ниже всех */
+    border-radius: 25px;
+  }
+
+  body[data-theme="dark"] .glass-halo{ opacity:1; transform: translateY(0); }
+  body[data-theme="light"] .glass-halo{ opacity:0.9; transform: translateY(0); }
+
+  body {
+    /* Если страница должна быть фиксированной по ширине, вынесите нужную ширину: */
+    /* width: 1024px; → фиксированная ширина */
+    overflow-x: hidden;        /* Паркировка по горизонтали скрыта */
+    /* overflow-y: hidden;        Паркировка по вертикали скрыта */
+    /* overflow: hidden;        → сразу обе оси */
+  }
+
+  /* 3.  Не позволяйте всплывающим элементам выходить за границы окна */
+  *, *::before, *::after {
+      box-sizing: border-box;
+  }
+
+  /* Small responsive */
+  @media (max-width:1100px){
+    main{ grid-template-columns: 1fr 420px; }
+    .wrap{ padding:20px; }
+  }
+  @media (max-width:860px){
+    main{ grid-template-columns: 1fr; }
+    .editor{ position:relative; top:auto; margin-top:18px; }
+    .glass-halo{ display:none; }
+  }
 </style>
 </head>
-<body>
-<div id="app" class="app" :data-theme="theme">
-  <h1>Timeline Editor (Supabase)</h1>
+<body data-theme="dark" dir="ltr">
+<div class="wrap" id="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden>
+        <!-- subtle SVG icon -->
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+          <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#g)"></rect>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.06"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.02"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <h1 id="ui-title">Timeline Admin</h1>
+        <p class="lead" id="ui-sub">Visual JSON timeline editor — Supabase sync</p>
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="row">
-      <div style="flex:1">
-        <div class="small">Project URL</div>
-        <input v-model="localConfig.url" placeholder="https://xyz.supabase.co" />
+    <div class="controls" role="toolbar" aria-label="Controls">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button id="btn-ru" class="active" aria-pressed="true">RU</button>
+        <button id="btn-en">EN</button>
       </div>
-      <div style="flex:1">
-        <div class="small">anon public key</div>
-        <input v-model="localConfig.anon" placeholder="eyJhbGciOi..." />
-      </div>
-      <div style="width:180px;">
-        <div class="small">Bucket</div>
-        <input v-model="localConfig.bucket" />
-      </div>
-      <div class="row" style="align-self:flex-end;">
-        <button @click="applyConfig">Сохранить настройки</button>
-        <button @click="clearConfig" title="Удалить из localStorage">Сброс</button>
-      </div>
-    </div>
-    <div class="small muted" style="margin-top:8px;">
-      Настройки хранятся в localStorage. Можно вставить сюда значения из Supabase → Project → API (Project URL + anon key).
-    </div>
-  </div>
 
-  <!-- Auth box -->
-  <div class="card">
-    <div v-if="!user">
-      <h3>Вход / регистрация</h3>
-      <div class="row">
-        <input style="flex:1" v-model="authEmail" placeholder="Email" />
-        <input style="flex:1" v-model="authPassword" type="password" placeholder="Пароль" />
-        <button @click="signIn" :disabled="!clientReady">Войти</button>
-        <button @click="signUp" :disabled="!clientReady">Зарегистрироваться</button>
-      </div>
-      <div class="small muted" style="margin-top:8px;">
-        Если видите ошибку <strong>"missing email or phone"</strong> — просто введите email и пароль в поля слева.
-      </div>
+      <button id="theme-toggle" class="btn small" aria-pressed="false">Light</button>
+      <button id="load-btn" class="btn small">Load</button>
+      <button id="save-btn" class="btn small">Save</button>
     </div>
-    <div v-else>
-      <div class="row">
-        <div style="flex:1"><strong>{{ user.email }}</strong> <span class="small muted"> (id: {{ user.id }})</span></div>
+  </header>
+
+  <main>
+    <!-- LEFT: list -->
+    <section class="list" id="list">
+      <div class="topbar">
+        <div class="episodes-count" id="episodes-count">0 episodes</div>
+        <div class="muted-small" id="list-sub">—</div>
+      </div>
+
+      <div id="episodes-container" aria-live="polite"></div>
+
+      <div class="add-area">
+        <button id="add-ep" class="btn small" style="display:none">+ Add episode</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: editor -->
+    <aside class="editor" id="editor" aria-labelledby="edit-heading">
+      <h3 id="edit-heading">Editor</h3>
+      <div id="editor-empty" class="muted-small">Load data and select an episode</div>
+
+      <div id="editor-form" style="display:none">
         <div class="row">
-          <button @click="signOut">Выйти</button>
-          <button @click="loadFile">Загрузить файл</button>
-          <button @click="saveFile">Сохранить в Supabase</button>
+          <div class="field"><label id="lbl-year">Year</label><input id="f-year" type="number" /></div>
+          <div class="field"><label id="lbl-month">Month</label><input id="f-month" type="number" /></div>
+          <div class="field"><label id="lbl-week">Week</label><input id="f-week" type="number" /></div>
         </div>
+
+        <div class="field"><label id="lbl-title">Title</label><input id="f-title" type="text" /></div>
+        <div class="field"><label id="lbl-desc">Description</label><textarea id="f-description"></textarea></div>
+        <div class="field"><label id="lbl-preview">Preview (image url)</label><input id="f-preview" type="text" /></div>
+        <div class="field"><label id="lbl-history">History link</label><input id="f-history" type="text" /></div>
+
+        <div class="row">
+          <div class="field"><label id="lbl-field1">Field 1</label><input id="f-field1" type="text" /></div>
+          <div class="field"><label id="lbl-field2">Field 2</label><input id="f-field2" type="text" /></div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button id="update-ep" class="btn">Save changes</button>
+          <button id="delete-ep" class="btn ghost">Delete episode</button>
+        </div>
+
+        <div style="margin-top:12px;" class="muted-small" id="last-saved">—</div>
       </div>
-    </div>
-    <div style="margin-top:8px;">
-      <span v-if="message" :class="messageType">{{ message }}</span>
-    </div>
-  </div>
+    </aside>
+  </main>
 
-  <!-- Editor -->
-  <div v-if="episodes" class="card">
-    <div class="row" style="margin-bottom:8px;">
-      <button @click="addEpisode">Добавить эпизод</button>
-      <input v-model.number="filterYear" type="number" placeholder="Фильтр по году" />
-      <button @click="clearFilter">Очистить фильтр</button>
-      <div class="small muted" style="margin-left:auto">Файл: <strong>{{ filePath }}</strong></div>
-    </div>
-
-    <div v-if="filtered.length===0" class="small muted">Эпизоды не найдены</div>
-
-    <div v-for="(ep, idx) in filtered" :key="idx" class="ep">
-      <div class="row">
-        <div style="flex:1">
-          <input v-model="ep.title" placeholder="Заголовок" />
-        </div>
-        <div style="width:120px">
-          <input v-model.number="ep.year" type="number" placeholder="Year" />
-        </div>
-        <div style="width:100px">
-          <input v-model.number="ep.month" type="number" placeholder="Month" />
-        </div>
-        <div style="width:90px">
-          <input v-model.number="ep.week" type="number" placeholder="Week" />
-        </div>
-      </div>
-
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <div style="flex:1">
-          <textarea v-model="ep.description" placeholder="Описание"></textarea>
-          <div class="row" style="margin-top:6px;">
-            <input v-model="ep.authors" placeholder="Authors" />
-            <input v-model="ep.actors" placeholder="Actors" />
-            <input v-model="ep.director" placeholder="Director" />
-          </div>
-          <input v-model="ep.history_link" placeholder="History link" style="margin-top:6px;" />
-          <input v-model="ep.video_link" placeholder="Video link" style="margin-top:6px;" />
-        </div>
-        <div style="width:160px;">
-          <input v-model="ep.preview" placeholder="Preview URL" />
-          <div style="margin-top:8px;">
-            <img v-if="ep.preview" :src="ep.preview" class="preview" />
-            <div v-else class="small muted">Нет превью</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:8px;">
-        <button @click="duplicate(idx)">Дублировать</button>
-        <button @click="remove(idx)">Удалить</button>
-        <button @click="moveUp(idx)" :disabled="idx===0">↑</button>
-        <button @click="moveDown(idx)" :disabled="idx===episodes.length-1">↓</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card small muted">
-    <b>Советы при проблемах:</b>
-    <ul>
-      <li>Убедитесь, что вы вставили <code>Project URL</code> и <code>anon key</code> (Project → API в Supabase).</li>
-      <li>В Supabase: Authentication → Settings → ENABLE email signups (Allow new signups = ON), если хотите регистрировать аккаунты.</li>
-      <li>Запускайте страницу через HTTP (не file://). Используйте <code>python -m http.server</code> или VS Code Live Server.</li>
-      <li>Откройте DevTools → Console — там видны подробные ошибки от Supabase.</li>
-      <li>Если видите <code>Anonymous sign-ins are disabled</code> — значит был вызов OAuth / anonymous flow. Убедитесь, что вы используете <strong>signInWithPassword</strong> и передаёте email+password.</li>
-    </ul>
-  </div>
+  <footer>
+    <div id="status">Not loaded</div>
+    <div id="footer-info" class="muted-small">Администрирование Таймлайна</div>
+  </footer>
 </div>
 
-<!-- libs -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<div class="glass-halo" aria-hidden="true"></div>
 
 <script>
-const { createApp, reactive, computed } = Vue;
-createApp({
-  setup(){
-    const filePath = 'timeline-data.json';
-    const defaultBucket = 'timeline';
+/* -----------------------
+   CONFIG - Supabase
+   Replace only if needed (you already gave values)
+   ----------------------- */
+const config = {
+  SUPABASE_URL: 'https://motldrpgprrgghzcybyq.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vdGxkcnBncHJyZ2doemN5YnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTU4NDIsImV4cCI6MjA3NDczMTg0Mn0.whhbvh_VmdSYsfHB34JuHAS2dOPVjf-lrsr0_XmybQA',
+  BUCKET: 'timeline',
+  FILE_PATH: 'timeline-data.json'
+};
 
-    // localConfig allows user to paste Project URL + anon key instead of editing file
-    const localConfig = reactive({
-      url: localStorage.getItem('S_URL') || '',
-      anon: localStorage.getItem('S_ANON') || '',
-      bucket: localStorage.getItem('S_BUCKET') || defaultBucket
-    });
-
-    let supaClient = null;
-
-    const state = reactive({
-      user: null,
-      authEmail: '',
-      authPassword: '',
-      episodes: [],
-      filterYear: null,
-      message: '',
-      messageType: '',
-      theme: localStorage.getItem('theme') || 'light'
-    });
-
-    // helpers
-    function setMsg(text, type='') { state.message = text; state.messageType = type ? (type==='err' ? 'error' : 'success') : ''; }
-    function clearMsg(){ state.message=''; state.messageType=''; }
-
-    const clientReady = computed(()=> !!(localConfig.url && localConfig.anon));
-
-    // initialize client if config present
-    function initClient(){
-      if (!localConfig.url || !localConfig.anon) { supaClient = null; setMsg('Supabase not configured — вставьте URL и ANON key.', 'err'); return; }
-      try {
-        supaClient = supabase.createClient(localConfig.url, localConfig.anon);
-        // подписка на состояние auth
-        supaClient.auth.onAuthStateChange((_, session) => {
-          state.user = session?.user ?? null;
-        });
-        // try get session
-        (async()=>{
-          const { data } = await supaClient.auth.getSession();
-          state.user = data?.session?.user ?? null;
-        })();
-        setMsg('Supabase client ready', 'ok');
-      } catch(e){
-        supaClient = null;
-        setMsg('Ошибка инициализации Supabase: ' + e.message, 'err');
-      }
-    }
-
-    // apply config button
-    function applyConfig(){
-      localStorage.setItem('S_URL', localConfig.url);
-      localStorage.setItem('S_ANON', localConfig.anon);
-      localStorage.setItem('S_BUCKET', localConfig.bucket);
-      setMsg('Сохранено в localStorage. Инициализирую клиент...');
-      initClient();
-    }
-    function clearConfig(){
-      localStorage.removeItem('S_URL'); localStorage.removeItem('S_ANON'); localStorage.removeItem('S_BUCKET');
-      localConfig.url=''; localConfig.anon=''; localConfig.bucket=defaultBucket;
-      supaClient = null;
-      setMsg('Настройки удалены.');
-    }
-
-    // AUTH
-    async function signIn(){
-      clearMsg();
-      if (!clientReady.value){ setMsg('Сначала сохраните Project URL и anon key', 'err'); return; }
-      if (!state.authEmail || !state.authPassword){ setMsg('Введите email и пароль', 'err'); return; }
-      try {
-        const { error, data } = await supaClient.auth.signInWithPassword({
-          email: state.authEmail,
-          password: state.authPassword
-        });
-        if (error) { setMsg('SignIn error: ' + error.message, 'err'); return; }
-        state.user = data.user ?? null;
-        setMsg('Вход успешен', 'ok');
-      } catch(e){
-        setMsg('SignIn exception: ' + e.message, 'err');
-      }
-    }
-
-    async function signUp(){
-      clearMsg();
-      if (!clientReady.value){ setMsg('Сначала сохраните Project URL и anon key', 'err'); return; }
-      if (!state.authEmail || !state.authPassword){ setMsg('Введите email и пароль', 'err'); return; }
-      try {
-        const { error } = await supaClient.auth.signUp({ email: state.authEmail, password: state.authPassword });
-        if (error) { setMsg('SignUp error: ' + error.message, 'err'); return; }
-        setMsg('Регистрация: проверьте почту для подтверждения (если включено)', 'ok');
-      } catch(e){ setMsg('SignUp exception: '+e.message, 'err'); }
-    }
-
-    async function signOut(){ if (!supaClient) return; await supaClient.auth.signOut(); state.user=null; setMsg('Вышли'); }
-
-    // file operations
-    async function loadFile(){
-      clearMsg();
-      if (!supaClient){ setMsg('Supabase не инициализирован', 'err'); return; }
-      try {
-        const { data, error } = await supaClient.storage.from(localConfig.bucket).download(filePath);
-        if (error){
-          setMsg('Download error: ' + error.message, 'err');
-          return;
-        }
-        const text = await data.text();
-        state.episodes = JSON.parse(text || '[]');
-        setMsg('Файл загружен ('+state.episodes.length+' эпизодов)', 'ok');
-      } catch(e){
-        setMsg('Ошибка загрузки: ' + e.message, 'err');
-      }
-    }
-
-    async function saveFile(){
-      clearMsg();
-      if (!supaClient){ setMsg('Supabase не инициализирован', 'err'); return; }
-      try {
-        const blob = new Blob([JSON.stringify(state.episodes, null, 2)], { type:'application/json' });
-        const { error } = await supaClient.storage.from(localConfig.bucket).upload(filePath, blob, { upsert:true, contentType:'application/json' });
-        if (error){ setMsg('Upload error: ' + error.message, 'err'); return; }
-        setMsg('Сохранено в Storage', 'ok');
-      } catch(e){ setMsg('Ошибка сохранения: ' + e.message, 'err'); }
-    }
-
-    // CRUD
-    function addEpisode(){
-      state.episodes.push({ year:new Date().getFullYear(), month:1, week:1, title:'Новый эпизод', description:'', authors:'', actors:'', director:'', history_link:'', preview:'', video_link:'' });
-    }
-    function remove(i){ if(confirm('Удалить эпизод?')) state.episodes.splice(i,1); }
-    function duplicate(i){ state.episodes.splice(i+1,0, JSON.parse(JSON.stringify(state.episodes[i])) ); }
-    function moveUp(i){ if(i>0) state.episodes.splice(i-1,0, state.episodes.splice(i,1)[0]); }
-    function moveDown(i){ if(i < state.episodes.length-1) state.episodes.splice(i+1,0, state.episodes.splice(i,1)[0]); }
-    function clearFilter(){ state.filterYear = null; }
-
-    // computed filtered
-    const filtered = computed(()=> {
-      let arr = state.episodes || [];
-      if (state.filterYear) arr = arr.filter(e=>Number(e.year) === Number(state.filterYear));
-      return arr.sort((a,b)=> (a.year - b.year) || (a.month - b.month) || (a.week - b.week));
-    });
-
-    // theme
-    const theme = state.theme;
-    document.body.setAttribute('data-theme', state.theme);
-
-    // on start: try auto-init if config present
-    if (localConfig.url && localConfig.anon) initClient();
-
-    return {
-      localConfig, applyConfig, clearConfig, clientReady,
-      authEmail: state.authEmail, authPassword: state.authPassword,
-      signIn, signUp, signOut, user: state.user, loadFile, saveFile,
-      episodes: state.episodes, addEpisode, remove, duplicate, moveUp, moveDown,
-      filtered, filterYear: state.filterYear, clearFilter, filePath,
-      message: state.message, messageType: state.messageType, setMsg,
-      theme, clearMsg
-    };
+/* -----------------------
+   Simple i18n dictionary
+   ----------------------- */
+const I18N = {
+  ru:{
+    title: 'Редактор Timeline',
+    subtitle: 'Визуальный редактор JSON — синхр. с Supabase',
+    load: 'Загрузить',
+    loaded: 'Загружено',
+    save: 'Сохранить',
+    add: '+ Добавить эпизод',
+    editor: 'Редактор',
+    select: 'Загрузите данные и выберите эпизод',
+    year: 'Год', month: 'Месяц', week: 'Неделя',
+    titleLbl: 'Заголовок', desc: 'Описание', preview: 'Превью (URL)', history: 'Ссылка', f1: 'Поле 1', f2: 'Поле 2',
+    saveChanges: 'Сохранить изменения', delete: 'Удалить эпизод',
+    notLoaded: 'Не загружено',
+    episodes: 'эпизодов',
+    saved: 'Сохранено',
+    footerInfo: 'Администрирование Таймлайна'
+  },
+  en:{
+    title: 'Timeline Admin',
+    subtitle: 'Visual JSON timeline editor — Supabase sync',
+    load: 'Load',
+    loaded: 'Loaded',
+    save: 'Save',
+    add: '+ Add episode',
+    editor: 'Editor',
+    select: 'Load data and select an episode',
+    year: 'Year', month: 'Month', week: 'Week',
+    titleLbl: 'Title', desc: 'Description', preview: 'Preview (URL)', history: 'History link', f1: 'Field 1', f2: 'Field 2',
+    saveChanges: 'Save changes', delete: 'Delete episode',
+    notLoaded: 'Not loaded',
+    episodes: 'episodes',
+    saved: 'Saved',
+    footerInfo: 'Timeline Administration'
   }
-}).mount('#app');
+};
+
+let LOCALE = 'ru';
+
+/* -----------------------
+   App state
+   ----------------------- */
+const state = {
+  supabase: null,
+  episodes: [],
+  selectedIndex: -1
+};
+
+/* -----------------------
+   Helpers
+   ----------------------- */
+const $ = s => document.querySelector(s);
+const escapeHtml = s => s ? String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : '';
+
+/* -----------------------
+   Init supabase client
+   ----------------------- */
+function initSupabase(){
+  if(!config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
+    $('#status').textContent = 'Supabase not configured';
+    return;
+  }
+  state.supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+}
+
+/* -----------------------
+   i18n apply
+   ----------------------- */
+function applyLocale(){
+  const L = I18N[LOCALE];
+  $('#ui-title').textContent = L.title;
+  $('#ui-sub').textContent = L.subtitle;
+  $('#load-btn').textContent = L.load;
+  $('#save-btn').textContent = L.save;
+  $('#add-ep').textContent = L.add;
+  $('#edit-heading').textContent = L.editor;
+  $('#editor-empty').textContent = L.select;
+
+  // labels
+  $('#lbl-year').textContent = L.year;
+  $('#lbl-month').textContent = L.month;
+  $('#lbl-week').textContent = L.week;
+  $('#lbl-title').textContent = L.titleLbl;
+  $('#lbl-desc').textContent = L.desc;
+  $('#lbl-preview').textContent = L.preview;
+  $('#lbl-history').textContent = L.history;
+  $('#lbl-field1').textContent = L.f1;
+  $('#lbl-field2').textContent = L.f2;
+  $('#update-ep').textContent = L.saveChanges;
+  $('#delete-ep').textContent = L.delete;
+  $('#footer-info').textContent = L.footerInfo;
+
+  // episodes count (re-render)
+  renderEpisodes();
+  $('#status').textContent = ( state.episodes.length ? `${I18N[LOCALE].loaded} ${state.episodes.length} ${L.episodes}` : (L.notLoaded));
+}
+
+/* -----------------------
+   Render episodes list
+   ----------------------- */
+function renderEpisodes(){
+  const container = $('#episodes-container');
+  const halo = document.querySelector('.glass-halo');
+  container.innerHTML = '';
+  state.episodes.forEach((ep, idx) => {
+    const div = document.createElement('div');
+    div.className = 'episode';
+    div.innerHTML = `
+      <div class="thumb"><img src="${escapeHtml(ep.preview||'')}" alt=""></div>
+      <div class="meta">
+        <div class="title">${escapeHtml(ep.title || `(${ep.year || ''})`)}</div>
+        <div class="desc">${escapeHtml((ep.description||'').slice(0,140))}</div>
+        <div class="ep-actions">
+          <button class="btn small" data-idx="${idx}" data-act="edit">${LOCALE === 'ru' ? 'Ред.' : 'Edit'}</button>
+          <button class="btn small ghost" data-idx="${idx}" data-act="dup">${LOCALE === 'ru' ? 'Дубл.' : 'Dup'}</button>
+          <button class="btn small ghost" data-idx="${idx}" data-act="del">${LOCALE === 'ru' ? 'Удал.' : 'Del'}</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  // episodes count
+  $('#episodes-count').textContent = `${state.episodes.length} ${I18N[LOCALE].episodes}`;
+
+  const list = $('#episodes-container');
+  if(list.offsetHeight > 20 && halo){
+    const extra = 370; // например, 20px отступ снизу
+    halo.style.height = (list.offsetHeight + extra) + 'px';
+}
+}
+
+/* -----------------------
+   Select & edit
+   ----------------------- */
+function selectEpisode(i){
+  state.selectedIndex = i;
+  if(i < 0 || i >= state.episodes.length){
+    $('#editor-form').style.display = 'none';
+    $('#editor-empty').style.display = 'block';
+    return;
+  }
+  const ep = state.episodes[i];
+  $('#editor-empty').style.display = 'none';
+  $('#editor-form').style.display = 'block';
+
+  $('#f-year').value = ep.year ?? '';
+  $('#f-month').value = ep.month ?? '';
+  $('#f-week').value = ep.week ?? '';
+  $('#f-title').value = ep.title ?? '';
+  $('#f-description').value = ep.description ?? '';
+  $('#f-preview').value = ep.preview ?? '';
+  $('#f-history').value = ep.history_link ?? ep.history ?? '';
+  $('#f-field1').value = ep.field1 ?? '';
+  $('#f-field2').value = ep.field2 ?? '';
+}
+
+/* -----------------------
+   Local edits
+   ----------------------- */
+function updateSelectedFromForm(){
+  const i = state.selectedIndex;
+  if(i < 0) return;
+  const ep = state.episodes[i];
+  ep.year = Number($('#f-year').value) || null;
+  ep.month = Number($('#f-month').value) || null;
+  ep.week = Number($('#f-week').value) || null;
+  ep.title = $('#f-title').value;
+  ep.description = $('#f-description').value;
+  ep.preview = $('#f-preview').value;
+  ep.history_link = $('#f-history').value;
+  ep.field1 = $('#f-field1').value;
+  ep.field2 = $('#f-field2').value;
+
+  state.episodes[i] = ep;
+  renderEpisodes();
+  selectEpisode(i);
+}
+
+/* -----------------------
+   Add / duplicate / delete
+   ----------------------- */
+function addEpisode(){
+  const newEp = {
+    year: new Date().getFullYear(),
+    month: 1, week: 1,
+    title: LOCALE==='ru' ? 'Новый эпизод' : 'New episode',
+    description: '',
+    preview: '',
+    history_link: '',
+    field1: '', field2: ''
+  };
+  state.episodes.push(newEp);
+  renderEpisodes();
+  selectEpisode(state.episodes.length - 1);
+}
+
+function duplicateEpisode(idx){
+  const copy = JSON.parse(JSON.stringify(state.episodes[idx] || {}));
+  copy.title = (copy.title || '') + (LOCALE==='ru' ? ' (копия)' : ' (copy)');
+  state.episodes.splice(idx+1, 0, copy);
+  renderEpisodes();
+  selectEpisode(idx+1);
+}
+
+function deleteEpisode(idx){
+  if(!confirm(LOCALE==='ru' ? 'Удалить эпизод?' : 'Delete episode?')) return;
+  state.episodes.splice(idx, 1);
+  renderEpisodes();
+  selectEpisode(-1);
+}
+
+/* -----------------------
+   Supabase load / save
+   ----------------------- */
+async function loadFromSupabase(){
+  if(!state.supabase) initSupabase();
+  $('#status').textContent = I18N[LOCALE].load + '...';
+  try {
+    const { data, error } = await state.supabase.storage.from(config.BUCKET).download(config.FILE_PATH);
+    if(error) throw error;
+    const text = await data.text();
+    const parsed = JSON.parse(text);
+    if(!Array.isArray(parsed)){
+      // if root object with key, try to detect "episodes"
+      if(parsed.episodes && Array.isArray(parsed.episodes)) state.episodes = parsed.episodes;
+      else throw new Error('JSON root is not an array');
+    } else {
+      state.episodes = parsed;
+    }
+    renderEpisodes();
+    selectEpisode(-1);
+    $('#add-ep').style.display = 'inline-flex';
+    $('#status').textContent = I18N[LOCALE].loaded + ' ' + state.episodes.length + ' ' + I18N[LOCALE].episodes;
+  } catch (err) {
+    console.error(err);
+    $('#status').textContent = 'Error';
+    alert((LOCALE==='ru' ? 'Ошибка загрузки: ' : 'Load error: ') + err.message);
+  }
+}
+
+async function saveToSupabase(){
+  if(!state.supabase) initSupabase();
+  $('#status').textContent = I18N[LOCALE].save + '...';
+  try{
+    const payload = JSON.stringify(state.episodes, null, 2);
+    const file = new File([payload], config.FILE_PATH, { type: 'application/json' });
+    const { data, error } = await state.supabase.storage.from(config.BUCKET).upload(config.FILE_PATH, file, { upsert: true });
+    if(error) throw error;
+    $('#status').textContent = I18N[LOCALE].saved;
+    $('#last-saved').textContent = `${I18N[LOCALE].saved}: ${new Date().toLocaleString()}`;
+  } catch(err){
+    console.error(err);
+    alert((LOCALE==='ru'?'Ошибка при сохранении: ':'Save error: ') + err.message);
+    $('#status').textContent = 'Error';
+  }
+}
+
+/* -----------------------
+   UI wiring
+   ----------------------- */
+function bindUI(){
+  // load/save
+  $('#load-btn').addEventListener('click', loadFromSupabase);
+  $('#save-btn').addEventListener('click', saveToSupabase);
+
+  // add only after load (button shown/hidden by loadFromSupabase)
+  $('#add-ep').addEventListener('click', addEpisode);
+
+  // episodes container actions (edit/dup/del)
+  $('#episodes-container').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const idx = Number(btn.dataset.idx);
+    const act = btn.dataset.act;
+    if(act === 'edit') selectEpisode(idx);
+    else if(act === 'dup') duplicateEpisode(idx);
+    else if(act === 'del') deleteEpisode(idx);
+  });
+
+  // editor buttons
+  $('#update-ep').addEventListener('click', updateSelectedFromForm);
+  $('#delete-ep').addEventListener('click', () => {
+    if(state.selectedIndex >= 0) deleteEpisode(state.selectedIndex);
+  });
+
+  // form autosave on changes (blur/change)
+  ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2']
+  .forEach(sel => {
+    const el = document.querySelector(sel);
+    if(el) el.addEventListener('change', updateSelectedFromForm);
+  });
+
+  // duplicate/ delete via buttons also done on list
+
+  // theme toggle (separate button)
+  $('#theme-toggle').addEventListener('click', () => {
+    const cur = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    $('#theme-toggle').textContent = (next === 'dark') ? 'Light' : 'Dark';
+    // control glass-halo via CSS (already handled)
+  });
+
+  // language toggle buttons
+  $('#btn-ru').addEventListener('click', () => {
+    LOCALE = 'ru';
+    $('#btn-ru').classList.add('active'); $('#btn-ru').setAttribute('aria-pressed','true');
+    $('#btn-en').classList.remove('active'); $('#btn-en').setAttribute('aria-pressed','false');
+    applyLocale();
+  });
+  $('#btn-en').addEventListener('click', () => {
+    LOCALE = 'en';
+    $('#btn-en').classList.add('active'); $('#btn-en').setAttribute('aria-pressed','true');
+    $('#btn-ru').classList.remove('active'); $('#btn-ru').setAttribute('aria-pressed','false');
+    applyLocale();
+  });
+
+  // parallax / cursor subtle effect: influence wrap tilt and soft highlight on hovered cards
+  document.addEventListener('mousemove', (e) => {
+    const wrap = $('#wrap');
+    const w = window.innerWidth, h = window.innerHeight;
+    const dx = (e.clientX - w/2) / (w/2); // -1..1
+    const dy = (e.clientY - h/2) / (h/2);
+    const rx = (dy * 3).toFixed(2), ry = (-dx * 3).toFixed(2);
+    wrap.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    // move halo a bit
+    const halo = document.querySelector('.glass-halo');
+    if(halo){
+      halo.style.transform = `translate3d(${(dx*8)}px, ${(dy*6)}px, 0)`;
+    }
+    // список (лево) и редактор (право)
+    document.querySelector('.list').style.transform = `translate(${dx*10}px, ${dy*6}px)`;
+    document.querySelector('.editor').style.transform = `translate(${dx*14}px, ${dy*8}px)`;
+    // вся обёртка слегка «наклоняется»
+    document.querySelector('.wrap').style.transform = `rotateX(${dy*3}deg) rotateY(${dx*-3}deg)`;
+  });
+
+  // keyboard: save Ctrl+S
+  window.addEventListener('keydown', (e) => {
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+      e.preventDefault();
+      saveToSupabase();
+    }
+  });
+}
+
+/* -----------------------
+   Start
+   ----------------------- */
+(function init(){
+  initSupabase();
+  bindUI();
+  applyLocale();
+  // hide add button until load
+  $('#add-ep').style.display = 'none';
+  // ensure editor background reflect theme on initial load
+  document.body.setAttribute('data-theme', 'dark');
+})();
+
 </script>
 </body>
 </html>
