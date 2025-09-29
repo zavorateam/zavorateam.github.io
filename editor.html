@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline Editor (Supabase)</title>
+<style>
+  body { font-family: sans-serif; margin:0; background: var(--bg); color: var(--fg); }
+  :root { --bg:#f6f8fa; --fg:#222; --card:#fff; }
+  [data-theme="dark"] { --bg:#0b1220; --fg:#eee; --card:#1c1c2c; }
+  .app { max-width:900px; margin:20px auto; padding:10px; }
+  .card { background:var(--card); padding:12px; margin-bottom:12px; border-radius:8px; }
+  input, textarea { width:100%; margin:4px 0; padding:6px; }
+  button { margin:4px; padding:6px 12px; }
+  .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div id="app" class="app">
+  <h2>{{ t('title') }}</h2>
+
+  <!-- Login box -->
+  <div v-if="!user" class="card">
+    <h3>{{ t('login') }}</h3>
+    <input v-model="authEmail" placeholder="Email">
+    <input v-model="authPassword" type="password" placeholder="Password">
+    <button @click="signIn">{{ t('signin') }}</button>
+    <button @click="signUp">{{ t('signup') }}</button>
+  </div>
+
+  <!-- Editor -->
+  <div v-else>
+    <div class="flex">
+      <div>{{ user.email }}</div>
+      <button @click="signOut">{{ t('signout') }}</button>
+      <button @click="toggleTheme">{{ theme==='light'?t('dark'):t('light') }}</button>
+      <select v-model="lang">
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+
+    <div class="flex">
+      <button @click="loadFile">{{ t('load') }}</button>
+      <button @click="saveFile">{{ t('save') }}</button>
+    </div>
+
+    <button @click="addEpisode">{{ t('addEpisode') }}</button>
+
+    <div v-for="(ep,idx) in episodes" :key="idx" class="card">
+      <input v-model="ep.title" placeholder="Title">
+      <div class="flex">
+        <input type="number" v-model.number="ep.year" placeholder="Year">
+        <input type="number" v-model.number="ep.month" placeholder="Month">
+        <input type="number" v-model.number="ep.week" placeholder="Week">
+      </div>
+      <textarea v-model="ep.description" rows="3" placeholder="Description"></textarea>
+      <input v-model="ep.authors" placeholder="Authors">
+      <input v-model="ep.actors" placeholder="Actors">
+      <input v-model="ep.director" placeholder="Director">
+      <input v-model="ep.history_link" placeholder="History link">
+      <input v-model="ep.preview" placeholder="Preview URL">
+      <input v-model="ep.video_link" placeholder="Video link">
+      <div class="flex">
+        <button @click="remove(idx)">{{ t('delete') }}</button>
+        <button @click="duplicate(idx)">{{ t('duplicate') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vue & Supabase -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const { createApp, reactive } = Vue;
+
+createApp({
+  setup() {
+    // === CONFIG: вставьте свои данные ===
+    const SUPABASE_URL = "https://motldrpgprrgghzcybyq.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vdGxkcnBncHJyZ2doemN5YnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTU4NDIsImV4cCI6MjA3NDczMTg0Mn0.whhbvh_VmdSYsfHB34JuHAS2dOPVjf-lrsr0_XmybQA";
+    const FILE_PATH = "timeline-data.json";
+    const BUCKET = "timeline";
+
+    const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const state = reactive({
+      user:null,
+      authEmail:"",
+      authPassword:"",
+      episodes:[],
+      theme: localStorage.getItem("theme")||"light",
+      lang: localStorage.getItem("lang")||"ru"
+    });
+
+    // i18n
+    const dict = {
+      ru:{title:"Редактор Timeline",login:"Вход",signin:"Войти",signup:"Регистрация",signout:"Выйти",load:"Загрузить",save:"Сохранить",addEpisode:"Добавить эпизод",delete:"Удалить",duplicate:"Дублировать",dark:"Тёмная",light:"Светлая"},
+      en:{title:"Timeline Editor",login:"Login",signin:"Sign in",signup:"Sign up",signout:"Sign out",load:"Load",save:"Save",addEpisode:"Add episode",delete:"Delete",duplicate:"Duplicate",dark:"Dark",light:"Light"}
+    };
+    const t = k => dict[state.lang][k]||k;
+
+    // Auth
+    supa.auth.onAuthStateChange((_,session)=>{ state.user=session?.user||null; });
+
+    async function signIn(){
+      const {error} = await supa.auth.signInWithPassword({email:state.authEmail,password:state.authPassword});
+      if(error) alert(error.message);
+    }
+    async function signUp(){
+      const {error} = await supa.auth.signUp({email:state.authEmail,password:state.authPassword});
+      if(error) alert(error.message); else alert("Check your email to confirm");
+    }
+    async function signOut(){ await supa.auth.signOut(); }
+
+    // Load file
+    async function loadFile(){
+      const { data, error } = await supa.storage.from(BUCKET).download(FILE_PATH);
+      if(error){ alert("Error load: "+error.message); return; }
+      const text = await data.text();
+      try { state.episodes = JSON.parse(text)||[]; } catch(e){ alert("JSON parse error"); }
+    }
+
+    // Save file
+    async function saveFile(){
+      const blob = new Blob([JSON.stringify(state.episodes,null,2)],{type:"application/json"});
+      const { error } = await supa.storage.from(BUCKET).upload(FILE_PATH, blob, { upsert:true, contentType:"application/json" });
+      if(error) alert("Error save: "+error.message); else alert("Saved!");
+    }
+
+    // CRUD
+    function addEpisode(){
+      state.episodes.push({year:new Date().getFullYear(),month:1,week:1,title:"New",description:"",authors:"",actors:"",director:"",history_link:"",preview:"",video_link:""});
+    }
+    function remove(i){ state.episodes.splice(i,1); }
+    function duplicate(i){ state.episodes.splice(i+1,0,JSON.parse(JSON.stringify(state.episodes[i]))); }
+
+    function toggleTheme(){ state.theme = (state.theme==="light"?"dark":"light"); localStorage.setItem("theme",state.theme); document.body.dataset.theme=state.theme; }
+
+    document.body.dataset.theme=state.theme;
+
+    return {...state,signIn,signUp,signOut,loadFile,saveFile,addEpisode,remove,duplicate,t,toggleTheme};
+  }
+}).mount("#app");
+</script>
+</body>
+</html>
