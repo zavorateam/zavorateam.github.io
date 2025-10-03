@@ -222,6 +222,15 @@
     .editor{ position:relative; top:auto; margin-top:18px; }
     .glass-halo{ display:none; }
   }
+  /* Login modal styles */
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.6); display:none; align-items:center; justify-content:center; z-index:9999; }
+  .modal { background: var(--card-dark); color: var(--text-dark); min-width:320px; max-width:460px; width:90%; border-radius:12px; padding:18px; box-shadow: 0 20px 60px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04); }
+  body[data-theme="light"] .modal{ background: #fff; color:var(--text-light); }
+  .modal h4{ margin:0 0 10px 0; }
+  .modal .row{ display:block; }
+  .modal input{ width:100%; margin-bottom:8px; }
+  .modal .actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  .modal .err{ color:#ff6b6b; font-size:13px; min-height:18px; }
 </style>
 </head>
 <body data-theme="dark" dir="ltr">
@@ -285,7 +294,8 @@
         <div class="field"><label id="lbl-title">Title</label><input id="f-title" type="text" /></div>
         <div class="field"><label id="lbl-desc">Description</label><textarea id="f-description"></textarea></div>
         <div class="field"><label id="lbl-preview">Preview (image url)</label><input id="f-preview" type="text" /></div>
-        <div class="field"><label id="lbl-history">History link</label><input id="f-history" type="text" /></div>
+  <div class="field"><label id="lbl-history">History link</label><input id="f-history" type="text" /></div>
+  <div class="field"><label id="lbl-video">Video link</label><input id="f-video" type="text" /></div>
 
         <div class="row">
           <div class="field"><label id="lbl-field1">Field 1</label><input id="f-field1" type="text" /></div>
@@ -310,6 +320,24 @@
 
 <div class="glass-halo" aria-hidden="true"></div>
 
+<!-- Login modal -->
+<div id="login-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" role="document">
+    <h4 id="login-title">Sign in</h4>
+    <div class="err" id="login-err"></div>
+    <div class="row">
+      <label for="login-email">Email</label>
+      <input id="login-email" type="text" autocomplete="username" />
+      <label for="login-pass">Password</label>
+      <input id="login-pass" type="password" autocomplete="current-password" />
+    </div>
+    <div class="actions">
+      <button id="login-cancel" class="btn ghost">Cancel</button>
+      <button id="login-submit" class="btn">Sign in</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* -----------------------
    CONFIG - Supabase
@@ -333,10 +361,11 @@ const I18N = {
     loaded: 'Загружено',
     save: 'Сохранить',
     add: '+ Добавить эпизод',
+    video: 'Видео (ссылка)',
     editor: 'Редактор',
     select: 'Загрузите данные и выберите эпизод',
     year: 'Год', month: 'Месяц', week: 'Неделя',
-    titleLbl: 'Заголовок', desc: 'Описание', preview: 'Превью (URL)', history: 'Ссылка', f1: 'Поле 1', f2: 'Поле 2',
+    titleLbl: 'Заголовок', desc: 'Описание', preview: 'Превью (URL)', history: 'История (ссылка)', f1: 'Поле 1', f2: 'Поле 2',
     saveChanges: 'Сохранить изменения', delete: 'Удалить эпизод',
     notLoaded: 'Не загружено',
     episodes: 'эпизодов',
@@ -350,6 +379,7 @@ const I18N = {
     loaded: 'Loaded',
     save: 'Save',
     add: '+ Add episode',
+    video: 'Video link',
     editor: 'Editor',
     select: 'Load data and select an episode',
     year: 'Year', month: 'Month', week: 'Week',
@@ -411,6 +441,8 @@ function applyLocale(){
   $('#lbl-desc').textContent = L.desc;
   $('#lbl-preview').textContent = L.preview;
   $('#lbl-history').textContent = L.history;
+  // video label (may be undefined in older locales)
+  if($('#lbl-video')) $('#lbl-video').textContent = L.video || 'Video';
   $('#lbl-field1').textContent = L.f1;
   $('#lbl-field2').textContent = L.f2;
   $('#update-ep').textContent = L.saveChanges;
@@ -478,6 +510,8 @@ function selectEpisode(i){
   $('#f-description').value = ep.description ?? '';
   $('#f-preview').value = ep.preview ?? '';
   $('#f-history').value = ep.history_link ?? ep.history ?? '';
+  // support both video_link and older 'video' key
+  $('#f-video').value = ep.video_link ?? ep.video ?? '';
   $('#f-field1').value = ep.field1 ?? '';
   $('#f-field2').value = ep.field2 ?? '';
 }
@@ -496,6 +530,7 @@ function updateSelectedFromForm(){
   ep.description = $('#f-description').value;
   ep.preview = $('#f-preview').value;
   ep.history_link = $('#f-history').value;
+  ep.video_link = $('#f-video').value;
   ep.field1 = $('#f-field1').value;
   ep.field2 = $('#f-field2').value;
 
@@ -514,6 +549,7 @@ function addEpisode(){
     title: LOCALE==='ru' ? 'Новый эпизод' : 'New episode',
     description: '',
     preview: '',
+    video_link: '',
     history_link: '',
     field1: '', field2: ''
   };
@@ -568,6 +604,18 @@ async function loadFromSupabase(){
 
 async function saveToSupabase(){
   if(!state.supabase) initSupabase();
+  // Ensure user is authenticated before attempting upload
+  const { data: sessionData } = await state.supabase.auth.getSession();
+  const user = sessionData?.session?.user ?? null;
+  if(!user){
+    // show login modal and wait for success
+    const ok = await showLoginModal();
+    if(!ok) {
+      $('#status').textContent = I18N[LOCALE].notLoaded;
+      return;
+    }
+  }
+
   $('#status').textContent = I18N[LOCALE].save + '...';
   try{
     const payload = JSON.stringify(state.episodes, null, 2);
@@ -581,6 +629,60 @@ async function saveToSupabase(){
     alert((LOCALE==='ru'?'Ошибка при сохранении: ':'Save error: ') + err.message);
     $('#status').textContent = 'Error';
   }
+}
+
+/* -----------------------
+   Login modal helpers
+   ----------------------- */
+function showLoginModal(){
+  return new Promise((resolve) => {
+    const backdrop = $('#login-backdrop');
+    const errEl = $('#login-err');
+    const emailEl = $('#login-email');
+    const passEl = $('#login-pass');
+    const submit = $('#login-submit');
+    const cancel = $('#login-cancel');
+
+    errEl.textContent = '';
+    emailEl.value = '';
+    passEl.value = '';
+
+    backdrop.style.display = 'flex';
+    backdrop.setAttribute('aria-hidden','false');
+
+    async function doSignIn(){
+      errEl.textContent = '';
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if(!email || !pass){ errEl.textContent = LOCALE==='ru' ? 'Введите email и пароль' : 'Enter email and password'; return; }
+      submit.disabled = true; cancel.disabled = true;
+      try{
+        const res = await state.supabase.auth.signInWithPassword({ email, password: pass });
+        if(res.error) throw res.error;
+        // success
+        close(true);
+      }catch(e){
+        console.error(e);
+        errEl.textContent = (LOCALE==='ru' ? 'Ошибка входа: ' : 'Sign-in error: ') + (e.message || e.error || String(e));
+        submit.disabled = false; cancel.disabled = false;
+      }
+    }
+
+    function close(result){
+      backdrop.style.display = 'none';
+      backdrop.setAttribute('aria-hidden','true');
+      submit.removeEventListener('click', doSignIn);
+      cancel.removeEventListener('click', onCancel);
+      resolve(Boolean(result));
+    }
+
+    function onCancel(){ close(false); }
+
+    submit.addEventListener('click', doSignIn);
+    cancel.addEventListener('click', onCancel);
+    // press Enter to submit
+    passEl.addEventListener('keydown', (ev) => { if(ev.key === 'Enter') doSignIn(); });
+  });
 }
 
 /* -----------------------
@@ -617,6 +719,8 @@ function bindUI(){
     const el = document.querySelector(sel);
     if(el) el.addEventListener('change', updateSelectedFromForm);
   });
+  // also listen for video link changes
+  const vEl = document.querySelector('#f-video'); if(vEl) vEl.addEventListener('change', updateSelectedFromForm);
 
   // duplicate/ delete via buttons also done on list
 
@@ -642,6 +746,16 @@ function bindUI(){
     $('#btn-ru').classList.remove('active'); $('#btn-ru').setAttribute('aria-pressed','false');
     applyLocale();
   });
+
+  // modal elements: ensure focus/escape
+  const loginBackdrop = $('#login-backdrop');
+  if(loginBackdrop){
+    loginBackdrop.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        const cancel = $('#login-cancel'); if(cancel) cancel.click();
+      }
+    });
+  }
 
   // parallax / cursor subtle effect: influence wrap tilt and soft highlight on hovered cards
   document.addEventListener('mousemove', (e) => {
