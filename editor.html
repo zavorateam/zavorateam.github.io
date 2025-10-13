@@ -339,7 +339,7 @@
 /* -----------------------
    Simple i18n dictionary
    ----------------------- */
-const I18N = {
+var I18N = {
   ru:{
     title: 'Редактор Timeline',
     subtitle: 'Визуальный редактор JSON — Gist sync',
@@ -378,12 +378,12 @@ const I18N = {
   }
 };
 
-let LOCALE = 'ru';
+var LOCALE = 'ru';
 
 /* -----------------------
    App state
    ----------------------- */
-const state = {
+var state = {
   episodes: [],
   selectedIndex: -1
 };
@@ -391,20 +391,23 @@ const state = {
 /* -----------------------
    Helpers
    ----------------------- */
-const $ = s => document.querySelector(s);
-const escapeHtml = s => s ? String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : '';
+function $(s){ return document.querySelector(s); }
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 /* -----------------------
    Gist config
    ----------------------- */
-const GIST_ID = 'b973e400c1b9bea04411240195566b68';
-const FILE_NAME = 'timeline-data.json';
+var GIST_ID = 'b973e400c1b9bea04411240195566b68';
+var FILE_NAME = 'timeline-data.json';
 
 /* -----------------------
    i18n apply
    ----------------------- */
 function applyLocale(){
-  const L = I18N[LOCALE];
+  var L = I18N[LOCALE];
   $('#ui-title').textContent = L.title;
   $('#ui-sub').textContent = L.subtitle;
   $('#load-btn').textContent = L.load;
@@ -413,7 +416,6 @@ function applyLocale(){
   $('#edit-heading').textContent = L.editor;
   $('#editor-empty').textContent = L.select;
 
-  // labels
   $('#lbl-year').textContent = L.year;
   $('#lbl-month').textContent = L.month;
   $('#lbl-week').textContent = L.week;
@@ -428,7 +430,6 @@ function applyLocale(){
   $('#delete-ep').textContent = L.delete;
   $('#footer-info').textContent = L.footerInfo;
 
-  // episodes count
   renderEpisodes();
 }
 
@@ -436,32 +437,29 @@ function applyLocale(){
    Render episodes list
    ----------------------- */
 function renderEpisodes(){
-  const container = $('#episodes-container');
-  const halo = document.querySelector('.glass-halo');
+  var container = $('#episodes-container');
+  var halo = document.querySelector('.glass-halo');
   container.innerHTML = '';
-  state.episodes.forEach((ep, idx) => {
-    const div = document.createElement('div');
+  for(var idx=0; idx<state.episodes.length; idx++){
+    var ep = state.episodes[idx];
+    var div = document.createElement('div');
     div.className = 'episode';
-    div.innerHTML = `
-      <div class="thumb"><img src="${escapeHtml(ep.preview||'')}" alt=""></div>
-      <div class="meta">
-        <div class="title">${escapeHtml(ep.title || `(${ep.year || ''})`)}</div>
-        <div class="desc">${escapeHtml((ep.description||'').slice(0,140))}</div>
-        <div class="ep-actions">
-          <button class="btn small" data-idx="${idx}" data-act="edit">${LOCALE === 'ru' ? 'Ред.' : 'Edit'}</button>
-          <button class="btn small ghost" data-idx="${idx}" data-act="dup">${LOCALE === 'ru' ? 'Дубл.' : 'Dup'}</button>
-          <button class="btn small ghost" data-idx="${idx}" data-act="del">${LOCALE === 'ru' ? 'Удал.' : 'Del'}</button>
-        </div>
-      </div>
-    `;
+    div.innerHTML = 
+      '<div class="thumb"><img src="'+escapeHtml(ep.preview||'')+'" alt=""></div>'+
+      '<div class="meta">'+
+        '<div class="title">'+escapeHtml(ep.title || '('+(ep.year||'')+')')+'</div>'+
+        '<div class="desc">'+escapeHtml((ep.description||'').slice(0,140))+'</div>'+
+        '<div class="ep-actions">'+
+          '<button class="btn small" data-idx="'+idx+'" data-act="edit">'+(LOCALE==='ru'?'Ред.':'Edit')+'</button>'+
+          '<button class="btn small ghost" data-idx="'+idx+'" data-act="dup">'+(LOCALE==='ru'?'Дубл.':'Dup')+'</button>'+
+          '<button class="btn small ghost" data-idx="'+idx+'" data-act="del">'+(LOCALE==='ru'?'Удал.':'Del')+'</button>'+
+        '</div>'+
+      '</div>';
     container.appendChild(div);
-  });
-
-  // episodes count
-  $('#episodes-count').textContent = `${state.episodes.length} ${I18N[LOCALE].episodes}`;
-
-  if(container.offsetHeight > 20 && halo){
-    halo.style.height = (container.offsetHeight + 370) + 'px';
+  }
+  $('#episodes-count').textContent = state.episodes.length+' '+I18N[LOCALE].episodes;
+  if(container.offsetHeight>20 && halo){
+    halo.style.height = (container.offsetHeight+370)+'px';
   }
 }
 
@@ -470,34 +468,33 @@ function renderEpisodes(){
    ----------------------- */
 function selectEpisode(i){
   state.selectedIndex = i;
-  if(i < 0 || i >= state.episodes.length){
+  if(i<0 || i>=state.episodes.length){
     $('#editor-form').style.display = 'none';
     $('#editor-empty').style.display = 'block';
     return;
   }
-  const ep = state.episodes[i];
+  var ep = state.episodes[i];
   $('#editor-empty').style.display = 'none';
   $('#editor-form').style.display = 'block';
-
-  $('#f-year').value = ep.year ?? '';
-  $('#f-month').value = ep.month ?? '';
-  $('#f-week').value = ep.week ?? '';
-  $('#f-title').value = ep.title ?? '';
-  $('#f-description').value = ep.description ?? '';
-  $('#f-preview').value = ep.preview ?? '';
-  $('#f-history').value = ep.history_link ?? ep.history ?? '';
-  $('#f-video').value = ep.video_link ?? ep.video ?? '';
-  $('#f-field1').value = ep.field1 ?? '';
-  $('#f-field2').value = ep.field2 ?? '';
+  $('#f-year').value = ep.year||'';
+  $('#f-month').value = ep.month||'';
+  $('#f-week').value = ep.week||'';
+  $('#f-title').value = ep.title||'';
+  $('#f-description').value = ep.description||'';
+  $('#f-preview').value = ep.preview||'';
+  $('#f-history').value = ep.history_link || ep.history || '';
+  $('#f-video').value = ep.video_link || ep.video || '';
+  $('#f-field1').value = ep.field1||'';
+  $('#f-field2').value = ep.field2||'';
 }
 
 /* -----------------------
    Local edits
    ----------------------- */
 function updateSelectedFromForm(){
-  const i = state.selectedIndex;
-  if(i < 0) return;
-  const ep = state.episodes[i];
+  var i = state.selectedIndex;
+  if(i<0) return;
+  var ep = state.episodes[i];
   ep.year = Number($('#f-year').value) || null;
   ep.month = Number($('#f-month').value) || null;
   ep.week = Number($('#f-week').value) || null;
@@ -508,7 +505,6 @@ function updateSelectedFromForm(){
   ep.video_link = $('#f-video').value;
   ep.field1 = $('#f-field1').value;
   ep.field2 = $('#f-field2').value;
-
   state.episodes[i] = ep;
   renderEpisodes();
   selectEpisode(i);
@@ -518,180 +514,154 @@ function updateSelectedFromForm(){
    Add / duplicate / delete
    ----------------------- */
 function addEpisode(){
-  const newEp = {
+  var newEp = {
     year: new Date().getFullYear(),
-    month: 1, week: 1,
-    title: LOCALE==='ru' ? 'Новый эпизод' : 'New episode',
-    description: '',
-    preview: '',
-    video_link: '',
-    history_link: '',
-    field1: '', field2: ''
+    month:1, week:1,
+    title: LOCALE==='ru'?'Новый эпизод':'New episode',
+    description:'', preview:'', video_link:'', history_link:'', field1:'', field2:''
   };
   state.episodes.push(newEp);
   renderEpisodes();
-  selectEpisode(state.episodes.length - 1);
+  selectEpisode(state.episodes.length-1);
 }
 
 function duplicateEpisode(idx){
-  const copy = JSON.parse(JSON.stringify(state.episodes[idx] || {}));
-  copy.title = (copy.title || '') + (LOCALE==='ru' ? ' (копия)' : ' (copy)');
-  state.episodes.splice(idx+1, 0, copy);
+  var copy = JSON.parse(JSON.stringify(state.episodes[idx]||{}));
+  copy.title += LOCALE==='ru'?' (копия)':' (copy)';
+  state.episodes.splice(idx+1,0,copy);
   renderEpisodes();
   selectEpisode(idx+1);
 }
 
 function deleteEpisode(idx){
-  if(!confirm(LOCALE==='ru' ? 'Удалить эпизод?' : 'Delete episode?')) return;
-  state.episodes.splice(idx, 1);
+  if(!confirm(LOCALE==='ru'?'Удалить эпизод?':'Delete episode?')) return;
+  state.episodes.splice(idx,1);
   renderEpisodes();
   selectEpisode(-1);
 }
 
 /* -----------------------
-   Load JSON from Gist
+   Load / Save JSON
    ----------------------- */
-async function loadFromGist() {
-  $('#status').textContent = I18N[LOCALE].load + '...';
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
-    const gist = await res.json();
-    const content = gist.files[FILE_NAME]?.content;
-    state.episodes = JSON.parse(content || '[]');
-    renderEpisodes();
-    selectEpisode(-1);
-    $('#add-ep').style.display = 'inline-flex';
-    $('#status').textContent = `${I18N[LOCALE].loaded} ${state.episodes.length} ${I18N[LOCALE].episodes}`;
-  } catch (err) {
-    console.error(err);
-    $('#status').textContent = 'Ошибка загрузки';
-    alert((LOCALE==='ru' ? 'Ошибка загрузки: ' : 'Load error: ') + err.message);
-  }
+function loadFromGist(){
+  $('#status').textContent = I18N[LOCALE].load+'...';
+  fetch('https://api.github.com/gists/'+GIST_ID)
+    .then(function(res){ return res.json(); })
+    .then(function(gist){
+      var content = (gist.files && gist.files[FILE_NAME] && gist.files[FILE_NAME].content) || '[]';
+      state.episodes = JSON.parse(content);
+      renderEpisodes();
+      selectEpisode(-1);
+      $('#add-ep').style.display = 'inline-flex';
+      $('#status').textContent = I18N[LOCALE].loaded+' '+state.episodes.length+' '+I18N[LOCALE].episodes;
+    })
+    .catch(function(err){
+      console.error(err);
+      $('#status').textContent = 'Ошибка загрузки';
+      alert((LOCALE==='ru'?'Ошибка загрузки: ':'Load error: ')+err.message);
+    });
 }
 
-/* -----------------------
-   Save JSON to Gist (asks for token)
-   ----------------------- */
-async function saveToGist() {
-  const token = prompt('Введите GitHub токен (gist):');
-  if (!token) return alert('Токен не введён');
-
+function saveToGist(){
+  var token = prompt('Введите GitHub токен (gist):');
+  if(!token) return alert('Токен не введён');
   $('#status').textContent = 'Сохранение...';
-  const body = {
-    files: {
-      [FILE_NAME]: { content: JSON.stringify(state.episodes, null, 2) }
-    }
-  };
-
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error(await res.text());
+  var body = { files:{} };
+  body.files[FILE_NAME] = { content: JSON.stringify(state.episodes,null,2) };
+  fetch('https://api.github.com/gists/'+GIST_ID,{
+    method:'PATCH',
+    headers:{
+      'Authorization':'token '+token,
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify(body)
+  }).then(function(res){
+    if(!res.ok) return res.text().then(function(t){ throw new Error(t); });
+    return res.json();
+  }).then(function(){
     $('#status').textContent = I18N[LOCALE].saved;
     $('#last-saved').textContent = new Date().toLocaleString();
-  } catch (err) {
+  }).catch(function(err){
     console.error(err);
     $('#status').textContent = 'Ошибка сохранения';
-    alert('Ошибка сохранения: ' + err.message);
-  }
+    alert('Ошибка сохранения: '+err.message);
+  });
 }
 
 /* -----------------------
    UI wiring
    ----------------------- */
 function bindUI(){
-  // load/save buttons
   $('#load-btn').addEventListener('click', loadFromGist);
   $('#save-btn').addEventListener('click', saveToGist);
-
-  // add button
   $('#add-ep').addEventListener('click', addEpisode);
-
-  // episodes container actions
-  $('#episodes-container').addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
+  $('#episodes-container').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
     if(!btn) return;
-    const idx = Number(btn.dataset.idx);
-    const act = btn.dataset.act;
-    if(act === 'edit') selectEpisode(idx);
-    else if(act === 'dup') duplicateEpisode(idx);
-    else if(act === 'del') deleteEpisode(idx);
+    var idx = Number(btn.dataset.idx);
+    var act = btn.dataset.act;
+    if(act==='edit') selectEpisode(idx);
+    else if(act==='dup') duplicateEpisode(idx);
+    else if(act==='del') deleteEpisode(idx);
   });
-
-  // editor buttons
   $('#update-ep').addEventListener('click', updateSelectedFromForm);
-  $('#delete-ep').addEventListener('click', () => {
-    if(state.selectedIndex >= 0) deleteEpisode(state.selectedIndex);
+  $('#delete-ep').addEventListener('click', function(){
+    if(state.selectedIndex>=0) deleteEpisode(state.selectedIndex);
   });
-
-  // form auto-update
-  ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2','#f-video']
-  .forEach(sel => {
-    const el = document.querySelector(sel);
+  var fields = ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2','#f-video'];
+  for(var i=0;i<fields.length;i++){
+    var el = document.querySelector(fields[i]);
     if(el) el.addEventListener('change', updateSelectedFromForm);
+  }
+  $('#theme-toggle').addEventListener('click', function(){
+    var cur = document.body.getAttribute('data-theme')==='dark'?'dark':'light';
+    var next = cur==='dark'?'light':'dark';
+    document.body.setAttribute('data-theme',next);
+    $('#theme-toggle').textContent = (next==='dark')?'Light':'Dark';
   });
-
-  // theme toggle
-  $('#theme-toggle').addEventListener('click', () => {
-    const cur = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-theme', next);
-    $('#theme-toggle').textContent = (next === 'dark') ? 'Light' : 'Dark';
-  });
-
-  // language toggle
-  $('#btn-ru').addEventListener('click', () => {
-    LOCALE = 'ru';
+  $('#btn-ru').addEventListener('click', function(){
+    LOCALE='ru';
     $('#btn-ru').classList.add('active'); $('#btn-ru').setAttribute('aria-pressed','true');
     $('#btn-en').classList.remove('active'); $('#btn-en').setAttribute('aria-pressed','false');
     applyLocale();
   });
-  $('#btn-en').addEventListener('click', () => {
-    LOCALE = 'en';
+  $('#btn-en').addEventListener('click', function(){
+    LOCALE='en';
     $('#btn-en').classList.add('active'); $('#btn-en').setAttribute('aria-pressed','true');
     $('#btn-ru').classList.remove('active'); $('#btn-ru').setAttribute('aria-pressed','false');
     applyLocale();
   });
 
-  // parallax / cursor subtle effect
-  document.addEventListener('mousemove', (e) => {
-    const wrap = $('#wrap');
-    const w = window.innerWidth, h = window.innerHeight;
-    const dx = (e.clientX - w/2) / (w/2);
-    const dy = (e.clientY - h/2) / (h/2);
-    wrap.style.transform = `rotateX(${dy*3}deg) rotateY(${-dx*3}deg)`;
-    const halo = document.querySelector('.glass-halo');
-    if(halo){
-      halo.style.transform = `translate3d(${dx*8}px, ${dy*6}px, 0)`;
-    }
-    document.querySelector('.list').style.transform = `translate(${dx*10}px, ${dy*6}px)`;
-    document.querySelector('.editor').style.transform = `translate(${dx*14}px, ${dy*8}px)`;
+  // Parallax
+  var wrap = $('#wrap');
+  var listEl = document.querySelector('.list');
+  var editorEl = document.querySelector('.editor');
+  var haloEl = document.querySelector('.glass-halo');
+  document.addEventListener('mousemove', function(e){
+    var w = window.innerWidth, h = window.innerHeight;
+    var dx = (e.clientX-w/2)/(w/2), dy=(e.clientY-h/2)/(h/2);
+    if(wrap) wrap.style.transform='rotateX('+dy*3+'deg) rotateY('+-dx*3+'deg)';
+    if(haloEl) haloEl.style.transform='translate3d('+dx*8+'px,'+dy*6+'px,0)';
+    if(listEl) listEl.style.transform='translate('+dx*10+'px,'+dy*6+'px)';
+    if(editorEl) editorEl.style.transform='translate('+dx*14+'px,'+dy*8+'px)';
   });
 
-  // keyboard: save Ctrl+S
-  window.addEventListener('keydown', (e) => {
-    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
-      e.preventDefault();
-      saveToGist();
-    }
+  // Ctrl+S save
+  window.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveToGist(); }
   });
 }
 
 /* -----------------------
    Init
    ----------------------- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function(){
   bindUI();
   applyLocale();
-  $('#add-ep').style.display = 'none';
+  $('#add-ep').style.display='none';
 });
 </script>
+
 
 
 </body></html>
