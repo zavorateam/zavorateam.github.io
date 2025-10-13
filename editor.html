@@ -1,13 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Timeline Admin</title>
-
-<!-- Supabase JS UMD -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-
 <style>
   /* -------------------
      Theme variables
@@ -234,21 +231,21 @@
 </style>
 </head>
 <body data-theme="dark" dir="ltr">
-<div class="wrap" id="wrap">
+<div class="wrap" id="wrap" style="transform: rotateX(-1.86538deg) rotateY(-1.33944deg);">
   <header>
     <div class="brand">
-      <div class="logo" aria-hidden>
+      <div class="logo" aria-hidden="">
         <!-- subtle SVG icon -->
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
           <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#g)"></rect>
           <defs>
-            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.06"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.02"/></linearGradient>
+            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.06"></stop><stop offset="1" stop-color="#ffffff" stop-opacity="0.02"></stop></linearGradient>
           </defs>
         </svg>
       </div>
       <div>
-        <h1 id="ui-title">Timeline Admin</h1>
-        <p class="lead" id="ui-sub">Visual JSON timeline editor — Supabase sync</p>
+        <h1 id="ui-title">Редактор Timeline</h1>
+        <p class="lead" id="ui-sub">Визуальный редактор JSON — синхр. с Supabase</p>
       </div>
     </div>
 
@@ -259,52 +256,52 @@
       </div>
 
       <button id="theme-toggle" class="btn small" aria-pressed="false">Light</button>
-      <button id="load-btn" class="btn small">Load</button>
-      <button id="save-btn" class="btn small">Save</button>
+      <button id="load-btn" class="btn small">Загрузить</button>
+      <button id="save-btn" class="btn small">Сохранить</button>
     </div>
   </header>
 
   <main>
     <!-- LEFT: list -->
-    <section class="list" id="list">
+    <section class="list" id="list" style="transform: translate(4.46479px, -3.73077px);">
       <div class="topbar">
-        <div class="episodes-count" id="episodes-count">0 episodes</div>
+        <div class="episodes-count" id="episodes-count">0 эпизодов</div>
         <div class="muted-small" id="list-sub">—</div>
       </div>
 
       <div id="episodes-container" aria-live="polite"></div>
 
       <div class="add-area">
-        <button id="add-ep" class="btn small" style="display:none">+ Add episode</button>
+        <button id="add-ep" class="btn small" style="display:none">+ Добавить эпизод</button>
       </div>
     </section>
 
     <!-- RIGHT: editor -->
-    <aside class="editor" id="editor" aria-labelledby="edit-heading">
-      <h3 id="edit-heading">Editor</h3>
-      <div id="editor-empty" class="muted-small">Load data and select an episode</div>
+    <aside class="editor" id="editor" aria-labelledby="edit-heading" style="transform: translate(6.2507px, -4.97436px);">
+      <h3 id="edit-heading">Редактор</h3>
+      <div id="editor-empty" class="muted-small">Загрузите данные и выберите эпизод</div>
 
       <div id="editor-form" style="display:none">
         <div class="row">
-          <div class="field"><label id="lbl-year">Year</label><input id="f-year" type="number" /></div>
-          <div class="field"><label id="lbl-month">Month</label><input id="f-month" type="number" /></div>
-          <div class="field"><label id="lbl-week">Week</label><input id="f-week" type="number" /></div>
+          <div class="field"><label id="lbl-year">Год</label><input id="f-year" type="number"></div>
+          <div class="field"><label id="lbl-month">Месяц</label><input id="f-month" type="number"></div>
+          <div class="field"><label id="lbl-week">Неделя</label><input id="f-week" type="number"></div>
         </div>
 
-        <div class="field"><label id="lbl-title">Title</label><input id="f-title" type="text" /></div>
-        <div class="field"><label id="lbl-desc">Description</label><textarea id="f-description"></textarea></div>
-        <div class="field"><label id="lbl-preview">Preview (image url)</label><input id="f-preview" type="text" /></div>
-  <div class="field"><label id="lbl-history">History link</label><input id="f-history" type="text" /></div>
-  <div class="field"><label id="lbl-video">Video link</label><input id="f-video" type="text" /></div>
+        <div class="field"><label id="lbl-title">Заголовок</label><input id="f-title" type="text"></div>
+        <div class="field"><label id="lbl-desc">Описание</label><textarea id="f-description"></textarea></div>
+        <div class="field"><label id="lbl-preview">Превью (URL)</label><input id="f-preview" type="text"></div>
+  <div class="field"><label id="lbl-history">История (ссылка)</label><input id="f-history" type="text"></div>
+  <div class="field"><label id="lbl-video">Видео (ссылка)</label><input id="f-video" type="text"></div>
 
         <div class="row">
-          <div class="field"><label id="lbl-field1">Field 1</label><input id="f-field1" type="text" /></div>
-          <div class="field"><label id="lbl-field2">Field 2</label><input id="f-field2" type="text" /></div>
+          <div class="field"><label id="lbl-field1">Поле 1</label><input id="f-field1" type="text"></div>
+          <div class="field"><label id="lbl-field2">Поле 2</label><input id="f-field2" type="text"></div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:10px;">
-          <button id="update-ep" class="btn">Save changes</button>
-          <button id="delete-ep" class="btn ghost">Delete episode</button>
+          <button id="update-ep" class="btn">Сохранить изменения</button>
+          <button id="delete-ep" class="btn ghost">Удалить эпизод</button>
         </div>
 
         <div style="margin-top:12px;" class="muted-small" id="last-saved">—</div>
@@ -313,23 +310,23 @@
   </main>
 
   <footer>
-    <div id="status">Not loaded</div>
+    <div id="status">Не загружено</div>
     <div id="footer-info" class="muted-small">Администрирование Таймлайна</div>
   </footer>
 </div>
 
-<div class="glass-halo" aria-hidden="true"></div>
+<div class="glass-halo" aria-hidden="true" style="transform: translate3d(3.57183px, -3.73077px, 0px);"></div>
 
 <!-- Login modal -->
-<div id="login-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="login-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
   <div class="modal" role="document">
     <h4 id="login-title">Sign in</h4>
     <div class="err" id="login-err"></div>
     <div class="row">
       <label for="login-email">Email</label>
-      <input id="login-email" type="text" autocomplete="username" />
+      <input id="login-email" type="text" autocomplete="username">
       <label for="login-pass">Password</label>
-      <input id="login-pass" type="password" autocomplete="current-password" />
+      <input id="login-pass" type="password" autocomplete="current-password">
     </div>
     <div class="actions">
       <button id="login-cancel" class="btn ghost">Cancel</button>
@@ -340,23 +337,12 @@
 
 <script>
 /* -----------------------
-   CONFIG - Supabase
-   Replace only if needed (you already gave values)
-   ----------------------- */
-const config = {
-  SUPABASE_URL: 'https://motldrpgprrgghzcybyq.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vdGxkcnBncHJyZ2doemN5YnlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNTU4NDIsImV4cCI6MjA3NDczMTg0Mn0.whhbvh_VmdSYsfHB34JuHAS2dOPVjf-lrsr0_XmybQA',
-  BUCKET: 'timeline',
-  FILE_PATH: 'timeline-data.json'
-};
-
-/* -----------------------
    Simple i18n dictionary
    ----------------------- */
 const I18N = {
   ru:{
     title: 'Редактор Timeline',
-    subtitle: 'Визуальный редактор JSON — синхр. с Supabase',
+    subtitle: 'Визуальный редактор JSON — Gist sync',
     load: 'Загрузить',
     loaded: 'Загружено',
     save: 'Сохранить',
@@ -374,7 +360,7 @@ const I18N = {
   },
   en:{
     title: 'Timeline Admin',
-    subtitle: 'Visual JSON timeline editor — Supabase sync',
+    subtitle: 'Visual JSON timeline editor — Gist sync',
     load: 'Load',
     loaded: 'Loaded',
     save: 'Save',
@@ -398,7 +384,6 @@ let LOCALE = 'ru';
    App state
    ----------------------- */
 const state = {
-  supabase: null,
   episodes: [],
   selectedIndex: -1
 };
@@ -410,15 +395,10 @@ const $ = s => document.querySelector(s);
 const escapeHtml = s => s ? String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : '';
 
 /* -----------------------
-   Init supabase client
+   Gist config
    ----------------------- */
-function initSupabase(){
-  if(!config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
-    $('#status').textContent = 'Supabase not configured';
-    return;
-  }
-  state.supabase = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
-}
+const GIST_ID = 'b973e400c1b9bea04411240195566b68';
+const FILE_NAME = 'timeline-data.json';
 
 /* -----------------------
    i18n apply
@@ -441,7 +421,6 @@ function applyLocale(){
   $('#lbl-desc').textContent = L.desc;
   $('#lbl-preview').textContent = L.preview;
   $('#lbl-history').textContent = L.history;
-  // video label (may be undefined in older locales)
   if($('#lbl-video')) $('#lbl-video').textContent = L.video || 'Video';
   $('#lbl-field1').textContent = L.f1;
   $('#lbl-field2').textContent = L.f2;
@@ -449,9 +428,8 @@ function applyLocale(){
   $('#delete-ep').textContent = L.delete;
   $('#footer-info').textContent = L.footerInfo;
 
-  // episodes count (re-render)
+  // episodes count
   renderEpisodes();
-  $('#status').textContent = ( state.episodes.length ? `${I18N[LOCALE].loaded} ${state.episodes.length} ${L.episodes}` : (L.notLoaded));
 }
 
 /* -----------------------
@@ -482,11 +460,9 @@ function renderEpisodes(){
   // episodes count
   $('#episodes-count').textContent = `${state.episodes.length} ${I18N[LOCALE].episodes}`;
 
-  const list = $('#episodes-container');
-  if(list.offsetHeight > 20 && halo){
-    const extra = 370; // например, 20px отступ снизу
-    halo.style.height = (list.offsetHeight + extra) + 'px';
-}
+  if(container.offsetHeight > 20 && halo){
+    halo.style.height = (container.offsetHeight + 370) + 'px';
+  }
 }
 
 /* -----------------------
@@ -510,7 +486,6 @@ function selectEpisode(i){
   $('#f-description').value = ep.description ?? '';
   $('#f-preview').value = ep.preview ?? '';
   $('#f-history').value = ep.history_link ?? ep.history ?? '';
-  // support both video_link and older 'video' key
   $('#f-video').value = ep.video_link ?? ep.video ?? '';
   $('#f-field1').value = ep.field1 ?? '';
   $('#f-field2').value = ep.field2 ?? '';
@@ -574,129 +549,71 @@ function deleteEpisode(idx){
 }
 
 /* -----------------------
-   Supabase load / save
+   Load JSON from Gist
    ----------------------- */
-async function loadFromSupabase(){
-  if(!state.supabase) initSupabase();
+async function loadFromGist() {
   $('#status').textContent = I18N[LOCALE].load + '...';
   try {
-    const { data, error } = await state.supabase.storage.from(config.BUCKET).download(config.FILE_PATH);
-    if(error) throw error;
-    const text = await data.text();
-    const parsed = JSON.parse(text);
-    if(!Array.isArray(parsed)){
-      // if root object with key, try to detect "episodes"
-      if(parsed.episodes && Array.isArray(parsed.episodes)) state.episodes = parsed.episodes;
-      else throw new Error('JSON root is not an array');
-    } else {
-      state.episodes = parsed;
-    }
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+    const gist = await res.json();
+    const content = gist.files[FILE_NAME]?.content;
+    state.episodes = JSON.parse(content || '[]');
     renderEpisodes();
     selectEpisode(-1);
     $('#add-ep').style.display = 'inline-flex';
-    $('#status').textContent = I18N[LOCALE].loaded + ' ' + state.episodes.length + ' ' + I18N[LOCALE].episodes;
+    $('#status').textContent = `${I18N[LOCALE].loaded} ${state.episodes.length} ${I18N[LOCALE].episodes}`;
   } catch (err) {
     console.error(err);
-    $('#status').textContent = 'Error';
+    $('#status').textContent = 'Ошибка загрузки';
     alert((LOCALE==='ru' ? 'Ошибка загрузки: ' : 'Load error: ') + err.message);
   }
 }
 
-async function saveToSupabase(){
-  if(!state.supabase) initSupabase();
-  // Ensure user is authenticated before attempting upload
-  const { data: sessionData } = await state.supabase.auth.getSession();
-  const user = sessionData?.session?.user ?? null;
-  if(!user){
-    // show login modal and wait for success
-    const ok = await showLoginModal();
-    if(!ok) {
-      $('#status').textContent = I18N[LOCALE].notLoaded;
-      return;
-    }
-  }
-
-  $('#status').textContent = I18N[LOCALE].save + '...';
-  try{
-    const payload = JSON.stringify(state.episodes, null, 2);
-    const file = new File([payload], config.FILE_PATH, { type: 'application/json' });
-    const { data, error } = await state.supabase.storage.from(config.BUCKET).upload(config.FILE_PATH, file, { upsert: true });
-    if(error) throw error;
-    $('#status').textContent = I18N[LOCALE].saved;
-    $('#last-saved').textContent = `${I18N[LOCALE].saved}: ${new Date().toLocaleString()}`;
-  } catch(err){
-    console.error(err);
-    alert((LOCALE==='ru'?'Ошибка при сохранении: ':'Save error: ') + err.message);
-    $('#status').textContent = 'Error';
-  }
-}
-
 /* -----------------------
-   Login modal helpers
+   Save JSON to Gist (asks for token)
    ----------------------- */
-function showLoginModal(){
-  return new Promise((resolve) => {
-    const backdrop = $('#login-backdrop');
-    const errEl = $('#login-err');
-    const emailEl = $('#login-email');
-    const passEl = $('#login-pass');
-    const submit = $('#login-submit');
-    const cancel = $('#login-cancel');
+async function saveToGist() {
+  const token = prompt('Введите GitHub токен (gist):');
+  if (!token) return alert('Токен не введён');
 
-    errEl.textContent = '';
-    emailEl.value = '';
-    passEl.value = '';
-
-    backdrop.style.display = 'flex';
-    backdrop.setAttribute('aria-hidden','false');
-
-    async function doSignIn(){
-      errEl.textContent = '';
-      const email = emailEl.value.trim();
-      const pass = passEl.value;
-      if(!email || !pass){ errEl.textContent = LOCALE==='ru' ? 'Введите email и пароль' : 'Enter email and password'; return; }
-      submit.disabled = true; cancel.disabled = true;
-      try{
-        const res = await state.supabase.auth.signInWithPassword({ email, password: pass });
-        if(res.error) throw res.error;
-        // success
-        close(true);
-      }catch(e){
-        console.error(e);
-        errEl.textContent = (LOCALE==='ru' ? 'Ошибка входа: ' : 'Sign-in error: ') + (e.message || e.error || String(e));
-        submit.disabled = false; cancel.disabled = false;
-      }
+  $('#status').textContent = 'Сохранение...';
+  const body = {
+    files: {
+      [FILE_NAME]: { content: JSON.stringify(state.episodes, null, 2) }
     }
+  };
 
-    function close(result){
-      backdrop.style.display = 'none';
-      backdrop.setAttribute('aria-hidden','true');
-      submit.removeEventListener('click', doSignIn);
-      cancel.removeEventListener('click', onCancel);
-      resolve(Boolean(result));
-    }
-
-    function onCancel(){ close(false); }
-
-    submit.addEventListener('click', doSignIn);
-    cancel.addEventListener('click', onCancel);
-    // press Enter to submit
-    passEl.addEventListener('keydown', (ev) => { if(ev.key === 'Enter') doSignIn(); });
-  });
+  try {
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    $('#status').textContent = I18N[LOCALE].saved;
+    $('#last-saved').textContent = new Date().toLocaleString();
+  } catch (err) {
+    console.error(err);
+    $('#status').textContent = 'Ошибка сохранения';
+    alert('Ошибка сохранения: ' + err.message);
+  }
 }
 
 /* -----------------------
    UI wiring
    ----------------------- */
 function bindUI(){
-  // load/save
-  $('#load-btn').addEventListener('click', loadFromSupabase);
-  $('#save-btn').addEventListener('click', saveToSupabase);
+  // load/save buttons
+  $('#load-btn').addEventListener('click', loadFromGist);
+  $('#save-btn').addEventListener('click', saveToGist);
 
-  // add only after load (button shown/hidden by loadFromSupabase)
+  // add button
   $('#add-ep').addEventListener('click', addEpisode);
 
-  // episodes container actions (edit/dup/del)
+  // episodes container actions
   $('#episodes-container').addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if(!btn) return;
@@ -713,27 +630,22 @@ function bindUI(){
     if(state.selectedIndex >= 0) deleteEpisode(state.selectedIndex);
   });
 
-  // form autosave on changes (blur/change)
-  ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2']
+  // form auto-update
+  ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2','#f-video']
   .forEach(sel => {
     const el = document.querySelector(sel);
     if(el) el.addEventListener('change', updateSelectedFromForm);
   });
-  // also listen for video link changes
-  const vEl = document.querySelector('#f-video'); if(vEl) vEl.addEventListener('change', updateSelectedFromForm);
 
-  // duplicate/ delete via buttons also done on list
-
-  // theme toggle (separate button)
+  // theme toggle
   $('#theme-toggle').addEventListener('click', () => {
     const cur = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const next = cur === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', next);
     $('#theme-toggle').textContent = (next === 'dark') ? 'Light' : 'Dark';
-    // control glass-halo via CSS (already handled)
   });
 
-  // language toggle buttons
+  // language toggle
   $('#btn-ru').addEventListener('click', () => {
     LOCALE = 'ru';
     $('#btn-ru').classList.add('active'); $('#btn-ru').setAttribute('aria-pressed','true');
@@ -747,58 +659,39 @@ function bindUI(){
     applyLocale();
   });
 
-  // modal elements: ensure focus/escape
-  const loginBackdrop = $('#login-backdrop');
-  if(loginBackdrop){
-    loginBackdrop.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape'){
-        const cancel = $('#login-cancel'); if(cancel) cancel.click();
-      }
-    });
-  }
-
-  // parallax / cursor subtle effect: influence wrap tilt and soft highlight on hovered cards
+  // parallax / cursor subtle effect
   document.addEventListener('mousemove', (e) => {
     const wrap = $('#wrap');
     const w = window.innerWidth, h = window.innerHeight;
-    const dx = (e.clientX - w/2) / (w/2); // -1..1
+    const dx = (e.clientX - w/2) / (w/2);
     const dy = (e.clientY - h/2) / (h/2);
-    const rx = (dy * 3).toFixed(2), ry = (-dx * 3).toFixed(2);
-    wrap.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-    // move halo a bit
+    wrap.style.transform = `rotateX(${dy*3}deg) rotateY(${-dx*3}deg)`;
     const halo = document.querySelector('.glass-halo');
     if(halo){
-      halo.style.transform = `translate3d(${(dx*8)}px, ${(dy*6)}px, 0)`;
+      halo.style.transform = `translate3d(${dx*8}px, ${dy*6}px, 0)`;
     }
-    // список (лево) и редактор (право)
     document.querySelector('.list').style.transform = `translate(${dx*10}px, ${dy*6}px)`;
     document.querySelector('.editor').style.transform = `translate(${dx*14}px, ${dy*8}px)`;
-    // вся обёртка слегка «наклоняется»
-    document.querySelector('.wrap').style.transform = `rotateX(${dy*3}deg) rotateY(${dx*-3}deg)`;
   });
 
   // keyboard: save Ctrl+S
   window.addEventListener('keydown', (e) => {
     if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
       e.preventDefault();
-      saveToSupabase();
+      saveToGist();
     }
   });
 }
 
 /* -----------------------
-   Start
+   Init
    ----------------------- */
-(function init(){
-  initSupabase();
+document.addEventListener('DOMContentLoaded', () => {
   bindUI();
   applyLocale();
-  // hide add button until load
   $('#add-ep').style.display = 'none';
-  // ensure editor background reflect theme on initial load
-  document.body.setAttribute('data-theme', 'dark');
-})();
-
+});
 </script>
-</body>
-</html>
+
+
+</body></html>
