@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline Admin</title>
+<style>
+  /* -------------------
+     Theme variables
+     ------------------- */
+  :root{
+    --bg-dark: #0b1020;
+    --card-dark: #0f1724;
+    --glass-dark: rgba(255,255,255,0.06);
+    --text-dark: #e6eef8;
+    --muted-dark: #9aa7bd;
+    --accent-dark: rgba(120,170,255,0.12);
+
+    --bg-light: #f6f9fc;
+    --card-light: rgba(255,255,255,0.65);
+    --glass-light: rgba(255,255,255,0.75);
+    --text-light: #0b1220;
+    --muted-light: #475569;
+    --accent-light: rgba(20,120,255,0.06);
+
+    --control-radius: 14px;
+    --soft-shadow: 0 10px 30px rgba(2,6,23,0.45);
+  }
+
+  /* -------------------
+     Base body / fonts
+     ------------------- */
+  body {
+    margin:0; min-height:100vh;
+    font-family: Inter, "SF Pro Text", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    transition: background .28s ease, color .28s ease;
+    --mouse-x: 0; --mouse-y: 0;
+  }
+
+  /* Light theme overrides */
+  body[data-theme="light"]{
+    background: linear-gradient(180deg, #fbfdff, #f0f6fb);
+    color: var(--text-light);
+  }
+
+  /* Wrap / layout */
+  .wrap{
+    max-width:1480px; margin:44px auto; padding:30px;
+    transform-style:preserve-3d; perspective:1200px;
+    position: relative; z-index: 1;
+  }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:26px;
+  }
+  .brand{display:flex; gap:14px; align-items:center;}
+  .logo{
+    width:68px;height:68px;border-radius:18px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    box-shadow: 0 12px 40px rgba(2,8,25,0.6), inset 0 2px 6px rgba(255,255,255,0.02);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  h1{font-size:20px; margin:0;}
+  p.lead{margin:0; font-size:13px; color:var(--muted-dark);}
+  body[data-theme="light"] p.lead{color:var(--muted-light);}
+
+  /* Controls */
+  .controls{display:flex; gap:10px; align-items:center;}
+  .btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:var(--control-radius);
+    border: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    color: inherit; font-weight:700; cursor:pointer; font-size:13px;
+    box-shadow: var(--soft-shadow);
+    transition: transform .12s ease, box-shadow .18s ease, background .2s;
+    backdrop-filter: blur(12px) saturate(140%);
+  }
+  .btn:active{ transform: translateY(2px); box-shadow: 0 6px 18px rgba(2,6,23,0.35); }
+  .btn.ghost{
+    background: transparent; border:1px dashed rgba(255,255,255,0.06); font-weight:600;
+  }
+  .btn.small{ padding:8px 10px; font-size:13px; border-radius:12px; }
+
+  /* Language toggle: small pill with text */
+  .lang-toggle {
+    display:flex; gap:6px; align-items:center; padding:6px; border-radius:999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .lang-toggle button{ border-radius:10px; padding:6px 10px; font-weight:700; cursor:pointer; background:transparent; color:var(--muted-dark); border:none; }
+  .lang-toggle button.active{ background: rgba(255,255,255,0.06); color:inherit; }
+
+  /* Main layout: wider editor */
+  main{ display:grid; grid-template-columns: 1fr 520px; gap:28px; align-items:start; }
+
+  /* List (left) */
+  .list{
+    border-radius:22px; padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 18px 60px rgba(2,6,23,0.55);
+    border: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(14px) saturate(140%);
+    min-height:64vh;
+    transition: background .28s;
+  }
+  .list .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .episodes-count{ color:var(--muted-dark); font-size:13px; }
+
+  /* Episode card */
+  .episode{
+    display:flex; gap:14px; align-items:flex-start; padding:14px; margin-bottom:14px;
+    border-radius:14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.03);
+    transition: transform .15s ease, box-shadow .18s;
+  }
+  .episode:hover{ transform: translateY(-6px); box-shadow: 0 18px 50px rgba(5,10,20,0.32); }
+  .thumb{ width:140px; height:88px; border-radius:12px; overflow:hidden; background:#0e1115; flex:0 0 140px; }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .meta{ flex:1; min-width:0; } /* min-width for ellipsis behavior */
+  .title{ font-weight:800; margin:0 0 6px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .desc{ color:var(--muted-dark); margin:0 0 8px 0; font-size:13px; max-height:40px; overflow:hidden; }
+  body[data-theme="light"] .desc{ color:var(--muted-light); }
+  .ep-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  /* Editor (right) - make wider and consistent padding */
+  .editor{
+    position:sticky; top:30px; align-self:start;
+    border-radius:20px; padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 18px 60px rgba(2,6,23,0.45);
+    backdrop-filter: blur(14px) saturate(140%);
+    min-height:64vh;
+    transition: background .28s, color .28s;
+  }
+  /* Editor background must adapt to theme */
+  body[data-theme="dark"] .editor{
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    color: var(--text-dark);
+  }
+  body[data-theme="light"] .editor{
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+    border: 1px solid rgba(20,30,50,0.04);
+    color: var(--text-light);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06);
+    backdrop-filter: blur(8px) saturate(120%);
+  }
+
+  .editor h3{ margin:0 0 10px 0; font-size:16px; }
+  .editor .muted-small{ color:var(--muted-dark); font-size:13px; margin-bottom:8px; }
+  body[data-theme="light"] .editor .muted-small{ color:var(--muted-light); }
+
+  .field{ margin-bottom:12px; display:block; }
+  label{ display:block; font-size:13px; margin-bottom:6px; color:var(--muted-dark); }
+  body[data-theme="light"] label{ color:var(--muted-light); }
+  input[type="text"], input[type="number"], textarea{
+    width:100%; padding:12px; border-radius:12px; font-size:14px;
+    border:1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); color:inherit;
+    transition: box-shadow .12s, transform .08s;
+    outline: none;
+  }
+  body[data-theme="light"] input, body[data-theme="light"] textarea{
+    background: rgba(255,255,255,0.95); border:1px solid rgba(16,24,40,0.06); color:var(--text-light);
+  }
+  input:focus, textarea:focus{ box-shadow: 0 6px 18px rgba(30,60,120,0.08); transform: translateY(-2px); }
+
+  .row{ display:flex; gap:10px; }
+  .row .field{ flex:1; }
+
+  footer{ margin-top:26px; display:flex; align-items:center; justify-content:space-between; color:var(--muted-dark); font-size:13px; }
+  body[data-theme="light"] footer{ color:var(--muted-light); }
+
+  /* Add button area at bottom of list */
+  .add-area { margin-top:12px; text-align:center; }
+
+  /* glass-halo: only in dark theme, subtle */
+  .glass-halo {
+    position:absolute;
+    top:25px; left:25px; right:25px; bottom:25px;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.05), transparent 70%);
+    backdrop-filter: blur(30px) saturate(150%);
+    pointer-events:none;
+    z-index:0; /* ниже всех */
+    border-radius: 25px;
+  }
+
+  body[data-theme="dark"] .glass-halo{ opacity:1; transform: translateY(0); }
+  body[data-theme="light"] .glass-halo{ opacity:0.9; transform: translateY(0); }
+
+  body {
+    /* Если страница должна быть фиксированной по ширине, вынесите нужную ширину: */
+    /* width: 1024px; → фиксированная ширина */
+    overflow-x: hidden;        /* Паркировка по горизонтали скрыта */
+    /* overflow-y: hidden;        Паркировка по вертикали скрыта */
+    /* overflow: hidden;        → сразу обе оси */
+  }
+
+  /* 3.  Не позволяйте всплывающим элементам выходить за границы окна */
+  *, *::before, *::after {
+      box-sizing: border-box;
+  }
+
+  /* Small responsive */
+  @media (max-width:1100px){
+    main{ grid-template-columns: 1fr 420px; }
+    .wrap{ padding:20px; }
+  }
+  @media (max-width:860px){
+    main{ grid-template-columns: 1fr; }
+    .editor{ position:relative; top:auto; margin-top:18px; }
+    .glass-halo{ display:none; }
+  }
+  /* Login modal styles */
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.6); display:none; align-items:center; justify-content:center; z-index:9999; }
+  .modal { background: var(--card-dark); color: var(--text-dark); min-width:320px; max-width:460px; width:90%; border-radius:12px; padding:18px; box-shadow: 0 20px 60px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04); }
+  body[data-theme="light"] .modal{ background: #fff; color:var(--text-light); }
+  .modal h4{ margin:0 0 10px 0; }
+  .modal .row{ display:block; }
+  .modal input{ width:100%; margin-bottom:8px; }
+  .modal .actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  .modal .err{ color:#ff6b6b; font-size:13px; min-height:18px; }
+</style>
+</head>
+<body data-theme="dark" dir="ltr">
+<div class="wrap" id="wrap" style="transform: rotateX(-1.86538deg) rotateY(-1.33944deg);">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="">
+        <!-- subtle SVG icon -->
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+          <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#g)"></rect>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.06"></stop><stop offset="1" stop-color="#ffffff" stop-opacity="0.02"></stop></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <h1 id="ui-title">Редактор Timeline</h1>
+        <p class="lead" id="ui-sub">Визуальный редактор JSON — синхр. с Supabase</p>
+      </div>
+    </div>
+
+    <div class="controls" role="toolbar" aria-label="Controls">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button id="btn-ru" class="active" aria-pressed="true">RU</button>
+        <button id="btn-en">EN</button>
+      </div>
+
+      <button id="theme-toggle" class="btn small" aria-pressed="false">Light</button>
+      <button id="load-btn" class="btn small">Загрузить</button>
+      <button id="save-btn" class="btn small">Сохранить</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: list -->
+    <section class="list" id="list" style="transform: translate(4.46479px, -3.73077px);">
+      <div class="topbar">
+        <div class="episodes-count" id="episodes-count">0 эпизодов</div>
+        <div class="muted-small" id="list-sub">—</div>
+      </div>
+
+      <div id="episodes-container" aria-live="polite"></div>
+
+      <div class="add-area">
+        <button id="add-ep" class="btn small" style="display:none">+ Добавить эпизод</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: editor -->
+    <aside class="editor" id="editor" aria-labelledby="edit-heading" style="transform: translate(6.2507px, -4.97436px);">
+      <h3 id="edit-heading">Редактор</h3>
+      <div id="editor-empty" class="muted-small">Загрузите данные и выберите эпизод</div>
+
+      <div id="editor-form" style="display:none">
+        <div class="row">
+          <div class="field"><label id="lbl-year">Год</label><input id="f-year" type="number"></div>
+          <div class="field"><label id="lbl-month">Месяц</label><input id="f-month" type="number"></div>
+          <div class="field"><label id="lbl-week">Неделя</label><input id="f-week" type="number"></div>
+        </div>
+
+        <div class="field"><label id="lbl-title">Заголовок</label><input id="f-title" type="text"></div>
+        <div class="field"><label id="lbl-desc">Описание</label><textarea id="f-description"></textarea></div>
+        <div class="field"><label id="lbl-preview">Превью (URL)</label><input id="f-preview" type="text"></div>
+  <div class="field"><label id="lbl-history">История (ссылка)</label><input id="f-history" type="text"></div>
+  <div class="field"><label id="lbl-video">Видео (ссылка)</label><input id="f-video" type="text"></div>
+
+        <div class="row">
+          <div class="field"><label id="lbl-field1">Поле 1</label><input id="f-field1" type="text"></div>
+          <div class="field"><label id="lbl-field2">Поле 2</label><input id="f-field2" type="text"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button id="update-ep" class="btn">Сохранить изменения</button>
+          <button id="delete-ep" class="btn ghost">Удалить эпизод</button>
+        </div>
+
+        <div style="margin-top:12px;" class="muted-small" id="last-saved">—</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div id="status">Не загружено</div>
+    <div id="footer-info" class="muted-small">Администрирование Таймлайна</div>
+  </footer>
+</div>
+
+<div class="glass-halo" aria-hidden="true" style="transform: translate3d(3.57183px, -3.73077px, 0px);"></div>
+
+<!-- Login modal -->
+<div id="login-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
+  <div class="modal" role="document">
+    <h4 id="login-title">Sign in</h4>
+    <div class="err" id="login-err"></div>
+    <div class="row">
+      <label for="login-email">Email</label>
+      <input id="login-email" type="text" autocomplete="username">
+      <label for="login-pass">Password</label>
+      <input id="login-pass" type="password" autocomplete="current-password">
+    </div>
+    <div class="actions">
+      <button id="login-cancel" class="btn ghost">Cancel</button>
+      <button id="login-submit" class="btn">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------
+   Simple i18n dictionary
+   ----------------------- */
+var I18N = {
+  ru:{
+    title: 'Редактор Timeline',
+    subtitle: 'Визуальный редактор JSON — Gist sync',
+    load: 'Загрузить',
+    loaded: 'Загружено',
+    save: 'Сохранить',
+    add: '+ Добавить эпизод',
+    video: 'Видео (ссылка)',
+    editor: 'Редактор',
+    select: 'Загрузите данные и выберите эпизод',
+    year: 'Год', month: 'Месяц', week: 'Неделя',
+    titleLbl: 'Заголовок', desc: 'Описание', preview: 'Превью (URL)', history: 'История (ссылка)', f1: 'Поле 1', f2: 'Поле 2',
+    saveChanges: 'Сохранить изменения', delete: 'Удалить эпизод',
+    notLoaded: 'Не загружено',
+    episodes: 'эпизодов',
+    saved: 'Сохранено',
+    footerInfo: 'Администрирование Таймлайна'
+  },
+  en:{
+    title: 'Timeline Admin',
+    subtitle: 'Visual JSON timeline editor — Gist sync',
+    load: 'Load',
+    loaded: 'Loaded',
+    save: 'Save',
+    add: '+ Add episode',
+    video: 'Video link',
+    editor: 'Editor',
+    select: 'Load data and select an episode',
+    year: 'Year', month: 'Month', week: 'Week',
+    titleLbl: 'Title', desc: 'Description', preview: 'Preview (URL)', history: 'History link', f1: 'Field 1', f2: 'Field 2',
+    saveChanges: 'Save changes', delete: 'Delete episode',
+    notLoaded: 'Not loaded',
+    episodes: 'episodes',
+    saved: 'Saved',
+    footerInfo: 'Timeline Administration'
+  }
+};
+
+var LOCALE = 'ru';
+
+/* -----------------------
+   App state
+   ----------------------- */
+var state = {
+  episodes: [],
+  selectedIndex: -1
+};
+
+/* -----------------------
+   Helpers
+   ----------------------- */
+function $(s){ return document.querySelector(s); }
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* -----------------------
+   Gist config
+   ----------------------- */
+var GIST_ID = 'b973e400c1b9bea04411240195566b68';
+var FILE_NAME = 'timeline-data.json';
+
+/* -----------------------
+   i18n apply
+   ----------------------- */
+function applyLocale(){
+  var L = I18N[LOCALE];
+  $('#ui-title').textContent = L.title;
+  $('#ui-sub').textContent = L.subtitle;
+  $('#load-btn').textContent = L.load;
+  $('#save-btn').textContent = L.save;
+  $('#add-ep').textContent = L.add;
+  $('#edit-heading').textContent = L.editor;
+  $('#editor-empty').textContent = L.select;
+
+  $('#lbl-year').textContent = L.year;
+  $('#lbl-month').textContent = L.month;
+  $('#lbl-week').textContent = L.week;
+  $('#lbl-title').textContent = L.titleLbl;
+  $('#lbl-desc').textContent = L.desc;
+  $('#lbl-preview').textContent = L.preview;
+  $('#lbl-history').textContent = L.history;
+  if($('#lbl-video')) $('#lbl-video').textContent = L.video || 'Video';
+  $('#lbl-field1').textContent = L.f1;
+  $('#lbl-field2').textContent = L.f2;
+  $('#update-ep').textContent = L.saveChanges;
+  $('#delete-ep').textContent = L.delete;
+  $('#footer-info').textContent = L.footerInfo;
+
+  renderEpisodes();
+}
+
+/* -----------------------
+   Render episodes list
+   ----------------------- */
+function renderEpisodes(){
+  var container = $('#episodes-container');
+  var halo = document.querySelector('.glass-halo');
+  container.innerHTML = '';
+  for(var idx=0; idx<state.episodes.length; idx++){
+    var ep = state.episodes[idx];
+    var div = document.createElement('div');
+    div.className = 'episode';
+    div.innerHTML = 
+      '<div class="thumb"><img src="'+escapeHtml(ep.preview||'')+'" alt=""></div>'+
+      '<div class="meta">'+
+        '<div class="title">'+escapeHtml(ep.title || '('+(ep.year||'')+')')+'</div>'+
+        '<div class="desc">'+escapeHtml((ep.description||'').slice(0,140))+'</div>'+
+        '<div class="ep-actions">'+
+          '<button class="btn small" data-idx="'+idx+'" data-act="edit">'+(LOCALE==='ru'?'Ред.':'Edit')+'</button>'+
+          '<button class="btn small ghost" data-idx="'+idx+'" data-act="dup">'+(LOCALE==='ru'?'Дубл.':'Dup')+'</button>'+
+          '<button class="btn small ghost" data-idx="'+idx+'" data-act="del">'+(LOCALE==='ru'?'Удал.':'Del')+'</button>'+
+        '</div>'+
+      '</div>';
+    container.appendChild(div);
+  }
+  $('#episodes-count').textContent = state.episodes.length+' '+I18N[LOCALE].episodes;
+  if(container.offsetHeight>20 && halo){
+    halo.style.height = (container.offsetHeight+370)+'px';
+  }
+}
+
+/* -----------------------
+   Select & edit
+   ----------------------- */
+function selectEpisode(i){
+  state.selectedIndex = i;
+  if(i<0 || i>=state.episodes.length){
+    $('#editor-form').style.display = 'none';
+    $('#editor-empty').style.display = 'block';
+    return;
+  }
+  var ep = state.episodes[i];
+  $('#editor-empty').style.display = 'none';
+  $('#editor-form').style.display = 'block';
+  $('#f-year').value = ep.year||'';
+  $('#f-month').value = ep.month||'';
+  $('#f-week').value = ep.week||'';
+  $('#f-title').value = ep.title||'';
+  $('#f-description').value = ep.description||'';
+  $('#f-preview').value = ep.preview||'';
+  $('#f-history').value = ep.history_link || ep.history || '';
+  $('#f-video').value = ep.video_link || ep.video || '';
+  $('#f-field1').value = ep.field1||'';
+  $('#f-field2').value = ep.field2||'';
+}
+
+/* -----------------------
+   Local edits
+   ----------------------- */
+function updateSelectedFromForm(){
+  var i = state.selectedIndex;
+  if(i<0) return;
+  var ep = state.episodes[i];
+  ep.year = Number($('#f-year').value) || null;
+  ep.month = Number($('#f-month').value) || null;
+  ep.week = Number($('#f-week').value) || null;
+  ep.title = $('#f-title').value;
+  ep.description = $('#f-description').value;
+  ep.preview = $('#f-preview').value;
+  ep.history_link = $('#f-history').value;
+  ep.video_link = $('#f-video').value;
+  ep.field1 = $('#f-field1').value;
+  ep.field2 = $('#f-field2').value;
+  state.episodes[i] = ep;
+  renderEpisodes();
+  selectEpisode(i);
+}
+
+/* -----------------------
+   Add / duplicate / delete
+   ----------------------- */
+function addEpisode(){
+  var newEp = {
+    year: new Date().getFullYear(),
+    month:1, week:1,
+    title: LOCALE==='ru'?'Новый эпизод':'New episode',
+    description:'', preview:'', video_link:'', history_link:'', field1:'', field2:''
+  };
+  state.episodes.push(newEp);
+  renderEpisodes();
+  selectEpisode(state.episodes.length-1);
+}
+
+function duplicateEpisode(idx){
+  var copy = JSON.parse(JSON.stringify(state.episodes[idx]||{}));
+  copy.title += LOCALE==='ru'?' (копия)':' (copy)';
+  state.episodes.splice(idx+1,0,copy);
+  renderEpisodes();
+  selectEpisode(idx+1);
+}
+
+function deleteEpisode(idx){
+  if(!confirm(LOCALE==='ru'?'Удалить эпизод?':'Delete episode?')) return;
+  state.episodes.splice(idx,1);
+  renderEpisodes();
+  selectEpisode(-1);
+}
+
+/* -----------------------
+   Load / Save JSON
+   ----------------------- */
+function loadFromGist(){
+  $('#status').textContent = I18N[LOCALE].load+'...';
+  fetch('https://api.github.com/gists/'+GIST_ID)
+    .then(function(res){ return res.json(); })
+    .then(function(gist){
+      var content = (gist.files && gist.files[FILE_NAME] && gist.files[FILE_NAME].content) || '[]';
+      state.episodes = JSON.parse(content);
+      renderEpisodes();
+      selectEpisode(-1);
+      $('#add-ep').style.display = 'inline-flex';
+      $('#status').textContent = I18N[LOCALE].loaded+' '+state.episodes.length+' '+I18N[LOCALE].episodes;
+    })
+    .catch(function(err){
+      console.error(err);
+      $('#status').textContent = 'Ошибка загрузки';
+      alert((LOCALE==='ru'?'Ошибка загрузки: ':'Load error: ')+err.message);
+    });
+}
+
+function saveToGist(){
+  var token = prompt('Введите GitHub токен (gist):');
+  if(!token) return alert('Токен не введён');
+  $('#status').textContent = 'Сохранение...';
+  var body = { files:{} };
+  body.files[FILE_NAME] = { content: JSON.stringify(state.episodes,null,2) };
+  fetch('https://api.github.com/gists/'+GIST_ID,{
+    method:'PATCH',
+    headers:{
+      'Authorization':'token '+token,
+      'Accept':'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify(body)
+  }).then(function(res){
+    if(!res.ok) return res.text().then(function(t){ throw new Error(t); });
+    return res.json();
+  }).then(function(){
+    $('#status').textContent = I18N[LOCALE].saved;
+    $('#last-saved').textContent = new Date().toLocaleString();
+  }).catch(function(err){
+    console.error(err);
+    $('#status').textContent = 'Ошибка сохранения';
+    alert('Ошибка сохранения: '+err.message);
+  });
+}
+
+/* -----------------------
+   UI wiring
+   ----------------------- */
+function bindUI(){
+  $('#load-btn').addEventListener('click', loadFromGist);
+  $('#save-btn').addEventListener('click', saveToGist);
+  $('#add-ep').addEventListener('click', addEpisode);
+  $('#episodes-container').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    var idx = Number(btn.dataset.idx);
+    var act = btn.dataset.act;
+    if(act==='edit') selectEpisode(idx);
+    else if(act==='dup') duplicateEpisode(idx);
+    else if(act==='del') deleteEpisode(idx);
+  });
+  $('#update-ep').addEventListener('click', updateSelectedFromForm);
+  $('#delete-ep').addEventListener('click', function(){
+    if(state.selectedIndex>=0) deleteEpisode(state.selectedIndex);
+  });
+  var fields = ['#f-year','#f-month','#f-week','#f-title','#f-description','#f-preview','#f-history','#f-field1','#f-field2','#f-video'];
+  for(var i=0;i<fields.length;i++){
+    var el = document.querySelector(fields[i]);
+    if(el) el.addEventListener('change', updateSelectedFromForm);
+  }
+  $('#theme-toggle').addEventListener('click', function(){
+    var cur = document.body.getAttribute('data-theme')==='dark'?'dark':'light';
+    var next = cur==='dark'?'light':'dark';
+    document.body.setAttribute('data-theme',next);
+    $('#theme-toggle').textContent = (next==='dark')?'Light':'Dark';
+  });
+  $('#btn-ru').addEventListener('click', function(){
+    LOCALE='ru';
+    $('#btn-ru').classList.add('active'); $('#btn-ru').setAttribute('aria-pressed','true');
+    $('#btn-en').classList.remove('active'); $('#btn-en').setAttribute('aria-pressed','false');
+    applyLocale();
+  });
+  $('#btn-en').addEventListener('click', function(){
+    LOCALE='en';
+    $('#btn-en').classList.add('active'); $('#btn-en').setAttribute('aria-pressed','true');
+    $('#btn-ru').classList.remove('active'); $('#btn-ru').setAttribute('aria-pressed','false');
+    applyLocale();
+  });
+
+  // Parallax
+  var wrap = $('#wrap');
+  var listEl = document.querySelector('.list');
+  var editorEl = document.querySelector('.editor');
+  var haloEl = document.querySelector('.glass-halo');
+  document.addEventListener('mousemove', function(e){
+    var w = window.innerWidth, h = window.innerHeight;
+    var dx = (e.clientX-w/2)/(w/2), dy=(e.clientY-h/2)/(h/2);
+    if(wrap) wrap.style.transform='rotateX('+dy*3+'deg) rotateY('+-dx*3+'deg)';
+    if(haloEl) haloEl.style.transform='translate3d('+dx*8+'px,'+dy*6+'px,0)';
+    if(listEl) listEl.style.transform='translate('+dx*10+'px,'+dy*6+'px)';
+    if(editorEl) editorEl.style.transform='translate('+dx*14+'px,'+dy*8+'px)';
+  });
+
+  // Ctrl+S save
+  window.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveToGist(); }
+  });
+}
+
+/* -----------------------
+   Init
+   ----------------------- */
+document.addEventListener('DOMContentLoaded', function(){
+  bindUI();
+  applyLocale();
+  $('#add-ep').style.display='none';
+});
+</script>
+
+
+
+</body></html>
