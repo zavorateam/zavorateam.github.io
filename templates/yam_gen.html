@@ -10,6 +10,9 @@
   <link rel="preload" as="font" href="/fonts/YSText-Bold.woff2" type="font/woff2" crossorigin="">
   <link rel="preload" as="font" href="/fonts/YSMusic-HeadlineBold.woff2" type="font/woff2" crossorigin="">
   <link rel="stylesheet" href="https://music.yandex.ru/styles/fonts.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://raw.githubusercontent.com/ilyabirman/Jouele/refs/heads/master/src/jouele.js"></script>
+  <link rel="stylesheet" href="https://raw.githubusercontent.com/ilyabirman/Jouele/refs/heads/master/src/jouele.css" type="text/css">
   <!-- шрифты-->
   <style>
     @font-face {
@@ -607,7 +610,7 @@
 
     // Обработка клика по треку
     function attachTrackPopupHandlers() {
-      document.querySelectorAll('.track').forEach((trackEl, index) => {
+      document.querySelectorAll('.track-info').forEach((trackEl, index) => {
         trackEl.addEventListener('click', () => {
           const track = flatTrackList[index];
           showTrackPopup(track);

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Particle Command Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e1e1e, #2e2e2e);
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 30px auto;
+      background: #2a2a2a;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      text-shadow: 0 0 10px #00ff88;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    input, select, button {
+      padding: 8px 10px;
+      margin: 4px;
+      border: none;
+      border-radius: 6px;
+      background: #3a3a3a;
+      color: #fff;
+    }
+    button {
+      background: #00ff88;
+      color: #111;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { background: #00ffaa; }
+    canvas { border-radius: 10px; width: 100%; height: 400px; background: #111; }
+    code { background: #000; color: #00ff00; padding: 5px 8px; border-radius: 5px; display: block; }
+    .small { font-size: 12px; color: #aaa; }
+    .toggle-view {
+      margin-top: 10px;
+      display: inline-block;
+      background: #444;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Генератор команды /particle</h1>
+    <div class="grid">
+      <div>
+        <label>Версия:</label>
+        <select id="version">
+          <option value="java_old">Java 1.8–1.12 (legacy)</option>
+          <option value="java_modern" selected>Java 1.13+</option>
+          <option value="bedrock">Bedrock</option>
+        </select>
+
+        <label>Частица:</label>
+        <select id="particle"></select>
+        <div class="small">Текстуры из Minecraft 1.19.4. Случайный кадр при каждом обновлении.</div>
+
+        <h3>Позиция</h3>
+        <input id="posx" value="~"> <input id="posy" value="~"> <input id="posz" value="~">
+
+        <h3>Delta (разброс)</h3>
+        <input id="dx" value="0"> <input id="dy" value="0"> <input id="dz" value="0">
+
+        <h3>Параметры</h3>
+        Скорость: <input id="speed" value="0.0" size="4"> Кол-во: <input id="count" value="1" size="3">
+        <br>
+        Режим: <select id="mode"><option value="normal">normal</option><option value="force">force</option></select>
+        Игроки: <input id="players" value="@a" size="6">
+
+        <h3>Результат</h3>
+        <pre><code id="cmd"></code></pre>
+        <button id="copy">Скопировать</button>
+      </div>
+      <div>
+        <h3>Превью</h3>
+        <canvas id="preview2d" width="500" height="350"></canvas>
+        <canvas id="preview3d" width="500" height="350" style="display:none;"></canvas>
+        <div class="toggle-view" id="toggleView">Переключить на 3D</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js';
+
+    let is3D = false;
+
+    const base = 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.19.4/assets/minecraft/textures/particle/';
+    const textureList = ["flame.png","smoke.png","heart.png","note.png","bubble.png","soul_fire_flame.png","lava.png","spark_0.png"];
+    const textures = {};
+    textureList.forEach(name => textures[name] = [base + name]);
+
+    const els = {
+      version: document.getElementById('version'),
+      particle: document.getElementById('particle'),
+      posx: document.getElementById('posx'),
+      posy: document.getElementById('posy'),
+      posz: document.getElementById('posz'),
+      dx: document.getElementById('dx'),
+      dy: document.getElementById('dy'),
+      dz: document.getElementById('dz'),
+      speed: document.getElementById('speed'),
+      count: document.getElementById('count'),
+      mode: document.getElementById('mode'),
+      players: document.getElementById('players'),
+      cmd: document.getElementById('cmd'),
+      copy: document.getElementById('copy'),
+      canvas2d: document.getElementById('preview2d'),
+      canvas3d: document.getElementById('preview3d'),
+      toggleView: document.getElementById('toggleView')
+    };
+
+    let renderer, scene, camera, particles;
+
+    function populateParticleSelect() {
+      els.particle.innerHTML = '';
+      Object.keys(textures).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p.replace('.png', '');
+        els.particle.appendChild(opt);
+      });
+      buildCmd();
+    }
+
+    function buildCmd() {
+      const v = els.version.value;
+      const p = els.particle.value;
+      const pos = `${els.posx.value} ${els.posy.value} ${els.posz.value}`;
+      const d = `${els.dx.value} ${els.dy.value} ${els.dz.value}`;
+      const s = els.speed.value;
+      const c = els.count.value;
+      const mode = els.mode.value;
+      const pl = els.players.value;
+
+      let cmd = '';
+      if (v === 'java_old') cmd = `/particle ${p.replace('.png','')} ${pos} ${d} ${s} ${c} ${mode} ${pl}`;
+      else if (v === 'java_modern') cmd = `/particle minecraft:${p.replace('.png','')} ${pos} ${d} ${s} ${c} ${mode} ${pl}`;
+      else cmd = `/particle minecraft:${p.replace('.png','')} ${pos} ${d} ${s} ${c}`;
+      els.cmd.textContent = cmd;
+
+      if (is3D) drawPreview3D(); else drawPreview2D();
+    }
+
+    function drawPreview2D() {
+      const ctx = els.canvas2d.getContext('2d');
+      const w = els.canvas2d.width, h = els.canvas2d.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, w, h);
+
+      const dx = parseFloat(els.dx.value) || 0;
+      const dy = parseFloat(els.dy.value) || 0;
+      const dz = parseFloat(els.dz.value) || 0;
+      const c = Math.min(200, Math.max(1, parseInt(els.count.value) || 1));
+      const scale = (Math.min(w, h) / 2 - 40) / Math.max(dx, dy, dz, 1);
+
+      const selected = els.particle.value;
+      const frameUrl = textures[selected] ? textures[selected][0] : null;
+      if (!frameUrl) return;
+
+      const img = new Image();
+      img.src = frameUrl;
+      img.onload = () => {
+        ctx.save();
+        ctx.translate(w/2, h/2);
+        for (let i = 0; i < c; i++) {
+          const rx = (Math.random() - 0.5) * 2 * dx * scale;
+          const ry = (Math.random() - 0.5) * 2 * dy * scale;
+          const rz = (Math.random() - 0.5) * 2 * dz * scale;
+          const size = 6;
+          ctx.drawImage(img, rx - size/2, -ry - size/2, size, size);
+        }
+        ctx.restore();
+      };
+    }
+
+    function init3DRenderer() {
+      if (renderer) return;
+      try {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, els.canvas3d.clientWidth / els.canvas3d.clientHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ canvas: els.canvas3d, antialias: true });
+        renderer.setSize(els.canvas3d.clientWidth, els.canvas3d.clientHeight);
+        camera.position.z = 5;
+        const light = new THREE.PointLight(0xffffff, 1);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+      } catch(e) {
+        console.error('WebGL не поддерживается в этом браузере или контекст уже используется.');
+        is3D = false;
+        els.toggleView.style.display = 'none';
+      }
+    }
+
+    function drawPreview3D() {
+      init3DRenderer();
+      if (!renderer) return;
+
+      while(scene.children.length > 1){ scene.remove(scene.children[1]); }
+
+      const dx = parseFloat(els.dx.value) || 0.5;
+      const dy = parseFloat(els.dy.value) || 0.5;
+      const dz = parseFloat(els.dz.value) || 0.5;
+      const c = Math.min(500, Math.max(1, parseInt(els.count.value) || 1));
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(c * 3);
+      for (let i = 0; i < c; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 2 * dx;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 2 * dy;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 2 * dz;
+      }
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const texture = new THREE.TextureLoader().load(textures[els.particle.value][0]);
+      const material = new THREE.PointsMaterial({ size: 0.2, map: texture, transparent: true, blending: THREE.AdditiveBlending });
+      particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      animate3D();
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      if (particles) particles.rotation.y += 0.002;
+      renderer.render(scene, camera);
+    }
+
+    els.toggleView.addEventListener('click', () => {
+      is3D = !is3D;
+      els.toggleView.textContent = is3D ? 'Переключить на 2D' : 'Переключить на 3D';
+      els.canvas2d.style.display = is3D ? 'none' : 'block';
+      els.canvas3d.style.display = is3D ? 'block' : 'none';
+      buildCmd();
+    });
+
+    document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', buildCmd));
+    els.copy.addEventListener('click', () => navigator.clipboard.writeText(els.cmd.textContent));
+
+    populateParticleSelect();
+  </script>
+</body>
+</html>
