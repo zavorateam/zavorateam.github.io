@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown Style Merger</title>
+
+<!-- CodeMirror for syntax highlighting -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/markdown/markdown.min.js"></script>
+
+<style>
+  :root { color-scheme: dark; }
+
+  body {
+    margin: 0;
+    background: #121212;
+    color: #eee;
+    font-family: system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #main { flex: 1; display: flex; overflow: hidden; }
+
+  .CodeMirror {
+    width: 35%;
+    height: 100%;
+    background: #181818;
+    color: white;
+    border-right: 1px solid #333;
+    font-family: monospace;
+  }
+
+    .CodeMirror-gutter, .CodeMirror-gutters, .CodeMirror-linenumber, .CodeMirror-scroll, .CodeMirror-size {
+    color: white;
+    background: #181818;   
+  }
+
+  iframe {
+    flex: 1;
+    border: none;
+    background: #fff;
+  }
+
+  #side {
+    width: 22%;
+    background: #1b1b1b;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  #controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  #styleUrl, #htmlInput {
+    width: 100%;
+    background: #202020;
+    color: #eee;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 14px;
+  }
+
+  #htmlInput {
+    height: 140px;
+    resize: none;
+    font-family: monospace;
+  }
+
+  button {
+    background: #292929;
+    border: 1px solid #444;
+    color: #eee;
+    cursor: pointer;
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: 0.2s;
+  }
+
+  button:hover { background: #333; }
+
+  #status {
+    font-size: 13px;
+    padding: 10px;
+    color: #aaa;
+    border-top: 1px solid #333;
+    background: #141414;
+    word-wrap: break-word;
+  }
+
+  .divider {
+    height: 1px;
+    background: #333;
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+<div id="main">
+  <textarea id="markdown"></textarea>
+  <iframe id="preview"></iframe>
+  <div id="side">
+    <div id="controls">
+
+      <input id="styleUrl" placeholder="Page URL to extract styles" />
+      <div>
+        <label><input type="radio" name="source" value="url" checked> From URL</label>
+        <label><input type="radio" name="source" value="html"> From HTML</label>
+      </div>
+
+      <input type="file" id="htmlFile" accept=".html,.htm">
+      <textarea id="htmlInput" placeholder="Paste HTML source (optional)..."></textarea>
+
+      <button id="apply">Apply Extracted Styles</button>
+
+      <div class="divider"></div>
+
+      <button id="openTab">Open in new tab</button>
+      <button id="download">Download HTML</button>
+
+    </div>
+    <div id="status">Ready.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  const status = document.getElementById('status');
+  const preview = document.getElementById('preview');
+  const styleUrl = document.getElementById('styleUrl');
+  const htmlInput = document.getElementById('htmlInput');
+  const htmlFile = document.getElementById('htmlFile');
+  const applyBtn = document.getElementById('apply');
+  const openTab = document.getElementById('openTab');
+  const downloadBtn = document.getElementById('download');
+
+  // CodeMirror init
+  const editor = CodeMirror.fromTextArea(document.getElementById('markdown'), {
+    mode: 'markdown',
+    lineNumbers: true,
+    theme: 'default',
+  });
+
+  editor.on('change', updatePreview);
+
+  function updatePreview() {
+    try {
+      const html = marked.parse(editor.getValue());
+      const doc = preview.contentDocument;
+      doc.open();
+      doc.write(`<!DOCTYPE html><html><body>${html}</body></html>`);
+      doc.close();
+      status.textContent = "Rendered successfully.";
+    } catch (e) {
+      status.textContent = "Error: " + e.message;
+    }
+  }
+
+  updatePreview();
+
+  async function applyExtractedStyles() {
+    const source = document.querySelector('input[name="source"]:checked').value;
+    try {
+      let html;
+      if (source === 'url') {
+        const res = await fetch(styleUrl.value);
+        const buffer = await res.arrayBuffer();
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        html = decoder.decode(buffer);
+      } else {
+        html = htmlInput.value.trim();
+        if (!html) {
+          status.textContent = "No HTML source provided.";
+          return;
+        }
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const styles = [...doc.querySelectorAll('style, link[rel="stylesheet"]')]
+        .map(el => el.outerHTML)
+        .join('\n');
+
+      const pdoc = preview.contentDocument;
+      let head = pdoc.querySelector('head');
+      if (!head) {
+        head = pdoc.createElement('head');
+        pdoc.documentElement.insertBefore(head, pdoc.body);
+      }
+      head.innerHTML = styles;
+
+      status.textContent = "Styles applied.";
+    } catch (e) {
+      status.textContent = "Error applying styles: " + e.message;
+    }
+  }
+
+  applyBtn.addEventListener('click', applyExtractedStyles);
+
+  htmlFile.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    htmlInput.value = text;
+  });
+
+  openTab.addEventListener('click', () => {
+    const html = preview.contentDocument.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const html = preview.contentDocument.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'converted.html';
+    a.click();
+  });
+</script>
+</body>
+</html>
+
