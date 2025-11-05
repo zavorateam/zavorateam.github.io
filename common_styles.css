@@ -1,15 +1,16 @@
 /* Общие стили для zavorateam.github.io */
 
+/* Fonts used across the site (moved from inline styles) */
 @font-face {
-  font-family: YSMusic Headline;
+  font-family: 'YSMusic Headline';
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2"),url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff");
+  src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2");
 }
 
 @font-face {
-  font-family: YS Text;
+  font-family: 'YS Text';
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -18,7 +19,8 @@
 
 /* Основные стили для тела документа */
 body {
-  font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  /* Middle-ground body font: YS Text (site), with Inter and system fallbacks */
+  font-family: 'YS Text', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -27,6 +29,7 @@ body {
 
 /* Переменные цветовой схемы для всего сайта */
 :root {
+  /* color / design tokens */
   --primary: #155799;
   --secondary: #159957;
   --text: #2c3e50;
@@ -38,30 +41,100 @@ body {
   --body-bg-dark: #121212;
   --green-main: rgb(0, 194, 0);
   --green-hover: rgb(0, 155, 0);
+
+  /* variables used by templates (moved from index) */
+  --text-color: #f0f0f0;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(0, 0, 0, 0.37);
 }
 
 /* Основной контейнер для контента */
 .cont {
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 400px;
-  width: auto;
-  top: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px;
-  padding-bottom: 20px;
-  border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.404);
-  /* Добавляем прокрутку */
-  max-height: 75vh;
-  overflow-y: auto;
-  /* Сглаживание прокрутки */
+  /* Unified container used across templates. Default is content-sized (fit-content).
+     Behavior for overflow is handled by JS which adds a mobile/desktop strategy.
+  */
+  position: relative;
+  margin: 0 auto;
+  max-width: 336px;
+  width: 90%;
+  display: block;
+  text-align: center;
+  padding: 28px;
+  border-radius: 16px;
+  margin: 20px auto;
+  /* Prevent the container from becoming visually enormous on large desktop screens by capping initial height.
+    JS will still set exact height when overflow occurs. */
+  max-height: calc(50em - 120px);
+  background-color: var(--glass-bg);
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  /* make columns use same gap as container padding for visual balance */
+  column-gap: 28px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
   scroll-behavior: smooth;
+  /* default: let content determine height */
+  height: auto;
+  column-count: 1;
+  column-gap: 20px;
+  z-index: 10; /* keep above canvas background so backdrop-filter shows */
+}
+
+/* Ensure children use border-box so widths and paddings are predictable inside columns */
+.cont, .cont * {
+  box-sizing: border-box;
+}
+
+/* Headings should span full width above columns and stay centered */
+h1, h2 {
+  display: block;
+  width: 100%;
+  text-align: center;
+  -webkit-column-span: all;
+  column-span: all;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+
+/* Center span buttons inside each column regardless of column alignment. Using flex keeps them centered
+   when column is narrow or when single-column layout is active. */
+span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  background-color: var(--green-main);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Keep anchor inside span as a flex item so it centers properly */
+a.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-size: 15px;
+  color: #fff;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+  padding: 0 6px;
+}
+
+.cont > * {
+  /* avoid content breaking awkwardly across columns */
+  break-inside: avoid-column;
+  -webkit-column-break-inside: avoid;
 }
 
 /* Стилизация полосы прокрутки для Webkit (Chrome, Safari, Opera) */
@@ -107,36 +180,55 @@ h2 {
 
 /* Общие стили для ссылок и кнопок */
 a {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 19px;
+  font-family: 'YS Text', Arial, Helvetica, sans-serif;
+  font-size: 15px;
   text-decoration: none;
   color: rgb(240, 240, 240);
   padding: 0;
   transition: all 0.3s ease;
 }
 
+/* Span buttons with better mobile centering */
 span {
   cursor: pointer;
-  display: block;
-  width: 200px;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
   background-color: var(--green-main);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: none;
+  text-align: center;
+  font-weight: 600;
 }
 
 span:hover {
   background-color: var(--green-hover);
   transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
 }
 
-.btn {
+span:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Button links with proper sizing */
+a.btn {
+  font-family: 'YS Text', sans-serif;
   text-decoration: none;
-  font-size: 23px;
-  color: rgb(0, 0, 0);
+  font-size: 15px;
+  color: #fff;
+  display: inline-block;
+  width: auto;
+  min-width: 80%;
+  line-height: 1.2;
+  padding: 0 6px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 button {
@@ -212,20 +304,60 @@ canvas {
   display: none;
 }
 
+/* Footer styles */
+h6 {
+  display: block;
+  width: 100%;
+  margin-top: -7px;
+  font-size: 14px;
+  opacity: 0.7;
+  color: var(--text-color);
+  text-align: center;
+  -webkit-column-span: all;
+  column-span: all;
+  break-inside: avoid;
+  font-size: 11px;
+}
+
+h6 a {
+  color: var(--green-main);
+  text-decoration: underline;
+  font-weight: bold;
+  transition: color 0.2s ease;
+  font-size: inherit;
+}
+
+h6 a:hover {
+  color: var(--green-hover);
+}
+
 /* Адаптивный дизайн */
 @media (max-width: 768px) {
   .cont {
-    width: 90%;
-    max-width: 90%;
-    top: 50px;
-    padding: 10px;
+    width: 90% !important;
+    max-width: 95% !important;
+    margin: 15px auto !important;
+    padding: 16px !important;
   }
-  
+
   h1 {
-    font-size: 24px;
+    font-size: 24px !important;
   }
-  
+
   span {
-    width: 90%;
+    width: 100% !important;
+    margin: 8px 0 !important;
+    padding: 12px !important;
   }
-} 
+
+  a.btn {
+    font-size: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure container scrolls properly on mobile */
+  .cont::-webkit-scrollbar {
+    width: 4px !important;
+  }
+}

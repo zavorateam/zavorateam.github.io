@@ -11,93 +11,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
 
 <style>
-  h2{
-    color: white;
-    font-family: YS Text;
-  }
-
-  .cont {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 400px;
-    width: auto;
-    top: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 20px;
-    background-color: rgba(0, 0, 0, 0.404);
-    /* Добавляем прокрутку */
-    max-height: 75vh;
-    overflow-y: auto;
-    /* Сглаживание прокрутки */
-    scroll-behavior: smooth;
-    /* Внутренние отступы для контента */
-    padding: 15px;
-    /* Граница с радиусом */
-    border-radius: 8px;
-  }
-
-  /* Стилизация полосы прокрутки для Webkit (Chrome, Safari, Opera) */
-  .cont::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .cont::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
-  }
-
-  .cont::-webkit-scrollbar-thumb {
-    background: rgba(0, 194, 0, 0.5);
-    border-radius: 3px;
-  }
-
-  .cont::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 194, 0, 0.8);
-  }
-
-  /* Стилизация полосы прокрутки для Firefox */
-  .cont {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 194, 0, 0.5) rgba(0, 0, 0, 0.1);
-  }
-
-  h1 {
-    color: white;
-  }
+  /* Variables are provided in common_styles.css */
 
   body {
     background-color: rgb(100, 100, 100);
-    overflow: hidden;
-  }
-
-  span {
-    cursor: pointer;
-    display: block;
-    width: 200px;
-    padding: 10px;
-    margin: 5px;
-    background-color: rgb(0, 194, 0);
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  span:hover {
-    background-color: rgb(0, 155, 0);
-  }
-
-  .btn {
-    color: rgb(0, 0, 0);
-  }
-
-  a{
-    color:rgb(240, 240, 240);
-    padding: 0px;
+    margin: 0;
+    padding: 0;
+    /* font-family moved to common_styles.css */
+    color: var(--text-color);
   }
 
   canvas {
@@ -107,64 +28,104 @@
     z-index: -1;
   }
 
-  /* Mobile-specific styles */
-  @media (max-width: 768px) {
+  /* Container with glassmorphism — desktop: two columns, no scrollbar */
   .cont {
-      max-width: 90%;
-      top: 50px;
-      padding: 10px;
-    }
+    position: relative;
+    max-width: 700px;
+    width: 95%;
+    padding: 24px;
+    display: block;
+    text-align: center;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+  gap: 8px 28px; /* smaller row-gap to tighten vertical spacing */
+  align-items: start;
+  grid-auto-rows: min-content; /* let rows size to their content (no extra height) */
+     /* Give a constrained height on desktop so the card looks like a panel
+        and remains scrollable if content overflows. Mobile will override. */
+     height: fit-content;
+     overflow: auto;
+  }
 
+  .cont > * {
+     -webkit-column-break-inside: avoid;
+     break-inside: avoid-column; 
+     page-break-inside: avoid; 
+  }
+
+  /* Headings should span the full grid width */
+  h1 { color: white; margin:0; grid-column: 1 / -1; }
+  h2 { color: var(--text-color); margin:0 0 12px 0; grid-column: 1 / -1; }
+
+  /* Buttons */
   span {
-      width: 85%;
-      padding: 15px 10px; /* Larger touch target */
-    }
+    cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--green-main);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    margin: 0; /* grid gap handles spacing */
+  }
+  span:hover { background-color: var(--green-hover); transform: translateY(-2px); }
+  span:active { transform: translateY(0); }
 
-  h1 {
-      font-size: 24px;
-    }
+  a.btn { text-decoration:none; font-size:15px; color: #fff; display:block; width:100%; height:auto; line-height:1.2; padding:0; }
 
-  h2 {
-      font-size: 20px;
+  /* Desktop: hide native scrollbars for the container */
+  .cont::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* Mobile: single column + enable scrolling inside container */
+  @media (max-width: 768px) {
+    .cont { 
+      max-width: none;
+      width: 90%;
+      grid-template-columns: 1fr;
+      overflow-y: auto; 
+      height: calc(100vh - 30px); 
+      padding: 16px;
+      gap: 0px 28px; /* smaller row-gap to tighten vertical spacing */
     }
+    span { width: 100%; padding: 12px; margin: 4px !important;}
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; }
   }
 
-  /* Touch device support */
-  @media (hover: none) {
-    span:active {
-      background-color: rgb(0, 155, 0);
-    }
-  }
+  /* Touch devices: active state */
+  @media (hover: none) { span:active { background-color: var(--green-hover); } }
 </style>
 </head>
 <body style="background-color:rgb(100,100,100); "><style> h6 {color: #656565;}</style>
   <div class="cont">
     <h1><a href="./index.html">zavorateam.github.io</a></h1>
-    <h2>Форматтер/эникрафт</h2>
+    <h2>Инструменты и генераторы</h2>
     <span><a class="btn" href="./particles.html">Команды для частиц</a></span>
-    <span><a class="btn" href="./markdown.html">Markdown to HTML + стили</a></span>
-    <span><a class="btn" href="./caleidoskopus_new.html">Калидоскопод</a></span>
-    <span><a class="btn" href="./color_tools.html">Цветовые инструменты</a></span>
     <span><a class="btn" href="./css_animations.html">CSS-анимации</a></span>
     <span><a class="btn" href="./link_checker.html">Проверка битых ссылок</a></span>
     <span><a class="btn" href="./favicon_generator.html">Генератор favicon</a></span>
     <span><a class="btn" href="./country.html">Коды стран</a></span>
     <span><a class='btn' href="./chematter.html">Форматтер химических формул</a></span>
     <span><a class="btn" href="./textovod.html">Текстовод</a></span>
-    <span><a class="btn" href="https://randomall.ru/">Генератор многих текстовых сочетаний</a></span>
+    <span><a class="btn" href="https://randomall.ru/">Генератор текстовых сочетаний</a></span>
     <span><a class="btn" href="https://adobescript.ru/generator/road-sign-russia">Генератор дорожных знаков</a></span>
-    <h6>here is <a href="https://www.artlebedev.ru/">lebedev</a></h6>
-    <span><a class="btn" href="https://www.artlebedev.ru/transcriptor/">Транскриптор</a></span>
-    <span><a class="btn" href="https://www.artlebedev.ru/decoder/">Декодер</a></span>
-    <span><a class="btn" href="https://www.artlebedev.ru/reformator/">Реформатор</a></span>
-    <span><a class="btn" href="https://www.artlebedev.ru/orfograf/">Орфограф</a></span>
-    <h6>here is <a href="https://t.me/anycrafttech">Anycraft</a></h6>
-    <span><a class="btn" href="https://doma.ai/#enter">doma.ai</a></span>
-    <span><a class="btn" href="./avtocraft.html">Автокрафт</a></span>
-    <span><a class="btn" href="https://autocraft.app/example/vcard">Визитка</a></span>
-    <span><a class="btn" href="https://autocraft.app/example/rzd-sign">Табличка РЖД</a></span>
-    <span><a class="btn" href="https://autocraft.app/example/lines">Линии РЖД</a></span>
-    <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+    <span><a class="btn" href="https://www.artlebedev.ru/transcriptor/">Artlebedev — Транскриптор</a></span>
+    <span><a class="btn" href="https://www.artlebedev.ru/decoder/">Artlebedev — Декодер</a></span>
+    <span><a class="btn" href="https://www.artlebedev.ru/reformator/">Artlebedev — Реформатор</a></span>
+    <span><a class="btn" href="https://www.artlebedev.ru/orfograf/">Artlebedev — Орфограф</a></span>
+    <span><a class="btn" href="https://autocraft.app/example/vcard">Autocraft — Визитка</a></span>
+    <span><a class="btn" href="https://autocraft.app/example/rzd-sign">Autocraft — Табличка РЖД</a></span>
+    <span><a class="btn" href="https://autocraft.app/example/lines">Autocraft — Линии</a></span>
   </div>
 
   <script>
@@ -248,13 +209,12 @@
     }
     
     function windowResized() {
-      resizeCanvas(windowWidth, windowHeight);
-      isMobile = checkMobile();
-      
-      // Update particle count if needed
-      if ((isMobile && particles.length > 50) || (!isMobile && particles.length < 200)) {
-        particles = [];
+        resizeCanvas(windowWidth, windowHeight);
+        isMobile = checkMobile();
         numParticles = isMobile ? 50 : 200;
+      
+        // Reset all particles with new positions based on new window size
+        particles = [];
         for (let i = 0; i < numParticles; i++) {
           particles.push({
             x: random(width),
@@ -263,9 +223,33 @@
             hue: baseHue + random(-20, 20)
           });
         }
-      }
     }
     </script>
-  <main></main>
+  <script>
+  (function(){
+    function isTouch(){ return ('ontouchstart' in window) || navigator.maxTouchPoints>0; }
+    function adjustCont(){
+      var cont = document.querySelector('.cont'); if(!cont) return;
+      cont.style.height = 'fit-content'; cont.style.columnCount = '1'; cont.style.overflow = 'visible'; cont.style.overflowY = 'visible';
+      resizeCanvas(windowWidth, windowHeight);
+      isMobile = checkMobile();
+      numParticles = isMobile ? 50 : 200;
+      
+      // Reset all particles with new positions based on new window size
+      particles = [];
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: random(width),
+          y: random(height),
+          z: random(TWO_PI),
+          hue: baseHue + random(-20, 20)
+        });
+      }
+    }
+    if(isTouch()){
+      window.addEventListener('load', adjustCont);
+      window.addEventListener('resize', adjustCont);
+    }
+  })();
+  </script>
 </body>
-</html>

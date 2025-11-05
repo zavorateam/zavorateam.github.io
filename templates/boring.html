@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Boring — Misc Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="../index_files/faviconlogo.svg">
+  <link href="../common_styles.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <style>
+    /* basic page-specific adjustments; common styles are in common_styles.css */
+    body { background-color: rgb(30,30,40); margin:0; padding:0; color:var(--text-color); }
+    canvas { position: fixed; top:0; left:0; z-index:-1; }
+    .cont { position: relative; max-width: 336px; width:90%; padding:28px; display:block; text-align:center; background-color:var(--glass-bg); backdrop-filter:blur(25px); -webkit-backdrop-filter:blur(25px); border-radius:16px; border:1px solid var(--glass-border); box-shadow:0 8px 32px 0 var(--glass-shadow); }
+    .cont > * { break-inside: avoid-column; -webkit-column-break-inside: avoid; }
+    span { cursor:pointer; display:block; width:100%; padding:10px; margin:8px 0; border-radius:8px; text-align:center; font-weight:600; background-color: rgba(50,180,70,0.9); color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.5); }
+    span:hover { transform: translateY(-2px); background-color: rgba(40,150,60,0.95); }
+    @media (max-width:768px){ .cont{ column-count:1; overflow-y:auto; height:calc(100vh - 30px); padding:16px; } }
+  </style>
+  <style>
+  /* Variables are provided in common_styles.css */
+
+  body {
+    background-color: rgb(100, 100, 100);
+    margin: 0;
+    padding: 0;
+    /* font-family moved to common_styles.css */
+    color: var(--text-color);
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  /* Container with glassmorphism — desktop: two columns, no scrollbar */
+  .cont {
+    position: relative;
+    max-width: 336px;
+    width: 90%;
+    padding: 24px;
+    display: block; /* allow multi-column layout */
+    text-align: center;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    /* height/columns/overflow controlled by common_styles + adjustCont JS */
+  }
+
+  .cont > * {
+    break-inside: avoid-column;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1 { color: white; margin:0; }
+  h2 { color: var(--text-color); margin:0 0 12px 0; }
+
+  /* Buttons */
+  span {
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--green-main);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+  span:hover { background-color: var(--green-hover); transform: translateY(-2px); }
+  span:active { transform: translateY(0); }
+
+  a.btn { text-decoration:none; font-size:15px; color: #fff; display:block; width:100%; height:100%; line-height:1.2; }
+
+  /* Desktop: hide native scrollbars for the container */
+  .cont::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* Mobile: single column + enable scrolling inside container */
+  @media (max-width: 768px) {
+    .cont { column-count: 1; overflow-y: auto; height: calc(100vh - 30px); padding: 16px; }
+    span { width: 100%; padding: 12px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; }
+  }
+
+  /* Touch devices: active state */
+  @media (hover: none) { span:active { background-color: var(--green-hover); } }
+  </style>
+  <style>
+
+        /* Fonts and variables moved to common_styles.css */
+
+        /* Body & Canvas (Background) */
+        body {
+            /* font-family moved to common_styles.css */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Убираем полосы прокрутки для body */
+            background-color: rgb(100, 100, 100);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            display: block;
+        }
+
+        /* Main Content Container (Card) - GLASSMORHPISM EFFECT */
+        .cont {
+            position: relative;
+            max-width: 336px;
+            width: 90%; 
+            padding: 24px;
+            display: block; /* allow CSS columns to work */
+            text-align: center;
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--glass-shadow);
+            z-index: 10;
+            /* height/columns/overflow controlled by common_styles + adjustCont JS */
+        }
+
+        /* Чтобы элементы не ломались между колонками */
+        .cont > * {
+            break-inside: avoid-column;
+            -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /* Headings */
+        h1 {
+            font-family: 'YSMusic Headline', sans-serif;
+            font-weight: 700;
+            color: var(--text-color);
+            /* Уменьшено на 20% (32px * 0.8 = 25.6px -> 26px) */
+            font-size: 26px;
+            margin: 0 0 5px 0;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        h1:hover {
+            text-shadow: 0 0 10px rgba(0, 194, 0, 0.8);
+            transform: scale(1.05); /* Уменьшено масштабирование для меньшего элемента */
+        }
+
+        h2 {
+            font-family: 'YS Text', sans-serif;
+            color: var(--text-color);
+            /* Уменьшено на 20% (20px * 0.8 = 16px) */
+            font-size: 16px;
+            /* Уменьшено на 20% (25px * 0.8 = 20px) */
+            margin: 0 0 20px 0;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        h2:hover {
+            text-shadow: 0 0 8px rgba(0, 194, 0, 0.6);
+            transform: scale(1.03); /* Уменьшено масштабирование для меньшего элемента */
+        }
+        
+        h6 {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.7;
+            color: var(--text-color);
+        }
+
+        /* Buttons (Spans) */
+        span {
+            cursor: pointer;
+            display: block;
+            width: 100%; /* Занимает всю ширину Card */
+            /* Уменьшено на 20% (12px * 0.8 = 9.6px -> 10px) */
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            background-color: var(--green-main);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        span:hover {
+            background-color: var(--green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        span:active {
+             transform: translateY(0);
+             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Links inside buttons */
+        a.btn {
+            font-family: 'YS Text', sans-serif;
+            text-decoration: none;
+            /* Уменьшено на 20% (18px * 0.8 = 14.4px -> 15px) */
+            font-size: 15px;
+            color: rgb(255, 255, 255);
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer Link */
+        h6 a {
+            color: var(--green-main);
+            text-decoration: underline;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        
+        h6 a:hover {
+            color: var(--green-hover);
+        }
+
+
+        /* Media Queries - Адаптивный дизайн */
+        @media (max-width: 768px) {
+            .cont {
+                /* One column on mobile, allow scrolling inside container */
+                column-count: 1;
+                overflow-y: auto;
+                height: calc(100vh - 30px);
+                padding: 16px;
+            }
+            h1 {
+                font-size: 21px;
+            }
+            h2 {
+                font-size: 15px;
+            }
+            a.btn {
+                font-size: 13px;
+            }
+            /* show narrow scrollbars on mobile for .cont */
+            .cont::-webkit-scrollbar { width: 6px; }
+            .cont::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        }
+  </style>
+</head>
+<body>
+  <div class="cont">
+    <h1><a href="./index.html">zavorateam.github.io</a></h1>
+    <h2>Boring/Misc</h2>
+    <span><a class="btn" href="./yam_gen.html">Тестирую страницу Музыки 2.0</a></span>
+    <span><a class="btn" href="./auth.html">Файловый менеджер</a></span>
+    <span><a class="btn" href="./color_tools.html">Цветовые инструменты</a></span>
+    <span><a class="btn" href="https://autocraft.app">Autocraft</a></span>
+    <span><a class="btn" href="https://doma.ai">Doma.ai</a></span>
+    <span><a class="btn" href="https://adobescript.ru">AdobeScript</a></span>
+    <span><a class="btn" href="https://textovod.ru">Textovod</a></span>
+    <span><a class="btn" href="https://t.me/zavorateam">Telegram</a></span>
+  </div>
+  <script>
+  (function(){
+    function isTouch(){ return ('ontouchstart' in window) || navigator.maxTouchPoints>0; }
+    function adjustCont(){
+      var cont = document.querySelector('.cont'); if(!cont) return;
+      cont.style.height = 'auto'; cont.style.columnCount = '1'; cont.style.overflow = 'visible'; cont.style.overflowY = 'visible';
+      var viewport = window.innerHeight - 30;
+      if(cont.scrollHeight > viewport){
+        if(window.innerWidth <= 768 || isTouch()){
+          cont.style.height = viewport + 'px'; cont.style.columnCount = '1'; cont.style.overflowY = 'auto';
+        } else {
+          cont.style.height = viewport + 'px'; cont.style.columnCount = '2'; cont.style.overflow = 'hidden';
+        }
+      }
+    }
+    window.addEventListener('load', adjustCont);
+    window.addEventListener('resize', adjustCont);
+    window.addEventListener('orientationchange', adjustCont);
+  })();
+  </script>
+</body>
+</html>

@@ -1,152 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Zavorateam Projects</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="../index_files/faviconlogo.svg">
-  <link href="../index_files/all.css" rel="stylesheet">
-  <link href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" rel="stylesheet">
-  <link href="../common_styles.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-<style>
-  .cont {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 400px;
-    width: auto;
-    top: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 20px;
-    background-color: rgba(0, 0, 0, 0.404);
-    max-height: 75vh;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    padding: 15px;
-    border-radius: 8px;
-  }
+    <meta charset="UTF-8">
+    <title>Zavorateam Projects - Gravity UI Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../index_files/faviconlogo.svg">
+    <link href="../common_styles.css" rel="stylesheet">
+    <!-- Подключаем p5.js для фоновой анимации -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <style>
 
-  /* Scrollbar styling for Webkit */
-  .cont::-webkit-scrollbar {
-    width: 6px;
-  }
+        /* Fonts and variables moved to common_styles.css */
 
-  .cont::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
-  }
+        /* Body & Canvas (Background) */
+        body {
+            /* font-family moved to common_styles.css */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Убираем полосы прокрутки для body */
+            background-color: rgb(100, 100, 100);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+        }
 
-  .cont::-webkit-scrollbar-thumb {
-    background: rgba(0, 194, 0, 0.5);
-    border-radius: 3px;
-  }
-  
-  .cont::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 194, 0, 0.8);
-  }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            display: block;
+        }
 
-  /* Firefox scrollbar */
-  .cont {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 194, 0, 0.5) rgba(0, 0, 0, 0.1);
-  }
+        /* Main Content Container (Card) - GLASSMORHPISM EFFECT */
+        .cont {
+            position: relative;
+            max-width: 336px;
+            width: 90%; 
+            padding: 24px;
+            display: block; /* allow CSS columns to work */
+            text-align: center;
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--glass-shadow);
+            z-index: 10;
+            /* height/columns/overflow controlled by common_styles + adjustCont JS */
+        }
 
-  h1 {
-    color: white;
-  }
+        /* Чтобы элементы не ломались между колонками */
+        .cont > * {
+            break-inside: avoid-column;
+            -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+        }
 
-  body {
-    background-color: rgb(100, 100, 100);
-    overflow: hidden;
-  }
+        /* Headings */
+        h1 {
+            font-family: 'YSMusic Headline', sans-serif;
+            font-weight: 700;
+            color: var(--text-color);
+            /* Уменьшено на 20% (32px * 0.8 = 25.6px -> 26px) */
+            font-size: 26px;
+            margin: 0 0 5px 0;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
 
-  span {
-    cursor: pointer;
-    display: block;
-    width: 200px;
-    padding: 10px;
-    margin: 5px;
-    background-color: rgb(0, 194, 0);
-    text-align: center;
-    font-weight: bold;
-  }
+        h1:hover {
+            text-shadow: 0 0 10px rgba(0, 194, 0, 0.8);
+            transform: scale(1.05); /* Уменьшено масштабирование для меньшего элемента */
+        }
 
-  span:hover {
-    background-color: rgb(0, 155, 0);
-  }
+        h2 {
+            font-family: 'YS Text', sans-serif;
+            color: var(--text-color);
+            /* Уменьшено на 20% (20px * 0.8 = 16px) */
+            font-size: 16px;
+            /* Уменьшено на 20% (25px * 0.8 = 20px) */
+            margin: 0 0 20px 0;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
 
-  .btn {
-    color: rgb(0, 0, 0);
-  }
+        h2:hover {
+            text-shadow: 0 0 8px rgba(0, 194, 0, 0.6);
+            transform: scale(1.03); /* Уменьшено масштабирование для меньшего элемента */
+        }
+        
+        h6 {
+            margin-top: 8px;
+            font-size: 14px;
+            opacity: 0.7;
+            color: var(--text-color);
+        }
 
-  a{
-    color:rgb(240, 240, 240);
-    padding: 0px;
-  }
+        /* Buttons (Spans) */
+        span {
+            cursor: pointer;
+            display: block;
+            width: 100%; /* Занимает всю ширину Card */
+            /* Уменьшено на 20% (12px * 0.8 = 9.6px -> 10px) */
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            background-color: var(--green-main);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
 
-  h2{
-    color: white;
-  }
+        span:hover {
+            background-color: var(--green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
 
-  @media (max-width: 768px) {
-    .cont {
-      max-width: 90%;
-      top: 50px;
-      padding: 10px;
-    }
+        span:active {
+             transform: translateY(0);
+             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Links inside buttons */
+        a.btn {
+            font-family: 'YS Text', sans-serif;
+            text-decoration: none;
+            /* Уменьшено на 20% (18px * 0.8 = 14.4px -> 15px) */
+            font-size: 15px;
+            color: rgb(255, 255, 255);
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
 
-    span {
-      width: 85%;
-      padding: 15px 10px;
-    }
+        /* Footer Link */
+        h6 a {
+            color: var(--green-main);
+            text-decoration: underline;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        
+        h6 a:hover {
+            color: var(--green-hover);
+        }
 
-    h1 {
-      font-size: 24px;
-    }
 
-    h2 {
-      font-size: 20px;
-    }
-  }
-
-  /* Touch device support */
-  @media (hover: none) {
-    span:active {
-      background-color: rgb(0, 155, 0);
-    }
-  }
-</style>
+        /* Media Queries - Адаптивный дизайн */
+        @media (max-width: 768px) {
+            .cont {
+                /* One column on mobile, allow scrolling inside container */
+                column-count: 1;
+                overflow-y: auto;
+                height: calc(100vh - 30px);
+                padding: 16px;
+            }
+            h1 {
+                font-size: 21px;
+            }
+            h2 {
+                font-size: 15px;
+            }
+            a.btn {
+                font-size: 13px;
+            }
+            /* show narrow scrollbars on mobile for .cont */
+            .cont::-webkit-scrollbar { width: 6px; }
+            .cont::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        }
+    </style>
 </head>
-<body style="background-color:rgb(100,100,100)">
+<body>
   <div class="cont">
     <h1>zavorateam.github.io</h1>
     <h2>Главная страница</h2>
     <span><a class="btn" href="https://github.com/zavorateam">Zavorateam GitHub</a></span>
     <span><a class="btn" href="./mod.html">BezmatMOD ZavoraMOD</a></span>
     <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
+    <span><a class="btn" href="./caleidoskopus_new.html">Калидоскопод</a></span>
+    <span><a class="btn" href="./markdown.html">Markdown to HTML + стили</a></span>
     <span><a class="btn" href="./anycraft.html">Форматтер/Эникрафт</a></span>
     <span><a class="btn" href="./accums.html">Аккумуляторы</a></span>
     <span><a class="btn" href="./menu.html">Обучалка</a></span>
     <span><a class="btn" href="./readme.html">Документация</a></span>
-    <span><a class="btn" href="./auth.html">Файловый менеджер</a></span>
     <span><a class="btn" href="./electrichki.html">Табло Электричек</a></span>
-    <span><a class="btn" href="./unused.html">Неиспользуемые, но интересные</a></span>
+    <span><a class="btn" href="./boring.html">Boring / Misc</a></span>
     <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
   </div>
+
   <script>
     let boxes = [];
     let bsize = 40;
     let amx, amy;
     let isMobile = false;
-  
-    // Check if device is mobile
+
     function checkMobile() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
              || window.innerWidth <= 768;
     }
   
@@ -175,7 +233,7 @@
       event.preventDefault();
       const touch = event.touches[0];
       const rect = canvas.getBoundingClientRect();
-      mouseX = touch.clientX - rect.left;
+      mouseX = touch.clientX - rect.left + 10;
       mouseY = touch.clientY - rect.top;
     }
   
@@ -222,7 +280,32 @@
       amx = Math.ceil(width / bsize + 1);
       amy = Math.ceil(height / bsize + 1);
       boxes = new Array(amx * amy).fill(400);
+      setup();
     }
-  </script>
+    </script>
+    <script>
+    (function(){
+        function isTouch(){ return ('ontouchstart' in window) || navigator.maxTouchPoints>0; }
+        function adjustCont(){
+            var cont = document.querySelector('.cont');
+            if(!cont) return;
+            cont.style.height = 'auto';
+            cont.style.columnCount = '1';
+            cont.style.overflow = 'visible';
+            cont.style.overflowY = 'visible';
+            var viewport = window.innerHeight - 30;
+            if(cont.scrollHeight > viewport){
+                if(window.innerWidth <= 768 || isTouch()){
+                    cont.style.height = viewport + 'px'; cont.style.columnCount = '1'; cont.style.overflowY = 'auto';
+                } else {
+                    cont.style.height = viewport + 'px'; cont.style.columnCount = '2'; cont.style.overflow = 'hidden';
+                }
+            }
+        }
+        window.addEventListener('load', adjustCont);
+        window.addEventListener('resize', adjustCont);
+        window.addEventListener('orientationchange', adjustCont);
+    })();
+    </script>
   <main></main>
 </body></html>
