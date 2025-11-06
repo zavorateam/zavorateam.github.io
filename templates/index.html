@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <style>
 
+        :root {
+            --text-color: #f0f0f0;
+        }
         /* Fonts and variables moved to common_styles.css */
 
         /* Body & Canvas (Background) */
@@ -38,8 +41,6 @@
         /* Main Content Container (Card) - GLASSMORHPISM EFFECT */
         .cont {
             position: relative;
-            max-width: 336px;
-            width: 90%; 
             padding: 24px;
             display: block; /* allow CSS columns to work */
             text-align: center;
@@ -51,13 +52,32 @@
             box-shadow: 0 8px 32px 0 var(--glass-shadow);
             z-index: 10;
             /* height/columns/overflow controlled by common_styles + adjustCont JS */
+            max-width: 700px;
+            width: 95%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 28px;
+            align-items: start;
+            grid-auto-rows: min-content;
+            height: fit-content;
+            overflow: auto;
         }
 
         /* Чтобы элементы не ломались между колонками */
         .cont > * {
-            break-inside: avoid-column;
-            -webkit-column-break-inside: avoid;
-            page-break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          break-inside: avoid-column;
+          page-break-inside: avoid;
+        }
+
+
+        .btn {
+            background: none;
+        }
+
+        .btn:hover {
+          transform: none;
+          box-shadow: none;
         }
 
         /* Headings */
@@ -66,10 +86,11 @@
             font-weight: 700;
             color: var(--text-color);
             /* Уменьшено на 20% (32px * 0.8 = 25.6px -> 26px) */
-            font-size: 26px;
+            font-size: 26px !important;
             margin: 0 0 5px 0;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+            grid-column: 1 / -1; /* Занимает всю ширину Card */
         }
 
         h1:hover {
@@ -86,6 +107,8 @@
             margin: 0 0 20px 0;
             opacity: 0.8;
             transition: all 0.3s ease;
+            border-bottom-width: 0px;
+            grid-column: 1 / -1; /* Занимает всю ширину Card */
         }
 
         h2:hover {
@@ -103,7 +126,6 @@
         /* Buttons (Spans) */
         span {
             cursor: pointer;
-            display: block;
             width: 100%; /* Занимает всю ширину Card */
             /* Уменьшено на 20% (12px * 0.8 = 9.6px -> 10px) */
             padding: 10px;
@@ -115,6 +137,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             border: none;
+            height: 35px;
         }
 
         span:hover {
@@ -154,6 +177,9 @@
             color: var(--green-hover);
         }
 
+        a:hover {
+          color: white;
+        }
 
         /* Media Queries - Адаптивный дизайн */
         @media (max-width: 768px) {
@@ -187,16 +213,15 @@
     <span><a class="btn" href="./mod.html">BezmatMOD ZavoraMOD</a></span>
     <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
     <span><a class="btn" href="./caleidoskopus_new.html">Калидоскопод</a></span>
-    <span><a class="btn" href="./markdown.html">Markdown to HTML + стили</a></span>
+    <span><a class="btn" href="./markdown.html">Markdown в HTML + стили</a></span>
     <span><a class="btn" href="./anycraft.html">Форматтер/Эникрафт</a></span>
     <span><a class="btn" href="./accums.html">Аккумуляторы</a></span>
     <span><a class="btn" href="./menu.html">Обучалка</a></span>
     <span><a class="btn" href="./readme.html">Документация</a></span>
     <span><a class="btn" href="./electrichki.html">Табло Электричек</a></span>
     <span><a class="btn" href="./boring.html">Boring / Misc</a></span>
-    <h6>Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+    <h6 style="margin-top: 19px;">Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
   </div>
-
   <script>
     let boxes = [];
     let bsize = 40;
@@ -282,8 +307,8 @@
       boxes = new Array(amx * amy).fill(400);
       setup();
     }
-    </script>
-    <script>
+  </script>
+  <script>
     (function(){
         function isTouch(){ return ('ontouchstart' in window) || navigator.maxTouchPoints>0; }
         function adjustCont(){
@@ -306,6 +331,7 @@
         window.addEventListener('resize', adjustCont);
         window.addEventListener('orientationchange', adjustCont);
     })();
-    </script>
+  </script>
   <main></main>
-</body></html>
+</body>
+</html>

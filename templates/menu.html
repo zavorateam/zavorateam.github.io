@@ -4,44 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Уроки Ардуино</title>
+    <!-- Common site styles -->
     <link rel="stylesheet" href="../common_styles.css">
-    <link rel="stylesheet" href="../mod_files/style.css">
-    <script src="../theme.js" defer></script>
+    <!-- Lumo framework -->
+    <link rel="stylesheet" href="../../lumo-framework/lumo.css">
+    <link rel="icon" href="../index_files/faviconlogo.svg">
     <style>
-        :root {
-            --primary: #155799;
-            --secondary: #159957;
-            --text: #2c3e50;
-            --bg-light: #ffffff;
-            --bg-dark: #1e1e21;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-bg-dark: rgba(43, 43, 45, 0.9);
-            --body-bg: #f8f9fa;
-            --body-bg-dark: #121212;
-        }
-        
-        body {
-            margin: 0;
-            font-family: "YSMusic Headline", sans-serif;
-            color: var(--text);
-            background: var(--body-bg);
-            transition: all 0.3s ease;
-        }
-
-        body.dark-mode {
-            --text: #bebebe;
-            --bg-light: #2b2b2d;
-            --card-bg: var(--card-bg-dark);
-            --body-bg: var(--body-bg-dark);
-            color: var(--text);
-        }
-
+        /* Page-specific overrides only */
         .logo {
             width: 120px;
             height: auto;
             margin: 1rem auto;
             display: block;
             transition: transform 0.3s ease;
+        }
+
+        .app {
+            /* behave like a normal page wrapper */
+            display: block;
+            max-width: 100%;
+            box-sizing: border-box;
+            /* desktop: 2% top/bottom, 10% left/right */
+            margin: 2% 10% 2% 10%;
+            transition: padding-right 0.18s ease, margin 0.18s ease;
+        }
+
+        /* Mobile-specific helper class applied by JS when on phone */
+        .app.is-phone {
+            /* phones: 2% on all sides; still keep space for theme button */
+            padding-right: 96px;
+        }
+
+        /* Slightly smaller offset for very small devices */
+        @media (max-width: 420px) {
+            .app.is-phone { padding-right: 84px; }
         }
 
         .logo:hover {
@@ -150,7 +146,6 @@
         }
 
         .list-section h2 {
-            color: var(--primary);
             margin-bottom: 1.5rem;
             border-bottom: 2px solid var(--primary);
             padding-bottom: 0.5rem;
@@ -319,15 +314,11 @@
             border-bottom: 1px dashed rgba(255,255,255,0.1);
         }
 
-        h1 {
-            color: black !important;
-        }
-
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+            .app {
+                margin: 2%;
             }
-            
+
             .menu-grid, .menu-grid-2 {
                 grid-template-columns: 1fr;
             }
@@ -336,22 +327,16 @@
                 padding: 1rem;
             }
 
-            .theme-toggle {
-                bottom: 1rem;
-                right: 1rem;
-                width: 40px;
-                height: 40px;
-            }
-
             .social-links {
                 flex-direction: column;
                 align-items: center;
             }
+
         }
     </style>
 </head>
-<body>
-    <div class="container">
+<body data-page="manual" data-bg="gradiento">
+    <div class="app">
         <header class="header">
             <img src="https://alexgyver.ru/wp-content/uploads/2020/12/favicon128_opt.svg" alt="AlexGyver Logo" class="logo">
             <h1>Уроки Ардуино и программирования</h1>
@@ -486,17 +471,35 @@
                     Telegram
                 </a>
                 <a href="https://www.youtube.com/c/AlexGyver" class="social-btn" target="_blank">
-                    <img src="../index_files/favicon-32x32.png" alt="YouTube" width="24" height="24">
+                    <img src="../index_files/youtube_logo_icon.svg" alt="YouTube" width="25" height="18">
                     YouTube
                 </a>
                 <a href="https://rutube.ru/channel/26330627/" class="social-btn" target="_blank">
-                    <img src="../index_files/favicon-48x48.ico" alt="RuTube" width="24" height="24">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Rutube_icon.svg" alt="RuTube" width="24" height="24">
                     RuTube
                 </a>
             </div>
         </section>
     </div>
+    <!-- Lumo framework: theme switch + background + components -->
+    <script type="module" src="../../lumo-framework/lumo.js" defer></script>
+    <!-- Sync Lumo's dataset-theme to the page's .dark-mode class so existing CSS works -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apply = () => {
+                const t = document.body.dataset.theme || localStorage.getItem('lumo-theme') || 'light';
+                if (t === 'dark') document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+            };
 
+            // initial sync
+            apply();
 
+            // observe changes to data-theme (LumoTheme updates this)
+            const mo = new MutationObserver(muts => muts.forEach(m => {
+                if (m.type === 'attributes' && m.attributeName === 'data-theme') apply();
+            }));
+            mo.observe(document.body, { attributes: true });
+        });
+    </script>
 </body>
 </html> 

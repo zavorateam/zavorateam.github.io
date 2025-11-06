@@ -4,28 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZavoraTeam Website - Документация</title>
+    <!-- Common site styles -->
     <link rel="stylesheet" href="../common_styles.css">
-    <link rel="stylesheet" href="../mod_files/style.css">
+    <!-- Lumo framework -->
+    <link rel="stylesheet" href="../../lumo-framework/lumo.css">
     <link rel="icon" href="../index_files/faviconlogo.svg">
-    <script src="../theme.js" defer></script>
     <style>
-        :root {
-            --primary: #155799;
-            --secondary: #159957;
-            --text: #2c3e50;
-            --bg-light: #ffffff;
-            --bg-dark: #1e1e21;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-bg-dark: rgba(43, 43, 45, 0.9);
-            --body-bg: #f8f9fa;
-            --body-bg-dark: #121212;
-            --table-header-bg: rgba(21, 87, 153, 0.1);
-            --table-header-bg-dark: rgba(21, 87, 153, 0.3);
-            --table-row-hover: rgba(21, 87, 153, 0.05);
-            --table-row-hover-dark: rgba(21, 87, 153, 0.2);
-            --table-border: rgba(0, 0, 0, 0.1);
-            --table-border-dark: rgba(255, 255, 255, 0.1);
-        }
+        /* Only page-specific styles */
         
         body {
             margin: 0;
@@ -137,10 +122,6 @@
             color: white;
         }
 
-        h1 {
-            color: black !important;
-        }
-
         .theme-toggle {
             position: fixed;
             bottom: 2rem;
@@ -233,8 +214,8 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
+<body data-page="manual" data-bg="gradient">
+    <div class="app">
         <header class="header">
             <img src="../index_files/faviconlogo 1.svg" alt="ZavoraTeam Logo" class="logo">
             <h1>ZavoraTeam Website</h1>
@@ -376,7 +357,25 @@
             <p>Благодарность <a href="https://t.me/anycrafttech" target="_blank">Эникрафту</a> за предоставленные материалы.</p>
         </section>
     </div>
+    <!-- Lumo framework: theme switch + background + components -->
+    <script type="module" src="../../lumo-framework/lumo.js" defer></script>
+    <!-- Sync Lumo's dataset-theme to the page's .dark-mode class so existing CSS works -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apply = () => {
+                const t = document.body.dataset.theme || localStorage.getItem('lumo-theme') || 'light';
+                if (t === 'dark') document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+            };
 
+            // initial sync
+            apply();
 
+            // observe changes to data-theme (LumoTheme updates this)
+            const mo = new MutationObserver(muts => muts.forEach(m => {
+                if (m.type === 'attributes' && m.attributeName === 'data-theme') apply();
+            }));
+            mo.observe(document.body, { attributes: true });
+        });
+    </script>
 </body>
 </html> 

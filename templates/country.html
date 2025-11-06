@@ -4,20 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Таблица стран</title>
+    <!-- Common site styles -->
     <link rel="stylesheet" href="../common_styles.css">
+    <!-- Lumo framework -->
+    <link rel="stylesheet" href="../../lumo-framework/lumo.css">
     <link rel="icon" href="../index_files/faviconlogo.svg">
     <style>
-        :root {
-            --primary: #155799;
-            --secondary: #159957;
-            --text: #2c3e50;
-            --bg-light: #ffffff;
-            --bg-dark: #1e1e21;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-bg-dark: rgba(43, 43, 45, 0.9);
-            --body-bg: #f8f9fa;
-            --body-bg-dark: #121212;
-        }
+        /* Only page-specific styles */
         
         body {
             margin: 0;
@@ -35,7 +28,7 @@
             color: var(--text);
         }
 
-        .container {
+        .app {
             position: relative;
             z-index: 1;
             padding: 2rem;
@@ -55,9 +48,11 @@
         .table-container {
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 2rem;
+            padding: 0rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             overflow-x: auto;
+            min-width: fit-content;
+            display: block !important;
         }
 
         table {
@@ -93,35 +88,17 @@
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+        }
+
+        a:hover {
+            color: white;
         }
 
         .back-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .theme-toggle {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
         }
 
         .loading {
@@ -132,12 +109,15 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+            .app {
+                margin: 2%;
             }
-            
+
             .table-container {
                 padding: 1rem;
+                overflow-x: auto;
+                max-width: 768px;
+                min-width: 0px !important;
             }
 
             th, td {
@@ -146,8 +126,8 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
+<body data-page="manual" data-bg="gradiento">
+    <div class="app">
         <header class="header">
             <h1>Таблица стран</h1>
             <p class="project-tagline">Полный список стран мира</p>
@@ -174,9 +154,6 @@
             <a href="anycraft.html" class="back-btn">Вернуться назад</a>
         </div>
     </div>
-
-    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
-
     <script>
         // Загрузка данных из XML
         async function loadCountries() {
@@ -225,19 +202,29 @@
         // Загружаем данные при загрузке страницы
         document.addEventListener('DOMContentLoaded', loadCountries);
 
-        // Переключение темы
-        const themeToggle = document.querySelector('.theme-toggle');
-        const body = document.body;
-        
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadCountries);
+    </script>
 
-        // Проверка сохраненной темы
-        if (localStorage.getItem('darkMode') === 'true') {
-            body.classList.add('dark-mode');
-        }
+    <!-- Lumo framework: theme switch + background + components -->
+    <script type="module" src="../../lumo-framework/lumo.js" defer></script>
+    <!-- Sync Lumo's dataset-theme to the page's .dark-mode class so existing CSS works -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const apply = () => {
+                const t = document.body.dataset.theme || localStorage.getItem('lumo-theme') || 'light';
+                if (t === 'dark') document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+            };
+
+            // initial sync
+            apply();
+
+            // observe changes to data-theme (LumoTheme updates this)
+            const mo = new MutationObserver(muts => muts.forEach(m => {
+                if (m.type === 'attributes' && m.attributeName === 'data-theme') apply();
+            }));
+            mo.observe(document.body, { attributes: true });
+        });
     </script>
 </body>
-</html> 
+</html>
