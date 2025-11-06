@@ -5,96 +5,13 @@
   <title>Boring — Misc Links</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../index_files/faviconlogo.svg">
-  <link href="../common_styles.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-  <style>
-    /* basic page-specific adjustments; common styles are in common_styles.css */
-    body { background-color: rgb(30,30,40); margin:0; padding:0; color:var(--text-color); }
-    canvas { position: fixed; top:0; left:0; z-index:-1; }
-    .cont { position: relative; max-width: 336px; width:90%; padding:28px; display:block; text-align:center; background-color:var(--glass-bg); backdrop-filter:blur(25px); -webkit-backdrop-filter:blur(25px); border-radius:16px; border:1px solid var(--glass-border); box-shadow:0 8px 32px 0 var(--glass-shadow); }
-    .cont > * { break-inside: avoid-column; -webkit-column-break-inside: avoid; }
-    span { cursor:pointer; display:block; width:100%; padding:10px; margin:8px 0; border-radius:8px; text-align:center; font-weight:600; background-color: rgba(50,180,70,0.9); color:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.5); }
-    span:hover { transform: translateY(-2px); background-color: rgba(40,150,60,0.95); }
-    @media (max-width:768px){ .cont{ column-count:1; overflow-y:auto; height:calc(100vh - 30px); padding:16px; } }
-  </style>
-  <style>
-  /* Variables are provided in common_styles.css */
-
-  body {
-    background-color: rgb(100, 100, 100);
-    margin: 0;
-    padding: 0;
-    /* font-family moved to common_styles.css */
-    color: var(--text-color);
-  }
-
-  canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1;
-  }
-
-  /* Container with glassmorphism — desktop: two columns, no scrollbar */
-  .cont {
-    position: relative;
-    max-width: 336px;
-    width: 90%;
-    padding: 24px;
-    display: block; /* allow multi-column layout */
-    text-align: center;
-    background-color: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 16px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 var(--glass-shadow);
-    /* height/columns/overflow controlled by common_styles + adjustCont JS */
-  }
-
-  .cont > * {
-    break-inside: avoid-column;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  h1 { color: white; margin:0; }
-  h2 { color: var(--text-color); margin:0 0 12px 0; }
-
-  /* Buttons */
-  span {
-    cursor: pointer;
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
-    background-color: var(--green-main);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  }
-  span:hover { background-color: var(--green-hover); transform: translateY(-2px); }
-  span:active { transform: translateY(0); }
-
-  a.btn { text-decoration:none; font-size:15px; color: #fff; display:block; width:100%; height:100%; line-height:1.2; }
-
-  /* Desktop: hide native scrollbars for the container */
-  .cont::-webkit-scrollbar { width: 0; height: 0; }
-
-  /* Mobile: single column + enable scrolling inside container */
-  @media (max-width: 768px) {
-    .cont { column-count: 1; overflow-y: auto; height: calc(100vh - 30px); padding: 16px; }
-    span { width: 100%; padding: 12px; }
-    h1 { font-size: 22px; }
-    h2 { font-size: 16px; }
-  }
-
-  /* Touch devices: active state */
-  @media (hover: none) { span:active { background-color: var(--green-hover); } }
-  </style>
+  <link rel="stylesheet" href="./common_styles.css">
   <style>
 
+        :root {
+            --text-color: #f0f0f0;
+        }
         /* Fonts and variables moved to common_styles.css */
 
         /* Body & Canvas (Background) */
@@ -123,8 +40,6 @@
         /* Main Content Container (Card) - GLASSMORHPISM EFFECT */
         .cont {
             position: relative;
-            max-width: 336px;
-            width: 90%; 
             padding: 24px;
             display: block; /* allow CSS columns to work */
             text-align: center;
@@ -136,13 +51,32 @@
             box-shadow: 0 8px 32px 0 var(--glass-shadow);
             z-index: 10;
             /* height/columns/overflow controlled by common_styles + adjustCont JS */
+            max-width: 700px;
+            width: 95%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 28px;
+            align-items: start;
+            grid-auto-rows: min-content;
+            height: fit-content;
+            overflow: auto;
         }
 
         /* Чтобы элементы не ломались между колонками */
         .cont > * {
-            break-inside: avoid-column;
-            -webkit-column-break-inside: avoid;
-            page-break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          break-inside: avoid-column;
+          page-break-inside: avoid;
+        }
+
+
+        .btn {
+            background: none;
+        }
+
+        .btn:hover {
+          transform: none;
+          box-shadow: none;
         }
 
         /* Headings */
@@ -151,10 +85,11 @@
             font-weight: 700;
             color: var(--text-color);
             /* Уменьшено на 20% (32px * 0.8 = 25.6px -> 26px) */
-            font-size: 26px;
+            font-size: 26px !important;
             margin: 0 0 5px 0;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+            grid-column: 1 / -1; /* Занимает всю ширину Card */
         }
 
         h1:hover {
@@ -171,6 +106,8 @@
             margin: 0 0 20px 0;
             opacity: 0.8;
             transition: all 0.3s ease;
+            border-bottom-width: 0px;
+            grid-column: 1 / -1; /* Занимает всю ширину Card */
         }
 
         h2:hover {
@@ -179,7 +116,7 @@
         }
         
         h6 {
-            margin-top: 20px;
+            margin-top: 8px;
             font-size: 14px;
             opacity: 0.7;
             color: var(--text-color);
@@ -188,7 +125,6 @@
         /* Buttons (Spans) */
         span {
             cursor: pointer;
-            display: block;
             width: 100%; /* Занимает всю ширину Card */
             /* Уменьшено на 20% (12px * 0.8 = 9.6px -> 10px) */
             padding: 10px;
@@ -200,6 +136,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             border: none;
+            height: 35px;
         }
 
         span:hover {
@@ -239,6 +176,9 @@
             color: var(--green-hover);
         }
 
+        a:hover {
+          color: white;
+        }
 
         /* Media Queries - Адаптивный дизайн */
         @media (max-width: 768px) {

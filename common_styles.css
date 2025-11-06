@@ -1,12 +1,12 @@
-/* Общие стили для zavorateam.github.io */
+/* Site-wide styles for zavorateam.github.io */
 
-/* Fonts used across the site (moved from inline styles) */
+/* Fonts */
 @font-face {
   font-family: 'YSMusic Headline';
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2");
+  src: url(./fonts/YSMusic-HeadlineBold.woff2) format("woff2");
 }
 
 @font-face {
@@ -14,17 +14,190 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  src: url(https://music.yandex.ru/fonts/YS%20Text-Regular.woff2) format("woff2");
+  src: url(./fonts/YSText-Regular.woff2) format("woff2");
 }
 
-/* Основные стили для тела документа */
+/* Base elements */
 body {
-  /* Middle-ground body font: YS Text (site), with Inter and system fallbacks */
-  font-family: 'YS Text', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: "YSMusic Headline", "YS Text", system-ui, sans-serif;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  color: var(--text);
+  background: var(--body-bg);
   transition: all 0.3s ease;
+}
+
+/* Container layouts */
+.container {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Cards and sections */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.list-section {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Typography */
+h1, h2, h3 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.5rem;
+}
+
+/* Links and buttons */
+a {
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--primary);
+}
+
+.btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Grids and layouts */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 0 auto;
+}
+
+.menu-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Lists */
+.lesson-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lesson-list li {
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.lesson-list li:hover {
+  transform: translateX(10px);
+  background: rgba(21, 87, 153, 0.1);
+}
+
+/* Social links */
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1.5rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-5px);
+  background: var(--primary);
+  color: white;
+}
+
+.social-btn img {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.5rem;
+  max-width: 64px;
+  max-height: 64px;
+  object-fit: contain;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .menu-grid, .menu-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    padding: 1rem;
+  }
+
+  .social-links {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* Переменные цветовой схемы для всего сайта */
@@ -141,16 +314,16 @@ span {
 
 /* Keep anchor inside span as a flex item so it centers properly */
 a.btn {
-  display: flex;
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 18px;
   color: #fff;
   line-height: 1.2;
   width: 100%;
-  text-align: center;
   padding: 0 6px;
+  height: 3em;
+  text-align: center;
 }
 
 .cont > * {
@@ -251,6 +424,7 @@ a.btn {
   line-height: 1.2;
   padding: 0 6px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  display: grid;
 }
 
 button {
@@ -265,10 +439,6 @@ button {
   transition: all 0.3s ease;
 }
 
-button:hover {
-  background: #45a049;
-  transform: translateY(-2px);
-}
 
 /* Стили для темной темы */
 body.dark-mode {
