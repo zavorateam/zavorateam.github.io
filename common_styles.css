@@ -29,24 +29,46 @@ body {
 
 /* Переменные цветовой схемы для всего сайта */
 :root {
-  /* color / design tokens */
+  /* Основные цвета */
   --primary: #155799;
   --secondary: #159957;
-  --text: #2c3e50;
-  --bg-light: #ffffff;
+  --accent: #00c200;
+  
+  /* Текст */
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --text-light: #f0f0f0;
+  --text-dark: #2d3436;
+  --text-muted: rgba(108, 117, 125, 0.8);
+  
+  /* Фоны */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
   --bg-dark: #1e1e21;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --card-bg-dark: rgba(43, 43, 45, 0.9);
-  --body-bg: #f8f9fa;
-  --body-bg-dark: #121212;
-  --green-main: rgb(0, 194, 0);
-  --green-hover: rgb(0, 155, 0);
-
-  /* variables used by templates (moved from index) */
-  --text-color: #f0f0f0;
+  --bg-darker: #121212;
+  
+  /* Карточки и контейнеры */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-bg-dark: rgba(43, 43, 45, 0.95);
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.18);
   --glass-shadow: rgba(0, 0, 0, 0.37);
+  
+  /* Кнопки и интерактивные элементы */
+  --btn-primary: var(--accent);
+  --btn-hover: #00a000;
+  --btn-active: #008000;
+  
+  /* Границы и тени */
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  /* Таблицы */
+  --table-header: rgba(21, 87, 153, 0.1);
+  --table-row-hover: rgba(21, 87, 153, 0.05);
+  --table-border: rgba(0, 0, 0, 0.1);
 }
 
 /* Основной контейнер для контента */
@@ -250,11 +272,29 @@ button:hover {
 
 /* Стили для темной темы */
 body.dark-mode {
-  --text: #bebebe;
-  --bg-light: #2b2b2d;
+  /* Переопределение цветов для темной темы */
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  
+  --bg-primary: var(--bg-dark);
+  --bg-secondary: var(--bg-darker);
+  
   --card-bg: var(--card-bg-dark);
-  --body-bg: var(--body-bg-dark);
-  color: var(--text);
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  
+  --table-header: rgba(255, 255, 255, 0.1);
+  --table-row-hover: rgba(255, 255, 255, 0.05);
+  --table-border: rgba(255, 255, 255, 0.1);
+  
+  /* Основной цвет текста */
+  color: var(--text-primary);
 }
 
 /* Общие стили для canvas */

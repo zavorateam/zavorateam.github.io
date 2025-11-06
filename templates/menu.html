@@ -6,6 +6,7 @@
     <title>Уроки Ардуино</title>
     <link rel="stylesheet" href="../common_styles.css">
     <link rel="stylesheet" href="../mod_files/style.css">
+    <script src="../theme.js" defer></script>
     <style>
         :root {
             --primary: #155799;
@@ -496,22 +497,6 @@
         </section>
     </div>
 
-    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
 
-    <script>
-        // Переключение темы
-        const themeToggle = document.querySelector('.theme-toggle');
-        const body = document.body;
-        
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
-
-        // Проверка сохраненной темы
-        if (localStorage.getItem('darkMode') === 'true') {
-            body.classList.add('dark-mode');
-        }
-    </script>
 </body>
 </html> 

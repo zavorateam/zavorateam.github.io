@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Аккумуляторы - ZavoraTeam</title>
     <link rel="icon" href="../index_files/faviconlogo.svg">
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/common_styles.css">
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/mod_files/style.css">
+    <link rel="stylesheet" href="../common_styles.css">
+    <link rel="stylesheet" href="../mod_files/style.css">
+    <script src="../theme.js" defer></script>
     <style>
         :root {
             --primary: #155799;
@@ -392,8 +393,6 @@
             <p class="project-tagline">Подробная информация об аккумуляторах и их использовании</p>
         </header>
 
-        <a href="index.html" class="back-btn">← Вернуться на главную</a>
-
         <div class="menu-grid">
             <div class="card">
                 <h2>Характеристики аккумуляторов</h2>
@@ -557,22 +556,6 @@
         </section>
     </div>
 
-    <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
 
-    <script>
-        // Переключение темы
-        const themeToggle = document.querySelector('.theme-toggle');
-        const body = document.body;
-        
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
-
-        // Проверка сохраненной темы
-        if (localStorage.getItem('darkMode') === 'true') {
-            body.classList.add('dark-mode');
-        }
-    </script>
 </body>
 </html>
