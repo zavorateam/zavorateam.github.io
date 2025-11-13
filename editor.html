@@ -56,6 +56,11 @@
 
   header{
     display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:26px;
+    animation: headerGlow .6s ease-out;
+  }
+  @keyframes headerGlow {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
   .brand{display:flex; gap:14px; align-items:center;}
   .logo{
@@ -65,13 +70,18 @@
     display:flex;align-items:center;justify-content:center;
     backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%);
     border: 1px solid rgba(255,255,255,0.04);
+    transition: transform .3s ease, box-shadow .3s ease;
+  }
+  .logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 16px 50px rgba(2,8,25,0.8), inset 0 2px 6px rgba(255,255,255,0.04);
   }
   h1{font-size:20px; margin:0;}
   p.lead{margin:0; font-size:13px; color:var(--muted-dark);}
   body[data-theme="light"] p.lead{color:var(--muted-light);}
 
   /* Controls */
-  .controls{display:flex; gap:10px; align-items:center;}
+  .controls{display:flex; gap:10px; align-items:center; pointer-events: auto;}
   .btn {
     display:inline-flex; align-items:center; gap:8px;
     padding:10px 14px; border-radius:var(--control-radius);
@@ -81,6 +91,7 @@
     box-shadow: var(--soft-shadow);
     transition: transform .12s ease, box-shadow .18s ease, background .2s;
     backdrop-filter: blur(12px) saturate(140%);
+    pointer-events: auto !important;
   }
   .btn:active{ transform: translateY(2px); box-shadow: 0 6px 18px rgba(2,6,23,0.35); }
   .btn.ghost{
@@ -100,6 +111,16 @@
   /* Main layout: wider editor */
   main{ display:grid; grid-template-columns: 1fr 520px; gap:28px; align-items:start; }
 
+  /* Smooth hover animation */
+  @keyframes liftUp {
+    from { transform: translateY(0) scale(1); }
+    to { transform: translateY(-8px) scale(1.01); }
+  }
+  @keyframes liftUpSmall {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); }
+  }
+
   /* List (left) */
   .list{
     border-radius:22px; padding:26px;
@@ -108,7 +129,11 @@
     border: 1px solid rgba(255,255,255,0.04);
     backdrop-filter: blur(14px) saturate(140%);
     min-height:64vh;
-    transition: background .28s;
+    transition: background .28s, transform .3s ease, box-shadow .3s ease;
+  }
+  .list:hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 28px 80px rgba(2,6,23,0.7);
   }
   .list .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
   .episodes-count{ color:var(--muted-dark); font-size:13px; }
@@ -139,7 +164,11 @@
     box-shadow: 0 18px 60px rgba(2,6,23,0.45);
     backdrop-filter: blur(14px) saturate(140%);
     min-height:64vh;
-    transition: background .28s, color .28s;
+    transition: background .28s, color .28s, transform .3s ease, box-shadow .3s ease;
+  }
+  .editor:hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 28px 80px rgba(2,6,23,0.65);
   }
   /* Editor background must adapt to theme */
   body[data-theme="dark"] .editor{
@@ -231,7 +260,7 @@
 </style>
 </head>
 <body data-theme="dark" dir="ltr">
-<div class="wrap" id="wrap" style="transform: rotateX(-1.86538deg) rotateY(-1.33944deg);">
+<div class="wrap" id="wrap">
   <header>
     <div class="brand">
       <div class="logo" aria-hidden="">
@@ -257,15 +286,15 @@
 
       <button id="theme-toggle" class="btn small" aria-pressed="false">Light</button>
       <button id="import-btn" class="btn small">Import</button>
-      <button id="load-btn" class="btn small">Загрузить</button>
       <button id="export-btn" class="btn small">Export</button>
+      <button id="load-btn" class="btn small">Загрузить</button>
       <button id="save-btn" class="btn small">Сохранить</button>
     </div>
   </header>
 
   <main>
     <!-- LEFT: list -->
-    <section class="list" id="list" style="transform: translate(4.46479px, -3.73077px);">
+    <section class="list" id="list">
       <div class="topbar">
         <div class="episodes-count" id="episodes-count">0 эпизодов</div>
         <div class="muted-small" id="list-sub">—</div>
@@ -279,7 +308,7 @@
     </section>
 
     <!-- RIGHT: editor -->
-    <aside class="editor" id="editor" aria-labelledby="edit-heading" style="transform: translate(6.2507px, -4.97436px);">
+    <aside class="editor" id="editor" aria-labelledby="edit-heading">
       <h3 id="edit-heading">Редактор</h3>
       <div id="editor-empty" class="muted-small">Загрузите данные и выберите эпизод</div>
 
@@ -317,7 +346,7 @@
   </footer>
 </div>
 
-<div class="glass-halo" aria-hidden="true" style="transform: translate3d(3.57183px, -3.73077px, 0px);"></div>
+<div class="glass-halo" aria-hidden="true"></div>
 
 <!-- Login modal -->
 <div id="login-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" style="display: none;">
