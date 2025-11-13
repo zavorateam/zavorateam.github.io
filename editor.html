@@ -256,7 +256,9 @@
       </div>
 
       <button id="theme-toggle" class="btn small" aria-pressed="false">Light</button>
+      <button id="import-btn" class="btn small">Import</button>
       <button id="load-btn" class="btn small">Загрузить</button>
+      <button id="export-btn" class="btn small">Export</button>
       <button id="save-btn" class="btn small">Сохранить</button>
     </div>
   </header>
@@ -335,6 +337,9 @@
   </div>
 </div>
 
+<!-- Hidden file input for JSON import -->
+<input id="import-file" type="file" accept=".json,application/json" style="display:none">
+
 <script>
 /* -----------------------
    Simple i18n dictionary
@@ -346,6 +351,8 @@ var I18N = {
     load: 'Загрузить',
     loaded: 'Загружено',
     save: 'Сохранить',
+    import: 'Импорт',
+    export: 'Экспорт',
     add: '+ Добавить эпизод',
     video: 'Видео (ссылка)',
     editor: 'Редактор',
@@ -365,6 +372,8 @@ var I18N = {
     loaded: 'Loaded',
     save: 'Save',
     add: '+ Add episode',
+    import: 'Import',
+    export: 'Export',
     video: 'Video link',
     editor: 'Editor',
     select: 'Load data and select an episode',
@@ -395,6 +404,72 @@ function $(s){ return document.querySelector(s); }
 function escapeHtml(str){
   if(!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* -----------------------
+   Polyfills / cross-browser helpers
+   ----------------------- */
+// closest / matches polyfill for older browsers
+if(!Element.prototype.matches){
+  Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector || function(s){
+    var matches = (this.document || this.ownerDocument).querySelectorAll(s), i = matches.length;
+    while(--i >= 0 && matches.item(i) !== this){};
+    return i > -1;
+  };
+}
+if(!Element.prototype.closest){
+  Element.prototype.closest = function(s){
+    var el = this;
+    while(el && el.nodeType === 1){
+      if(el.matches(s)) return el;
+      el = el.parentElement || el.parentNode;
+    }
+    return null;
+  };
+}
+
+/* Lightweight fetch fallback: use fetch when available, otherwise XMLHttpRequest */
+function httpGetJson(url){
+  if(window.fetch){
+    return fetch(url).then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); });
+  }
+  return new Promise(function(resolve,reject){
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState !== 4) return;
+      if(xhr.status >=200 && xhr.status<300){
+        try{ resolve(JSON.parse(xhr.responseText)); }catch(e){ reject(e); }
+      } else reject(new Error('HTTP '+xhr.status+' '+xhr.statusText));
+    };
+    xhr.onerror = function(){ reject(new Error('Network error')); };
+    xhr.send();
+  });
+}
+
+function httpPatchJson(url, token, bodyObj){
+  if(window.fetch){
+    return fetch(url,{
+      method:'PATCH',
+      headers:{ 'Authorization':'token '+token, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+      body: JSON.stringify(bodyObj)
+    }).then(function(res){ if(!res.ok) return res.text().then(function(t){ throw new Error(t || ('HTTP '+res.status)); }); return res.json(); });
+  }
+  return new Promise(function(resolve,reject){
+    var xhr = new XMLHttpRequest();
+    xhr.open('PATCH', url, true);
+    xhr.setRequestHeader('Authorization','token '+token);
+    xhr.setRequestHeader('Accept','application/vnd.github.v3+json');
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState !== 4) return;
+      if(xhr.status >=200 && xhr.status<300){
+        try{ resolve(JSON.parse(xhr.responseText)); }catch(e){ resolve({}); }
+      } else reject(new Error(xhr.responseText || ('HTTP '+xhr.status)));
+    };
+    xhr.onerror = function(){ reject(new Error('Network error')); };
+    xhr.send(JSON.stringify(bodyObj));
+  });
 }
 
 /* -----------------------
@@ -429,8 +504,52 @@ function applyLocale(){
   $('#update-ep').textContent = L.saveChanges;
   $('#delete-ep').textContent = L.delete;
   $('#footer-info').textContent = L.footerInfo;
+  if($('#import-btn')) $('#import-btn').textContent = L.import || 'Import';
+  if($('#export-btn')) $('#export-btn').textContent = L.export || 'Export';
 
   renderEpisodes();
+}
+
+/* -----------------------
+   Import / Export JSON
+   ----------------------- */
+function importFromFile(file){
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      if(!Array.isArray(data)) throw new Error('JSON must be an array of episodes');
+      state.episodes = data;
+      renderEpisodes();
+      selectEpisode(-1);
+      $('#add-ep').style.display = 'inline-flex';
+      $('#status').textContent = (LOCALE==='ru'?'Файл загружен':'File loaded');
+    }catch(e){
+      console.error(e);
+      alert((LOCALE==='ru'?'Ошибка парсинга файла: ':'File parse error: ')+e.message);
+    }
+  };
+  reader.onerror = function(e){ alert((LOCALE==='ru'?'Ошибка чтения файла':'File read error')); };
+  reader.readAsText(file, 'utf-8');
+}
+
+function exportToJson(filename){
+  filename = filename || FILE_NAME || 'timeline-data.json';
+  var data = JSON.stringify(state.episodes || [], null, 2);
+  var blob = new Blob([data], { type: 'application/json;charset=utf-8' });
+  if(window.navigator && window.navigator.msSaveOrOpenBlob){
+    // IE/Edge legacy
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+    return;
+  }
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); try{ a.remove(); }catch(e){} }, 500);
 }
 
 /* -----------------------
@@ -545,11 +664,11 @@ function deleteEpisode(idx){
    ----------------------- */
 function loadFromGist(){
   $('#status').textContent = I18N[LOCALE].load+'...';
-  fetch('https://api.github.com/gists/'+GIST_ID)
-    .then(function(res){ return res.json(); })
+  httpGetJson('https://api.github.com/gists/'+GIST_ID)
     .then(function(gist){
       var content = (gist.files && gist.files[FILE_NAME] && gist.files[FILE_NAME].content) || '[]';
-      state.episodes = JSON.parse(content);
+      try{ state.episodes = JSON.parse(content); }
+      catch(e){ state.episodes = []; console.error('JSON parse error', e); alert((LOCALE==='ru'?'Ошибка парсинга JSON: ':'JSON parse error: ')+e.message); }
       renderEpisodes();
       selectEpisode(-1);
       $('#add-ep').style.display = 'inline-flex';
@@ -568,24 +687,16 @@ function saveToGist(){
   $('#status').textContent = 'Сохранение...';
   var body = { files:{} };
   body.files[FILE_NAME] = { content: JSON.stringify(state.episodes,null,2) };
-  fetch('https://api.github.com/gists/'+GIST_ID,{
-    method:'PATCH',
-    headers:{
-      'Authorization':'token '+token,
-      'Accept':'application/vnd.github.v3+json'
-    },
-    body: JSON.stringify(body)
-  }).then(function(res){
-    if(!res.ok) return res.text().then(function(t){ throw new Error(t); });
-    return res.json();
-  }).then(function(){
-    $('#status').textContent = I18N[LOCALE].saved;
-    $('#last-saved').textContent = new Date().toLocaleString();
-  }).catch(function(err){
-    console.error(err);
-    $('#status').textContent = 'Ошибка сохранения';
-    alert('Ошибка сохранения: '+err.message);
-  });
+  httpPatchJson('https://api.github.com/gists/'+GIST_ID, token, body)
+    .then(function(){
+      $('#status').textContent = I18N[LOCALE].saved;
+      $('#last-saved').textContent = new Date().toLocaleString();
+    })
+    .catch(function(err){
+      console.error(err);
+      $('#status').textContent = 'Ошибка сохранения';
+      alert('Ошибка сохранения: '+err.message);
+    });
 }
 
 /* -----------------------
@@ -594,6 +705,13 @@ function saveToGist(){
 function bindUI(){
   $('#load-btn').addEventListener('click', loadFromGist);
   $('#save-btn').addEventListener('click', saveToGist);
+  // Import / Export
+  if($('#import-btn')) $('#import-btn').addEventListener('click', function(){
+    var fi = document.getElementById('import-file'); if(fi) fi.click();
+  });
+  var importFileEl = document.getElementById('import-file');
+  if(importFileEl) importFileEl.addEventListener('change', function(e){ if(e.target.files && e.target.files[0]) importFromFile(e.target.files[0]); });
+  if($('#export-btn')) $('#export-btn').addEventListener('click', function(){ exportToJson(); });
   $('#add-ep').addEventListener('click', addEpisode);
   $('#episodes-container').addEventListener('click', function(e){
     var btn = e.target.closest('button');
@@ -604,6 +722,12 @@ function bindUI(){
     else if(act==='dup') duplicateEpisode(idx);
     else if(act==='del') deleteEpisode(idx);
   });
+  // allow drag & drop JSON onto list area
+  var dropArea = document.getElementById('episodes-container');
+  if(dropArea){
+    dropArea.addEventListener('dragover', function(ev){ ev.preventDefault(); ev.dataTransfer.dropEffect = 'copy'; });
+    dropArea.addEventListener('drop', function(ev){ ev.preventDefault(); var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]; if(f) importFromFile(f); });
+  }
   $('#update-ep').addEventListener('click', updateSelectedFromForm);
   $('#delete-ep').addEventListener('click', function(){
     if(state.selectedIndex>=0) deleteEpisode(state.selectedIndex);
