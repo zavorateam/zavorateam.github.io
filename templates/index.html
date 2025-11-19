@@ -333,6 +333,32 @@
         window.addEventListener('orientationchange', adjustCont);
     })();
   </script>
+  <script>
+  // Отключаем контекстное меню (правый клик) для всех элементов
+  (function() {
+    function disableContextMenu() {
+      const contElements = document.querySelectorAll('body');
+      contElements.forEach(cont => {
+        cont.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          return false;
+        });
+      });
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', disableContextMenu);
+    } else {
+      disableContextMenu();
+    }
+    
+    const observer = new MutationObserver(disableContextMenu);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  })();
+  </script>
   <main></main>
 </body>
 </html>

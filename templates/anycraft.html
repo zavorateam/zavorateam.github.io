@@ -228,101 +228,179 @@
     <span><a class="btn" href="https://autocraft.app/example/lines">Autocraft — Электрички</a></span>
   </div>
   <script>
-    let particles = [];
-    let isMobile = false;
-    const waveSpeed = 0.01;
-    const particleSize = 5;
-    const baseHue = 200;
-    let numParticles;
-    
-    // Check if device is mobile
-    function checkMobile() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-             || window.innerWidth <= 768;
+  // Интерактивный эффект: управляемые блобы с градиентными связями
+  let blobs = [];
+  let isMobile = false;
+  const MAX_BLOBS = 22;
+  const MIN_BLOBS = 2;
+
+  class Blob {
+    constructor(x, y, vx, vy, hue) {
+      this.x = x;
+      this.y = y;
+      this.vx = vx;
+      this.vy = vy;
+      this.hue = hue;
+      this.size = random(40, 120);
+      this.targetSize = this.size;
+      this.rotation = 0;
+      this.wobble = 0;
+      this.life = random(0, TWO_PI);
     }
-    
-    function setup() {
-      createCanvas(windowWidth, windowHeight);
-      colorMode(HSB, 360, 100, 100, 1);
-      
-      isMobile = checkMobile();
-      numParticles = isMobile ? 50 : 200; // Reduce particles on mobile
-    
-      // Initialize particles
-      for (let i = 0; i < numParticles; i++) {
-        particles.push({
-          x: random(width),
-          y: random(height),
-          z: random(TWO_PI),
-          hue: baseHue + random(-20, 20)
+
+    update() {
+      // перемещение с отскоком
+      this.x += this.vx;
+      this.y += this.vy;
+
+      // отскоки от краёв
+      if (this.x - this.size < 0 || this.x + this.size > width) {
+        this.vx *= -1;
+        this.x = constrain(this.x, this.size, width - this.size);
+      }
+      if (this.y - this.size < 0 || this.y + this.size > height) {
+        this.vy *= -1;
+        this.y = constrain(this.y, this.size, height - this.size);
+      }
+
+      // анимация размера
+      this.targetSize = 40 + 40 * sin(this.life);
+      this.size += (this.targetSize - this.size) * 0.1;
+
+      // морфинг и вращение
+      this.wobble = sin(this.life * 0.5) * 0.3;
+      this.rotation += 0.02;
+      this.life += 0.03;
+    }
+
+    display() {
+      push();
+      translate(this.x, this.y);
+      rotate(this.rotation);
+
+      // рисуем морфующийся полигон (blob shape)
+      noStroke();
+      const sides = 6;
+      const points = [];
+
+      for (let i = 0; i < sides; i++) {
+        const angle = (TWO_PI / sides) * i;
+        const rad = this.size * (1 + this.wobble * sin(this.life + i));
+        points.push({
+          x: cos(angle) * rad,
+          y: sin(angle) * rad
         });
       }
-      
-      // Add touch event listeners
-      canvas.addEventListener('touchstart', handleTouch);
-      canvas.addEventListener('touchmove', handleTouch);
+
+      // gradient-like fill: центр светлый
+      fill(this.hue, 70, 85, 0.8);
+      beginShape();
+      for (let p of points) {
+        vertex(p.x, p.y);
+      }
+      endShape(CLOSE);
+
+      // edge glow
+      stroke(this.hue, 100, 100);
+      strokeWeight(2);
+      noFill();
+      beginShape();
+      for (let p of points) {
+        vertex(p.x, p.y);
+      }
+      endShape(CLOSE);
+
+      pop();
     }
-    
-    function handleTouch(event) {
-      // Prevent scrolling while touching canvas
-      event.preventDefault();
-      
-      const touch = event.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      mouseX = touch.clientX - rect.left;
-      mouseY = touch.clientY - rect.top;
-    }
-    
-    // Update draw function
-    function draw() {
-      background(220, 0, 10);
-      noStroke();
-    
-      for (let i = 0; i < numParticles; i++) {
-        let p = particles[i];
-    
-        let angle = p.z + frameCount * waveSpeed;
-        let displacement = map(sin(angle), -1, 1, -20, 20);
-        let yOffset = map(noise(p.x * 0.01, p.y * 0.01, frameCount * 0.005), 0, 1, -50, 50);
-    
-        let particleY = p.y + displacement + yOffset;
-    
-        // Interaction radius larger for mobile
-        let interactionRadius = isMobile ? 80 : 50;
-        let distance = dist(mouseX, mouseY, p.x, particleY);
-        
-        if (distance < interactionRadius) {
-          let angleToMouse = atan2(particleY - mouseY, p.x - mouseX);
-          let repelForce = isMobile ? 3 : 2;
-          p.x += cos(angleToMouse) * repelForce;
-          p.y += sin(angleToMouse) * repelForce;
-    
-          p.x = constrain(p.x, 0, width);
-          p.y = constrain(p.y, 0, height);
-        }
-    
-        fill(p.hue, 80, 80, 0.7);
-        ellipse(p.x, particleY, particleSize, particleSize);
-        p.z += 0.02;
+
+    mouseInteract(mx, my) {
+      const d = dist(this.x, this.y, mx, my);
+      if (d < 150) {
+        const angle = atan2(this.y - my, this.x - mx);
+        const strength = map(d, 0, 150, 5, 0);
+        this.vx += cos(angle) * strength * 0.3;
+        this.vy += sin(angle) * strength * 0.3;
+        this.targetSize += strength;
       }
     }
-    
-    function windowResized() {
-        resizeCanvas(windowWidth, windowHeight);
-        isMobile = checkMobile();
-        numParticles = isMobile ? 50 : 200;
-      
-        // Reset all particles with new positions based on new window size
-        particles = [];
-        for (let i = 0; i < numParticles; i++) {
-          particles.push({
-            x: random(width),
-            y: random(height),
-            z: random(TWO_PI),
-            hue: baseHue + random(-20, 20)
-          });
-        }
+  }
+
+  function setup() {
+    isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    createCanvas(windowWidth, windowHeight);
+    colorMode(HSB, 360, 100, 100, 1);
+
+    const numBlobs = isMobile ? 3 : 6;
+    for (let i = 0; i < numBlobs; i++) {
+      addBlob(random(width), random(height));
     }
+  }
+
+  function draw() {
+    background(240, 5, 8); // очень тёмный красноватый
+    
+    for (let blob of blobs) {
+      blob.update();
+      blob.mouseInteract(mouseX, mouseY);
+      blob.display();
+    }
+
+    // отрисовка связей между всеми blob'ами с градиентом
+    strokeWeight(1.5);
+    for (let i = 0; i < blobs.length; i++) {
+      for (let j = i + 1; j < blobs.length; j++) {
+        const b1 = blobs[i];
+        const b2 = blobs[j];
+        
+        // граждент цвета от b1.hue к b2.hue
+        const midX = (b1.x + b2.x) / 2;
+        const midY = (b1.y + b2.y) / 2;
+        
+        // линия от b1 к середине - цвет b1
+        stroke(b1.hue, 60, 70, 0.4);
+        line(b1.x, b1.y, midX, midY);
+        
+        // линия от середины к b2 - цвет b2
+        stroke(b2.hue, 60, 70, 0.4);
+        line(midX, midY, b2.x, b2.y);
+      }
+    }
+  }
+
+  function addBlob(x, y) {
+    if (blobs.length < MAX_BLOBS) {
+      blobs.push(new Blob(
+        x || random(width),
+        y || random(height),
+        random(-2, 2),
+        random(-2, 2),
+        random(360) // случайный цвет
+      ));
+    }
+  }
+
+  function removeRandomBlob() {
+    if (blobs.length > MIN_BLOBS) {
+      const idx = floor(random(blobs.length));
+      blobs.splice(idx, 1);
+    }
+  }
+
+  function mousePressed() {
+    if (mouseButton === LEFT) {
+      // ЛКМ - добавить blob
+      addBlob(mouseX, mouseY);
+      return false;
+    } else if (mouseButton === RIGHT) {
+      // ПКМ - удалить случайный blob
+      removeRandomBlob();
+      return false;
+    }
+  }
+
+  function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+  }
   </script>
   <script>
   (function(){
@@ -330,25 +408,37 @@
     function adjustCont(){
       var cont = document.querySelector('.cont'); if(!cont) return;
       cont.style.height = 'fit-content'; cont.style.columnCount = '1'; cont.style.overflow = 'visible'; cont.style.overflowY = 'visible';
-      resizeCanvas(windowWidth, windowHeight);
-      isMobile = checkMobile();
-      numParticles = isMobile ? 50 : 200;
-
-      // Reset all particles with new positions based on new window size
-      particles = [];
-      for (let i = 0; i < numParticles; i++) {
-        particles.push({
-          x: random(width),
-          y: random(height),
-          z: random(TWO_PI),
-          hue: baseHue + random(-20, 20)
-        });
-      }
     }
     if(isTouch()){
       window.addEventListener('load', adjustCont);
       window.addEventListener('resize', adjustCont);
     }
+  })();
+  </script>
+  <script>
+  // Отключаем контекстное меню (правый клик) для всех элементов
+  (function() {
+    function disableContextMenu() {
+      const contElements = document.querySelectorAll('body');
+      contElements.forEach(cont => {
+        cont.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          return false;
+        });
+      });
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', disableContextMenu);
+    } else {
+      disableContextMenu();
+    }
+    
+    const observer = new MutationObserver(disableContextMenu);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   })();
   </script>
 </body>

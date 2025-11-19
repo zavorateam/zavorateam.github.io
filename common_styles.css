@@ -27,6 +27,9 @@ body {
   transition: all 0.3s ease;
 }
 
+/* ensure full-height so backdrop-filter has a stable backdrop */
+html, body { height: 100%; }
+
 /* Container layouts */
 .container {
   position: relative;
@@ -273,6 +276,13 @@ a:hover {
   scroll-behavior: smooth;
   /* default: let content determine height */
   height: auto;
+  /* make sure the glass element participates in the stacking context above canvas */
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255,255,255,0.06) !important;
+  background-clip: padding-box;
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  backdrop-filter: blur(18px) saturate(120%);
   column-count: 1;
   column-gap: 20px;
   z-index: 10; /* keep above canvas background so backdrop-filter shows */
