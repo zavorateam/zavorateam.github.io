@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Форматирование химических формул</title>
+  <link rel="icon" href="../index_files/faviconlogo.svg">
+  <link rel="stylesheet" href="../common_styles.css">
+  <style>
+    :root {
+      --text: #333;
+      --bg-light: #f0f0f0;
+      --card-bg: #ffffff;
+      --table-border: rgba(0, 0, 0, 0.1);
+      --green-main: #28a745;
+      --green-hover: #218838;
+    }
+
+    body.dark-mode {
+      --text: #bebebe;
+      --bg-light: #1e1e21;
+      --card-bg: rgba(43, 43, 45, 0.9);
+      --table-border: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--bg-light);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+    .header-nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      color: #fff;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    .back-btn:hover {
+      background-color: var(--green-hover);
+      transform: translateY(-2px);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .tool-section {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    textarea {
+      background: var(--bg-light);
+      color: var(--text);
+      width: 96%;
+      min-height: 150px;
+      margin-bottom: 12px;
+      padding: 15px;
+      font-size: 16px;
+      border: 1px solid var(--table-border);
+      border-radius: 4px;
+      resize: vertical;
+      font-family: monospace;
+    }
+    #formattedOutput {
+      width: 96%;
+      min-height: 150px;
+      padding: 15px;
+      font-size: 14px;
+      background-color: var(--bg-light);
+      color: var(--text);
+      border: 1px solid var(--table-border);
+      border-radius: 4px;
+      overflow-wrap: break-word;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--green-main);
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .theme-toggle:hover {
+      transform: scale(1.05);
+      background: var(--green-hover);
+    }
+
+    @media (max-width:768px){
+      textarea { min-height:120px }
+      #formattedOutput { min-height:120px }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-nav">
+    <a href="./anycraft.html" class="back-btn">← Вернуться на главную</a>
+    <h1>Форматирование химических формул</h1>
+  </div>
+
+  <div class="container">
+    <div class="tool-section">
+
+      <textarea id="inputFormula" placeholder="Вставьте текст задания с логической функцией и таблицей"></textarea>
+
+      <div id="formattedOutput"></div>
+
+    </div>
+  </div>
+
+<script>
+const inputFormula = document.getElementById('inputFormula');
+const formattedOutput = document.getElementById('formattedOutput');
+
+inputFormula.addEventListener('input', generatePythonCode);
+
+function generatePythonCode() {
+    const text = inputFormula.value.trim();
+    if (!text) {
+        formattedOutput.textContent = "";
+        return;
+    }
+
+    // 1. Находим формулу: всё, что между "выражением" и первой точкой
+    let formulaMatch = text.match(/выражением\s+(.+?)\./i);
+    if (!formulaMatch) {
+        formattedOutput.textContent = "Логическая функция не найдена";
+        return;
+    }
+
+    let formula = formulaMatch[1].trim();
+
+    // 2. Убираем дубли формулы, если она повторена дважды подряд
+    let len = formula.length;
+    let half = Math.floor(len / 2);
+    if (formula.substring(0, half) === formula.substring(half)) {
+        formula = formula.substring(0, half);
+    }
+
+    // 3. Преобразуем символы в Python с пробелами
+    let pyFunc = formula
+        .replace(/→/g, ' <= ')
+        .replace(/∧/g, ' and ')
+        .replace(/∨/g, ' or ')
+        .replace(/≡/g, ' == ')
+        .replace(/\s+/g, ' ')   // убираем лишние пробелы
+        .trim();
+
+    // 4. Определяем переменные (латинские буквы)
+    let varMatches = pyFunc.match(/\b[a-z]\b/gi);
+    let variables = [...new Set(varMatches)].sort();
+    if (variables.length === 0) {
+        formattedOutput.textContent = "Переменные не найдены";
+        return;
+    }
+
+    // 5. Частично заполненная таблица, берём первое F
+    let tableLines = text.split('\n').filter(line => /[01]/.test(line));
+    let Fval = tableLines[0].trim().split(/\s+/).pop();
+
+    // 6. Генерируем Python-код
+    let pythonCode = `print("${variables.join(' ')} F")\n`;
+    let indent = '';
+    variables.forEach(v => {
+        pythonCode += `${indent}for ${v} in range(2):\n`;
+        indent += '    ';
+    });
+    pythonCode += `${indent}F = ${pyFunc}\n`;
+    pythonCode += `${indent}if F == ${Fval}:\n`;
+    pythonCode += `${indent}    print(${variables.join(', ')}, int(F))`;
+
+    formattedOutput.textContent = pythonCode;
+}
+
+</script>
+
+  <button class="theme-toggle">🌓</button>
+  <script>
+    const themeToggle=document.querySelector('.theme-toggle');
+    themeToggle.onclick=()=>{
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode',document.body.classList.contains('dark-mode'));
+    };
+    if(localStorage.getItem('darkMode')==='true'){
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+</body>
+</html>
