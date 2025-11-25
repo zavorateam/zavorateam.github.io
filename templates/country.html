@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Таблица стран</title>
     <!-- Common site styles -->
-    <link rel="stylesheet" href="../common_styles.css">
-    <!-- Lumo framework -->
-    <link rel="stylesheet" href="../../lumo-framework/lumo.css">
-    <link rel="icon" href="../index_files/faviconlogo.svg">
+    <link rel="stylesheet" href="./common_styles.css">
+    <link rel="icon" href="./favicon.svg">
     <style>
         /* Only page-specific styles */
         
@@ -158,7 +156,7 @@
         // Загрузка данных из XML
         async function loadCountries() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/loaded.xml');
+                const response = await fetch('../assets/loaded.xml');
                 const text = await response.text();
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(text, "text/xml");
