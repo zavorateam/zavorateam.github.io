@@ -1,0 +1,59 @@
+<!DOCTYPE ZTMF>
+<meta>
+title = "Zavorateam Website"
+icon = "../assets/favicon.svg"
+style = "../assets/common_styles.css"
+rmb_menu = False
+type = "main"
+style {
+    <style>
+        :root {
+            --text-color: #f0f0f0;
+            --green-main: #2e8b57;
+            --green-hover: #36a36d;
+            --glass-bg: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.08);
+            --glass-shadow: rgba(0,0,0,0.35);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: rgb(100, 100, 100);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas { position: fixed; top:0; left:0; z-index:-1; display:block; }
+        span:hover { background-color:var(--green-hover); transform: translateY(-2px); box-shadow:0 6px 8px rgba(0,0,0,0.3); }
+        a.btn { text-decoration:none; font-size:15px; color: #fff; display:block; width:100%; height:100%; line-height:1.2; }
+        .ztmf-theme-toggle { padding:6px 10px; border-radius:6px; }
+        .dark-theme { filter: brightness(0.9) hue-rotate(10deg); }
+    </style>
+}
+</meta>
+<body>
+cont {
+    center[
+        <h1>zavorateam.github.io</h1>
+        <h2>Главная страница</h2>
+    ],
+    <br>
+    grid[
+    <span><a class="btn" href="./caleidoskopus.html">Калидоскопод</a></span>
+    <span><a class="btn" href="./electrichki.html">Табло Электричек</a></span>
+    <span><a class="btn" href="./timeline.html">Линейка Победы</a></span>
+    <span><a class="btn" href="./markdown.html">Markdown в HTML + стили</a></span>
+    <span><a class="btn" href="./index.html?file=anycraft.ztmf">Форматтер/Эникрафт</a></span>
+    <span><a class="btn" href="./index.html?file=mod.ztmf">BezmatMOD ZavoraMOD</a></span>
+    <span><a class="btn" href="./bible.html">Paranoid's Bible RUS</a></span>
+    <span><a class="btn" href="./index.html?file=menu.ztmf">Обучалка</a></span>
+    <span><a class="btn" href="./index.html?file=boring.ztmf">Boring / Misc</a></span>
+    <span><a class="btn" href="./index.html?file=accums.ztmf">Гайд по аккумам</a></span>
+    <span><a class="btn" href="https://www.figma.com/make/et9yvcY3OUVLduTbrzVz0L/3D-Music-Visualizer-Project?fullscreen=1">Музыка в 3Д пространстве</a></span>
+    <h6 style="margin-top: 19px;height: 0px;">Thanks to <a href="https://alexgyver.github.io/alexgyver.github.io">AlexGyver</a></h6>
+    ]
+}
+components = bg {<canvas bg="cubic" width="1920" height="1080"></canvas>}, theme {bottom-right}
+</body>

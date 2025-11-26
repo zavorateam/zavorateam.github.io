@@ -1,0 +1,534 @@
+<!DOCTYPE ZTMF>
+<meta>
+title = "Аккумуляторы"
+icon = "../assets/favicon.svg"
+rmb_menu = True
+type = "blocky"
+style {
+    <style>
+    :root {
+
+        /* Базовый цветовой тон (210 - это прохладный синий/серый) */
+        --hue: 210;
+        --sat: 25%;
+        
+        /* Уровень яркости для СВЕТЛОЙ темы */
+        --l-page: 96%;  /* Очень светло-серый фон */
+        --l-step: 4%;   /* На сколько % карточка ярче фона */
+        /* Основная палитра (Светлая тема) */
+        --primary: #0085FF;        /* Яркий современный синий */
+        --primary-hover: #0066CC;
+        --secondary: #00C6FF;      /* Голубой градиент */
+        
+        --bg-page: hsl(var(--hue), var(--sat), var(--l-page));
+        --card-bg: hsl(var(--base-h), var(--base-s), clamp(0%, calc(var(--bg-l) + var(--card-l-delta)), 100%));
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) - 2%));
+
+        --text-main: #1A1D21;      /* Почти черный для текста */
+        --text-muted: #6B7280;     /* Серый для описаний */
+        
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+    }
+
+    /* Тёмная тема (активируется классом .dark-mode на body) */
+    body.dark-mode {
+        --hue: 220;
+        --sat: 20%;
+    
+        /* Уровень яркости для ТЁМНОЙ темы */
+        --l-page: 10%;  /* Глубокий темный фон */
+        --l-step: 5%;   /* Карточки на 5% светлее фона */
+
+        /* Переопределяем текст и тени */
+        --text-main: #E2E8F0;
+        --text-muted: #94A3B8;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    
+        /* В темной теме bg-element должен быть светлее карточки для hover эффектов */
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) + var(--l-step) + 5%));
+        --card-l-delta: 5%;
+        --bg-page: #0F1115;
+        --bg-card: #181B21;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Стили таблицы */
+    .table-container {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 0rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        min-width: fit-content;
+        display: block !important;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        min-width: 800px;
+    }
+
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    th {
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+
+    tr:hover {
+        background: rgba(21, 87, 153, 0.1);
+    }
+
+
+    /* 1. Глобальный сброс и типографика */
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* 2. Структура приложения */
+    .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1280px; /* Широкий контейнер для современных экранов */
+        margin: 0 auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+    }
+
+    /* 3. Хедер */
+    .header {
+        text-align: center;
+        padding: 60px 20px 40px;
+        margin-bottom: 20px;
+    }
+
+    .header .logo {
+        width: 100px;
+        height: auto;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .header .logo:hover {
+        transform: scale(1.05) rotate(-3deg);
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
+    }
+
+    .header .project-tagline {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* 4. Секции и Меню */
+    .menu {
+        display: flex;
+        flex-direction: column;
+        gap: 48px; /* Отступ между крупными блоками */
+        padding-bottom: 60px;
+    }
+
+    .section {
+        width: 100%;
+    }
+
+    .section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-left: 12px;
+        border-left: 4px solid var(--primary);
+        color: var(--text-main);
+    }
+
+    /* 5. Карточки (Flex для верхнего ряда) */
+    .flex {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    /* .quadro - Основные большие карточки */
+    .quadro {
+        flex: 1;
+        min-width: 300px; /* Чтобы не сжимались слишком сильно */
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: grid;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid rgba(0,0,0,0.03);
+        width: fit-content;
+    }
+
+    /* Цветная полоска сверху для .quadro */
+    .quadro::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        opacity: 0.8;
+    }
+
+    .quadro:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        font-weight: 900;
+    }
+
+    .quadro h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        border: none;
+        padding: 0;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .quadro p {
+        color: var(--text-muted);
+        margin-bottom: 24px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    /* 6. Сетка для библиотек (.cards + .fit) */
+    .cards {
+        display: block;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    /* .fit - Маленькие карточки */
+    .fit {
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+
+    .fit:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: rgba(var(--primary), 0.2);
+        font-weight: 900;
+    }
+
+    .fit h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        color: var(--text-main);
+    }
+
+    .fit p {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin: 0 0 16px 0;
+        line-height: 1.4;
+    }
+
+    /* 7. Списки уроков (.lesson-list) */
+    .lesson-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    .lib-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    a.btn {
+        min-height: 1.5em;
+        text-justify: center;
+        background-color: var(--card-bg)
+    }
+
+    .lesson-list li a {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-main);
+        font-weight: 500;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .lesson-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        font-weight: 900;
+    }
+
+    .lib-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    .lesson-list li:hover {
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    /* 8. Кнопки и Ссылки */
+    .btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        background: var(--bg-element);
+        color: var(--primary);
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .fit a {
+        color: var(--primary);
+        font-size: 0.9rem;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .fit a:hover {
+        text-decoration: underline;
+    }
+
+    /* 9. Футер */
+    .footer {
+        margin-top: auto;
+        padding: 40px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .footer .section {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: var(--bg-card);
+        border-radius: 50px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .social-btn img {
+        margin-right: 8px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: var(--bg-element);
+    }
+
+    /* 10. Адаптивность для мобильных */
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            padding: 0 16px;
+        }
+        
+        .flex {
+            flex-direction: column; /* Карточки сверху становятся вертикальными */
+        }
+        
+        .quadro {
+            min-width: auto;
+        }
+
+        .lesson-list {
+            grid-template-columns: 1fr; /* Список в одну колонку */
+        }
+
+        .footer .section {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .social-btn {
+            width: 100%;
+            max-width: 280px;
+            justify-content: center;
+        }
+    }
+    </style>
+}
+</meta>
+<body>
+    header{
+        <img src="https://alexgyver.ru/wp-content/uploads/2020/12/favicon128_opt.svg" alt="AlexGyver Logo" class="logo">
+        <h1>Уроки Ардуино и программирования</h1>
+        <p class="project-tagline">Интерактивные уроки для начинающих</p>
+    },
+    menu{  
+        section{
+            <h2>Что такое высокотоковый аккумулятор?</h2>
+            <p>Высокотоковый аккумулятор — это литий-ионный элемент питания (обычно формата 18650, 20700 или 21700), способный безопасно отдавать большой ток, измеряемый в амперах (А), на протяжении всего цикла разряда. Основной параметр — <strong>ток непрерывного разряда (CDR, Continuous Discharge Rate)</strong>, который указывает, какой максимальный ток может отдать аккумулятор без перегрева и преждевременного выхода из строя. Для мощной электроники и вейпинга всегда используйте аккумуляторы с CDR от 20А и выше от проверенных брендов.</p>
+        },
+        section{
+            <h2>Рекомендации по использованию</h2>
+            <ul class="lesson-list">
+                <li class="quadro"><strong>Правильное хранение:</strong> Храните аккумуляторы в защитных кейсах, избегайте контакта с металлическими предметами.</li>
+                <li class="quadro"><strong>Зарядка:</strong> Используйте только качественные зарядные устройства с контролем тока и напряжения.</li>
+                <li class="quadro"><strong>Температурный режим:</strong> Избегайте перегрева и переохлаждения аккумуляторов.</li>
+                <li class="quadro"><strong>Совместимость:</strong> Используйте только аккумуляторы, рекомендованные производителем устройства.</li>
+                <li class="quadro"><strong>Регулярная проверка:</strong> Проверяйте целостность изоляции и состояние контактов.</li>
+                <li class="quadro"><strong>Утилизация:</strong> Сдавайте отработанные аккумуляторы в специальные пункты приема.</li>
+            </ul>
+        },
+        section{
+            <h2>Таблицы совместимости</h2>
+            flex{
+                quadro{
+                    <h3>Популярные аккумуляторы 18650</h3>
+                    <a href="#samsung" class="btn">Samsung 25R (2500 мАч, 20А)</a>
+                    <a href="#sony" class="btn">Sony VTC5A (2500 мАч, 25А)</a>
+                    <a href="#lg" class="btn">LG HG2 (3000 мАч, 20А)</a>
+                    <a href="#molicel" class="btn">Molicel P26A (2600 мАч, 25А)</a>
+                    <a href="#sanyo" class="btn">Sanyo NCR18650GA (3500 мАч, 10А)</a>
+                },
+                quadro{
+                    <h3>Популярные аккумуляторы 21700</h3>
+                    <a href="#samsung21700" class="btn">Samsung 40T (4000 мАч, 35А)</a>
+                    <a href="#molicel21700" class="btn">Molicel P42A (4200 мАч, 30А)</a>
+                    <a href="#golisi21700" class="btn">Golisi S35 (3500 мАч, 35А)</a>
+                    <a href="#eve21700" class="btn">EVE 21700 (4000 мАч, 30А)</a>
+                },
+                quadro{
+                    <h3>Популярные аккумуляторы 20700</h3>
+                    <a href="#sanyo20700" class="btn">Sanyo NCR20700A (3100 мАч, 30А)</a>
+                    <a href="#ijoy20700" class="btn">iJoy 20700 (3000 мАч, 30А)</a>
+                    <a href="#vapcell20700" class="btn">Vapcell 20700 (3000 мАч, 30А)</a>
+                }
+            },
+        },
+        section{
+            <h2>Рекомендации по выбору</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Устройство</th>
+                            <th>Рекомендуемый тип</th>
+                            <th>Ток разряда (CDR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Механические моды</td>
+                            <td>Высокотоковые 21700 / 20700</td>
+                            <td>30А+</td>
+                        </tr>
+                        <tr>
+                            <td>Регулируемые моды (до 80Вт)</td>
+                            <td>Высокотоковые 18650</td>
+                            <td>20А+</td>
+                        </tr>
+                        <tr>
+                            <td>Регулируемые моды (100Вт+)</td>
+                            <td>Высокотоковые 21700</td>
+                            <td>25А+</td>
+                        </tr>
+                        <tr>
+                            <td>Серъёзные системы</td>
+                            <td>Среднетоковые 18650</td>
+                            <td>10-15А</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    },
+    footer {
+        section{
+            <a href="https://t.me/alexgyver" class="social-btn" target="_blank"><img src="../index_files/t_logo_2x.png" alt="Telegram" width="24" height="24">Telegram</a>
+            <a href="https://www.youtube.com/c/AlexGyver" class="social-btn" target="_blank"><img src="../index_files/favicon-32x32.png" alt="YouTube" width="24" height="24">YouTube</a>
+            <a href="https://rutube.ru/channel/26330627/" class="social-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Rutube_icon.svg" alt="RuTube" width="24" height="24">RuTube</a>
+        }
+    }
+    components = bg {color: var(--bg-color)}, theme {top-right}, back {top-left, index.html}
+</body>

@@ -1,110 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markdown Style Merger</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown to Html</title>
+  <link rel="icon" href="../assets/favicon.svg">
+  <!-- CodeMirror for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/markdown/markdown.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
 
-<!-- CodeMirror for syntax highlighting -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
-<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/markdown/markdown.min.js"></script>
+    body {
+      margin: 0;
+      background: #121212;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-<style>
-  :root { color-scheme: dark; }
+    #main { flex: 1; display: flex; overflow: hidden; }
 
-  body {
-    margin: 0;
-    background: #121212;
-    color: #eee;
-    font-family: system-ui, sans-serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+    .CodeMirror {
+      width: 35%;
+      height: 100%;
+      background: #181818;
+      color: white;
+      border-right: 1px solid #333;
+      font-family: monospace;
+    }
 
-  #main { flex: 1; display: flex; overflow: hidden; }
+      .CodeMirror-gutter, .CodeMirror-gutters, .CodeMirror-linenumber, .CodeMirror-scroll, .CodeMirror-size {
+      color: white;
+      background: #181818;   
+    }
 
-  .CodeMirror {
-    width: 35%;
-    height: 100%;
-    background: #181818;
-    color: white;
-    border-right: 1px solid #333;
-    font-family: monospace;
-  }
+    iframe {
+      flex: 1;
+      border: none;
+      background: #fff;
+    }
 
-    .CodeMirror-gutter, .CodeMirror-gutters, .CodeMirror-linenumber, .CodeMirror-scroll, .CodeMirror-size {
-    color: white;
-    background: #181818;   
-  }
+    #side {
+      width: 22%;
+      background: #1b1b1b;
+      border-left: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-  iframe {
-    flex: 1;
-    border: none;
-    background: #fff;
-  }
+    #controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
 
-  #side {
-    width: 22%;
-    background: #1b1b1b;
-    border-left: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+    #styleUrl, #htmlInput {
+      width: 100%;
+      background: #202020;
+      color: #eee;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 6px;
+      font-size: 14px;
+    }
 
-  #controls {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-  }
+    #htmlInput {
+      height: 140px;
+      resize: none;
+      font-family: monospace;
+    }
 
-  #styleUrl, #htmlInput {
-    width: 100%;
-    background: #202020;
-    color: #eee;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 6px;
-    font-size: 14px;
-  }
+    button {
+      background: #292929;
+      border: 1px solid #444;
+      color: #eee;
+      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
 
-  #htmlInput {
-    height: 140px;
-    resize: none;
-    font-family: monospace;
-  }
+    button:hover { background: #333; }
 
-  button {
-    background: #292929;
-    border: 1px solid #444;
-    color: #eee;
-    cursor: pointer;
-    padding: 8px 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    transition: 0.2s;
-  }
+    #status {
+      font-size: 13px;
+      padding: 10px;
+      color: #aaa;
+      border-top: 1px solid #333;
+      background: #141414;
+      word-wrap: break-word;
+    }
 
-  button:hover { background: #333; }
-
-  #status {
-    font-size: 13px;
-    padding: 10px;
-    color: #aaa;
-    border-top: 1px solid #333;
-    background: #141414;
-    word-wrap: break-word;
-  }
-
-  .divider {
-    height: 1px;
-    background: #333;
-    margin: 10px 0;
-  }
-</style>
+    .divider {
+      height: 1px;
+      background: #333;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
 <div id="main">

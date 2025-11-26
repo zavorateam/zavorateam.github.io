@@ -1,0 +1,649 @@
+<!DOCTYPE ZTMF>
+<meta>
+title = "BezmatMOD / ZavoraMOD"
+icon = "../assets/favicon.svg"
+rmb_menu = True
+type = "blocky"
+style {
+    <style>
+    :root {
+
+        /* Базовый цветовой тон (210 - это прохладный синий/серый) */
+        --hue: 210;
+        --sat: 25%;
+        
+        /* Уровень яркости для СВЕТЛОЙ темы */
+        --l-page: 96%;  /* Очень светло-серый фон */
+        --l-step: 4%;   /* На сколько % карточка ярче фона */
+        /* Основная палитра (Светлая тема) */
+        --primary: #0085FF;        /* Яркий современный синий */
+        --primary-hover: #0066CC;
+        --secondary: #00C6FF;      /* Голубой градиент */
+        
+        --bg-page: hsl(var(--hue), var(--sat), var(--l-page));
+        --card-bg: hsl(var(--base-h), var(--base-s), clamp(0%, calc(var(--bg-l) + var(--card-l-delta)), 100%));
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) - 2%));
+
+        --text-main: #1A1D21;      /* Почти черный для текста */
+        --text-muted: #6B7280;     /* Серый для описаний */
+        
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+    }
+
+    /* Тёмная тема (активируется классом .dark-mode на body) */
+    body.dark-mode {
+        --hue: 220;
+        --sat: 20%;
+    
+        /* Уровень яркости для ТЁМНОЙ темы */
+        --l-page: 10%;  /* Глубокий темный фон */
+        --l-step: 5%;   /* Карточки на 5% светлее фона */
+
+        /* Переопределяем текст и тени */
+        --text-main: #E2E8F0;
+        --text-muted: #94A3B8;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    
+        /* В темной теме bg-element должен быть светлее карточки для hover эффектов */
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) + var(--l-step) + 5%));
+        --card-l-delta: 5%;
+        --bg-page: #0F1115;
+        --bg-card: #181B21;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Стили таблицы */
+    .table-container {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 0rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        min-width: fit-content;
+        display: block !important;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        min-width: 800px;
+    }
+
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    th {
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+
+    tr:hover {
+        background: rgba(21, 87, 153, 0.1);
+    }
+
+
+    /* 1. Глобальный сброс и типографика */
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* 2. Структура приложения */
+    .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1280px; /* Широкий контейнер для современных экранов */
+        margin: 0 auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+    }
+
+    /* 3. Хедер */
+    .header {
+        text-align: center;
+        padding: 60px 20px 40px;
+        margin-bottom: 20px;
+    }
+
+    .header .logo {
+        width: 100px;
+        height: auto;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .header .logo:hover {
+        transform: scale(1.05) rotate(-3deg);
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
+    }
+
+    .header .project-tagline {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* 4. Секции и Меню */
+    .menu {
+        display: flex;
+        flex-direction: column;
+        gap: 48px; /* Отступ между крупными блоками */
+        padding-bottom: 60px;
+    }
+
+    .section {
+        width: 100%;
+    }
+
+    .section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-left: 12px;
+        border-left: 4px solid var(--primary);
+        color: var(--text-main);
+    }
+
+    /* 5. Карточки (Flex для верхнего ряда) */
+    .flex {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    /* .quadro - Основные большие карточки */
+    .quadro {
+        flex: 1;
+        min-width: 300px; /* Чтобы не сжимались слишком сильно */
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: grid;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid rgba(0,0,0,0.03);
+        width: fit-content;
+    }
+
+    /* Цветная полоска сверху для .quadro */
+    .quadro::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        opacity: 0.8;
+    }
+
+    .quadro:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        font-weight: 900;
+    }
+
+    .quadro h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        border: none;
+        padding: 0;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .quadro p {
+        color: var(--text-muted);
+        margin-bottom: 24px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    /* 6. Сетка для библиотек (.cards + .fit) */
+    .cards {
+        display: block;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    /* .fit - Маленькие карточки */
+    .fit {
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+
+    .fit:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: rgba(var(--primary), 0.2);
+        font-weight: 900;
+    }
+
+    .fit h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        color: var(--text-main);
+    }
+
+    .fit p {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin: 0 0 16px 0;
+        line-height: 1.4;
+    }
+
+    /* 7. Списки уроков (.lesson-list) */
+    .lesson-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    .lib-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    a.btn {
+        min-height: 1.6em;
+        text-justify: center;
+        background-color: var(--card-bg)
+        width: auto;
+        color: var(--text-secondary);
+    }
+
+    .lesson-list li a {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-main);
+        font-weight: 500;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .lesson-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        font-weight: 900;
+    }
+
+    .lib-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    .lesson-list li:hover {
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    /* 8. Кнопки и Ссылки */
+    .btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        background: var(--bg-element);
+        color: var(--primary);
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .fit a {
+        color: var(--primary);
+        font-size: 0.9rem;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .fit a:hover {
+        text-decoration: underline;
+    }
+
+    /* 9. Футер */
+    .footer {
+        margin-top: auto;
+        padding: 40px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .footer .section {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: var(--bg-card);
+        border-radius: 50px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .social-btn img {
+        margin-right: 8px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: var(--bg-element);
+    }
+
+    span {
+        display: revert !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 10. Адаптивность для мобильных */
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            padding: 0 16px;
+        }
+        
+        .flex {
+            flex-direction: column; /* Карточки сверху становятся вертикальными */
+        }
+        
+        .quadro {
+            min-width: auto;
+        }
+
+        .lesson-list {
+            grid-template-columns: 1fr; /* Список в одну колонку */
+        }
+
+        .footer .section {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .social-btn {
+            width: 100%;
+            max-width: 280px;
+            justify-content: center;
+        }
+    }
+    </style>
+}
+</meta>
+<body>
+    header{
+        <h1>BezmatMOD / ZavoraMOD</h1>
+        <p class="project-tagline">Самодельный вейп-боксмод варивольт, Rev1 и Rev2</p>
+        <br>
+        <div style="display: flex; gap: 15px;">
+            <a href="https://github.com/zavorateam/BezmatMOD" class ="btn">Посмотреть на Github</a>
+            <a href="https://gitverse.ru/zavorateam/BezmatMOD.ZavoraMOD" class ="btn">Посмотреть на GitVerse</a>
+            <a href="https://github.com/zavorateam/BezmatMOD/archive/refs/heads/master.zip" class ="btn">Скачать исходный код</a>
+        </div>
+    },
+    menu{
+        section{
+            <h2 style="color: #FF6347;">ВНИМАНИЕ!</h2>
+            <p><strong>Самодельный мод – это устройство повышенной опасности, особенно при использовании высокотоковых аккумуляторов.</strong> При работе с механическими модами (мехмодами) нужно чётко знать, что вы делаете. Вся ответственность за сборку, использование и возможные последствия лежит только на вас!</p>
+        },
+        section{
+            <h2>Возможности</h2>
+            <h3>V1 BezmatMOD (GyverMOD)</h3>
+            <ul>
+                <li>Варивольт, вариватт, ручной ввод сопротивления, транзистор управляется при помощи ШИМ сигнала.</li>
+                <li>Измерение и отображение напряжения на аккумуляторе с точностью до 0.02 Вольта.</li>
+                <li>Отсечка по минимальному напряжению (защита от переразряда).</li>
+                <li>При разряженном аккумуляторе на дисплей будет выведено – – – 0. </li>
+                <li>Турбо режим, уход в режим сверхнизкого энергопотребления, 5 нажатий для вывода из сна, 3 нажатия для ввода в сон, автоотключение</li>
+            </ul>
+            <h3>V2 ZavoraMOD</h3>
+            <ul>
+                <li>Управление OLED экраном: меню, режим ожидания, анимации</li>
+                <li>Запрет на затяжку при зарядке акб, индикация подключенной зарядки на дисплее, индикация заряда батареи, индикация о разряде аккумулятора </li>
+                <li>Кликание зажатием кнопки, теперь не нужно 1000 раз нажимать кнопку</li>
+                <li>Подсчёт общего времени курения в формате H:M:S</li>
+                <li>Время последней затяжки</li>
+                <li>Игра flappyBird</li>
+            </ul>
+        },
+        section{
+            <h2>Версии | структура</h2>
+            <p><strong>MOD_libs</strong> - папка с бибилиотеками. Так же предусмотрена установка из встроенного менеджера библиотек</p>
+            <p><strong>ZavoraMOD_v._2_OLED</strong> - папка с бибилиотеками. Так же предусмотрена установка из встроенного менеджера библиотек. Даже библиотека OLED дисплея.</p>
+            <p><strong>GyverMOD_v._1.2.10_DISP</strong> - папка с прошивкой для дисплея на TM74HC595</p>
+            <p><strong>ZavoraMOD_v._2_OLED</strong> - папка с прошивкой для OLED дисплея</p>
+            <p><strong>images</strong> - рендеры 3D модели, компоновка</p>
+            <p>Библиотка экрана устанавливается корректно <strong>ТОЛЬКО ВРУЧНУЮ!</strong></p>
+            <p>ПУТЬ к папке со скетчем НЕ ДОЛЖЕН СОДЕРЖАТЬ РУССКИХ СИМВОЛОВ! Во избежание пробле ПОЛОЖИТЕ ПАПКУ В КОРЕНЬ ДИСКА С.</p>
+            <h2 style="color: #FF6347;">ВНИМАНИЕ!</h2>
+            <p><strong>Разработка проекта временно приостановлена.</strong> Информация на этой странице актуальна непосредственно для последней версии прошивки на gitverse! Используйте документации оригинальных авторов для обновлений.</p>
+        },
+        section{
+            <h2>Прошивка</h2>
+            <div class="language-cpp highlighter-rouge">
+                <div class="highlight">
+                    <pre class="highlight">    
+                        <code>
+                            <span class="c1">//------------------------------НАСТРОЙКИ------------------------------</span>
+                            #define <span class="nf">initial_calibration</span> <span class="no">0</span>  <span class="c1">// калибровка вольтметра 1 - включить, 0 - выключить</span>
+                            #define <span class="nf">welcome</span> <span class="no">1</span>              <span class="c1">// приветствие (слова ZAVR VAPE при включении), 1 - включить, 0 - выключить</span>
+                            #define <span class="nf">battery_info</span> <span class="no">0</span>         <span class="c1">// отображение напряжения аккумулятора при запуске, 1 - включить, 0 - выключить</span>
+                            #define <span class="nf">sleep_timer</span> <span class="no">10</span>         <span class="c1">// таймер сна в секундах</span>
+                            #define <span class="nf">vape_threshold</span> <span class="no">6</span>       <span class="c1">// отсечка затяжки, в секундах</span>
+                            #define <span class="nf">turbo_mode</span> <span class="no">0</span>           <span class="c1">// турбо режим 1 - включить, 0 - выключить</span>
+                            #define <span class="nf">battery_percent</span> <span class="no">1</span>      <span class="c1">// отображать заряд в процентах, 1 - включить, 0 - выключить</span>
+                            #define <span class="nf">battery_low</span> <span class="no">2.5</span>        <span class="c1">// нижний порог срабатывания защиты от переразрядки аккумулятора, в Вольтах!</span>
+                            <span class="c1">//------------------------------НАСТРОЙКИ------------------------------</span>
+                        </code>
+                    </pre>
+                </div>
+            </div>
+            <h4>Статья первые шаги с Arduino ► <a href="http://alexgyver.ru/arduino-first/">http://alexgyver.ru/arduino-first/</a></h4>
+        },
+        section{
+            <h2 style="margin-top: 30px;">Составные части</h2>
+            <div class="table-container">
+                <table>
+                <thead>
+                    <tr>
+                    <th style="text-align: left">Наименование</th>
+                    <th style="text-align: center">Ссылка</th>
+                    <th style="text-align: left">Цена, руб.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td style="text-align: left">Корпус</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=6IRzG48">https://ali.ski/jsKC7u</a></td>
+                    <td style="text-align: left">190</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Плата</td>
+                    <td style="text-align: left">Заказ у меня</td>
+                    <td style="text-align: left">260</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Дисплей</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=RWRzGXy">https://ali.ski/GFfuDU</a></td>
+                    <td style="text-align: left">Ждем пополнения</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Кнопки тактовые</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1Zco">https://www.chipdip.ru/product/tyco-2-1825910-7-fsm14jh</a></td>
+                    <td style="text-align: left">12</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Кнопка премиальная</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeK">https://www.chipdip.ru/product/tyco-1437565-5-fsm103</a></td>
+                    <td style="text-align: left">45</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Колпачок</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeL">https://www.chipdip.ru/product/swt-9r-r</a></td>
+                    <td style="text-align: left">7</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Arduino Nano</td>
+                    <td style="text-align: left"><a href="https://ali.ski/ExsaD">https://ali.ski/ExsaD</a></td>
+                    <td style="text-align: left">300</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Холдер</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=8m0zGg6">https://ali.ski/DNvLlV</a></td>
+                    <td style="text-align: left">100</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Зарядник</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=rZQzGc8">https://ali.ski/8bsyr</a></td>
+                    <td style="text-align: left">150</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Выключатель жесткий</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeN">https://www.chipdip.ru/product/smrs-102-1c2</a></td>
+                    <td style="text-align: left">45</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Мосфет мощный</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeP">https://www.chipdip.ru/product/irlb3034pbf</a></td>
+                    <td style="text-align: left">480</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Резистор 10 кОм</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeQ">https://www.chipdip.ru/product/mf-25-s2-23-0.25w-10-kom-1</a></td>
+                    <td style="text-align: left">14 (мин.)</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Резистор 100 Ом</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1ZeR">https://www.chipdip.ru/product0/47324</a></td>
+                    <td style="text-align: left">14 (мин.)</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Провод толстый</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=FCQzGZk">https://ali.ski/fmndX</a></td>
+                    <td style="text-align: left">70</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Аккум SONY VTC4</td>
+                    <td style="text-align: left"><a href="https://sl.aliexpress.ru/p?key=I4QzG08">https://ali.ski/rLbZi</a></td>
+                    <td style="text-align: left">550</td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Другие аккумы</td>
+                    <td style="text-align: left"><a href="https://zavorateam.github.io/accums.html">https://alexgyver.ru/18650/</a></td>
+                    <td style="text-align: left"> - </td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">510 Коннектор (искать)</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1Zej">https://ali.ski/u6grk</a></td>
+                    <td style="text-align: left"> - </td>
+                    </tr>    
+                    <tr>
+                    <td style="text-align: left">Электроника</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1Zek">https://alexgyver.ru/electronics/</a></td>
+                    <td style="text-align: left"> - </td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left">Всё для пайки</td>
+                    <td style="text-align: left"><a href="https://ify.ac/1Zel">https://alexgyver.ru/all-for-soldering/</a></td>
+                    <td style="text-align: left"> - </td>
+                    </tr>
+                    <tr>
+                    <td style="text-align: left"><strong>ВСЕГО</strong></td>
+                    <td style="text-align: left"></td>
+                    <td style="text-align: left"> ~3000 </td>
+                    </tr>
+                </tbody>
+                    </table>
+            </div>
+            <div style="margin-top: 30px; padding: 15px; background: var(--bg-element); border-radius: var(--radius-md);">
+                <h6 style="text-align: center; color: var(--text-muted); margin: 0;">
+                    В таблице выше некоторые ссылки ведут на переадресацию. Я заработаю с этого денег для того чтобы продолжить работу. Если вы по какой-то причине не хотите ждать или сокращённая ссылка не работает, вместо ссылки скопируйте текст ссылки.
+                </h6>
+            </div>
+        }
+    },
+    footer {
+        section{
+            <a href="https://t.me/alexgyver" class="social-btn" target="_blank"><img src="../index_files/t_logo_2x.png" alt="Telegram" width="24" height="24">Telegram</a>
+            <a href="https://www.youtube.com/c/AlexGyver" class="social-btn" target="_blank"><img src="../index_files/favicon-32x32.png" alt="YouTube" width="24" height="24">YouTube</a>
+            <a href="https://rutube.ru/channel/26330627/" class="social-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Rutube_icon.svg" alt="RuTube" width="24" height="24">RuTube</a>
+        }
+    }
+    components = bg {color: var(--bg-color)}, theme {top-right}, back {top-left, index.html}
+</body>

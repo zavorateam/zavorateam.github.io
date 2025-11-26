@@ -1,0 +1,473 @@
+<!DOCTYPE ZTMF>
+<meta>
+title = "Текстовод"
+icon = "../assets/favicon.svg"
+style = "../assets/common_styles.css"
+rmb_menu = False
+type = "blocky"
+style {
+    <style>
+    :root {
+
+        /* Базовый цветовой тон (210 - это прохладный синий/серый) */
+        --hue: 210;
+        --sat: 25%;
+        
+        /* Уровень яркости для СВЕТЛОЙ темы */
+        --l-page: 96%;  /* Очень светло-серый фон */
+        --l-step: 4%;   /* На сколько % карточка ярче фона */
+        /* Основная палитра (Светлая тема) */
+        --primary: #0085FF;        /* Яркий современный синий */
+        --primary-hover: #0066CC;
+        --secondary: #00C6FF;      /* Голубой градиент */
+        
+        --bg-page: hsl(var(--hue), var(--sat), var(--l-page));
+        --card-bg: hsl(var(--base-h), var(--base-s), clamp(0%, calc(var(--bg-l) + var(--card-l-delta)), 100%));
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) - 2%));
+
+        --text-main: #1A1D21;      /* Почти черный для текста */
+        --text-muted: #6B7280;     /* Серый для описаний */
+        
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+    }
+
+    /* Тёмная тема (активируется классом .dark-mode на body) */
+    body.dark-mode {
+        --hue: 220;
+        --sat: 20%;
+    
+        /* Уровень яркости для ТЁМНОЙ темы */
+        --l-page: 10%;  /* Глубокий темный фон */
+        --l-step: 5%;   /* Карточки на 5% светлее фона */
+
+        /* Переопределяем текст и тени */
+        --text-main: #E2E8F0;
+        --text-muted: #94A3B8;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    
+        /* В темной теме bg-element должен быть светлее карточки для hover эффектов */
+        --bg-element: hsl(var(--hue), var(--sat), calc(var(--l-page) + var(--l-step) + 5%));
+        --card-l-delta: 5%;
+        --bg-page: #0F1115;
+        --bg-card: #181B21;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 1. Глобальный сброс и типографика */
+    body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* 2. Структура приложения */
+    .app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1280px; /* Широкий контейнер для современных экранов */
+        margin: 0 auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+    }
+
+    /* 3. Хедер */
+    .header {
+        text-align: center;
+        padding: 60px 20px 40px;
+        margin-bottom: 20px;
+    }
+
+    .header .logo {
+        width: 100px;
+        height: auto;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .header .logo:hover {
+        transform: scale(1.05) rotate(-3deg);
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
+    }
+
+    .header .project-tagline {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* 4. Секции и Меню */
+    .menu {
+        display: flex;
+        flex-direction: column;
+        gap: 48px; /* Отступ между крупными блоками */
+        padding-bottom: 60px;
+    }
+
+    .section {
+        width: 100%;
+    }
+
+    .section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-left: 12px;
+        border-left: 4px solid var(--primary);
+        color: var(--text-main);
+    }
+
+    /* 5. Карточки (Flex для верхнего ряда) */
+    .flex {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    /* .quadro - Основные большие карточки */
+    .quadro {
+        flex: 1;
+        min-width: 300px; /* Чтобы не сжимались слишком сильно */
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: grid;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid rgba(0,0,0,0.03);
+        width: fit-content;
+    }
+
+    /* Цветная полоска сверху для .quadro */
+    .quadro::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        opacity: 0.8;
+    }
+
+    .quadro:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        font-weight: 900;
+    }
+
+    .quadro h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        border: none;
+        padding: 0;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .quadro p {
+        color: var(--text-muted);
+        margin-bottom: 24px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    /* 6. Сетка для библиотек (.cards + .fit) */
+    .cards {
+        display: block;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    /* .fit - Маленькие карточки */
+    .fit {
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+
+    .fit:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: rgba(var(--primary), 0.2);
+        font-weight: 900;
+    }
+
+    .fit h3 {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        color: var(--text-main);
+    }
+
+    .fit p {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin: 0 0 16px 0;
+        line-height: 1.4;
+    }
+
+    /* 7. Списки уроков (.lesson-list) */
+    .lesson-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    .lib-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Умная сетка для списка */
+        gap: 12px;
+    }
+
+    a.btn {
+        min-height: 1.5em;
+        text-justify: center;
+        background-color: var(--card-bg)
+    }
+
+    .lesson-list li a {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-main);
+        font-weight: 500;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+
+    }
+
+    .lesson-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        font-weight: 900;
+    }
+
+    .lib-list li a:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    .lesson-list li:hover {
+        border-color: rgba(var(--primary), 0.2);
+    }
+
+    /* 8. Кнопки и Ссылки */
+    .btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        background: var(--bg-element);
+        color: var(--primary);
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .fit a {
+        color: var(--primary);
+        font-size: 0.9rem;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .fit a:hover {
+        text-decoration: underline;
+    }
+
+    /* 9. Футер */
+    .footer {
+        margin-top: auto;
+        padding: 40px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .footer .section {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: var(--bg-card);
+        border-radius: 50px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+    }
+
+    .social-btn img {
+        margin-right: 8px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: var(--bg-element);
+    }
+
+    /* 10. Адаптивность для мобильных */
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            padding: 0 16px;
+        }
+        
+        .flex {
+            flex-direction: column; /* Карточки сверху становятся вертикальными */
+        }
+        
+        .quadro {
+            min-width: auto;
+        }
+
+        .lesson-list {
+            grid-template-columns: 1fr; /* Список в одну колонку */
+        }
+
+        .footer .section {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .social-btn {
+            width: 100%;
+            max-width: 280px;
+            justify-content: center;
+        }
+    }
+    </style>
+}
+</meta>
+<body>
+    header{
+        <img src="https://textovod.com/favicon.svg" alt="Textovod Logo" class="logo">
+        <h1>Текстовод</h1>
+        <p class="project-tagline">Онлайн-сервисы для работы с текстом</p>
+    },
+    menu{
+        cards[
+            section{
+                flex{
+                    quadro{
+                        <h2>Проверка уникальности текста</h2>
+                        <p>Оценка уровня оригинальноти и определение процента заимствований.</p>
+                        <a href="https://textovod.com/unique" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Проверка орфографии</h2>
+                        <p>Обнаруживает орфографические, грамматические и пунктуационные ошибки.</p>
+                        <a href="https://textovod.com/spelling" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Синонимайзер</h2>
+                        <p>Подбирает синонимы с учётом контекста.</p>
+                        <a href="https://textovod.com/synonymizer" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Спеллер</h2>
+                        <p>Создаёт слова из заданного набора букв на русском языке.</p>
+                        <a href="https://textovod.com/LetterWord" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Вставить пропущенные буквы</h2>
+                        <p>Вместо нужной буквы ставьте точку, сервис восстановит слово.</p>
+                        <a href="https://textovod.com/missingLetter" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Синтаксический разбор</h2>
+                        <p>Автоматический синтаксический разбор предложения с характеристикой.</p>
+                        <a href="https://textovod.com/syntax" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Части речи</h2>
+                        <p>Определение и указание частей речи в предложении.</p>
+                        <a href="https://textovod.com/part_speech" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Найти и заменить</h2>
+                        <p>Настраеваемые поиск и замена слов.</p>
+                        <a href="https://textovod.com/services/FindAndReplace" class="btn">Перейти</a>
+                    },
+                    quadro{
+                        <h2>Количество символов</h2>
+                        <p>Считает количество слов и символов в тексте</p>
+                        <a href="https://textovod.com/characters" class="btn">Перейти</a>
+                    }
+                }
+            }
+        ]   
+    },
+    footer {
+        section{
+            <a href="https://textovod.com" class="social-btn" target="_blank"><img src="https://textovod.com/favicon.svg" alt="Telegram" width="24" height="24">Спасибо текстоводу за такие инструменты</a>
+        }
+    }
+    components = bg {color: var(--bg-color)}, theme {bottom-right},  back {bottom-left, index.html?file=anycraft.ztmf}
+</body>

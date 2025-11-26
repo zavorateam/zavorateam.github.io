@@ -1,0 +1,487 @@
+/* Общие стили для zavorateam.github.io */
+
+/* Fonts used across the site (moved from inline styles) */
+@font-face {
+  font-family: 'YSMusic Headline';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url(https://music.yandex.ru/fonts/YSMusic-HeadlineBold.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: 'YS Text';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url(https://music.yandex.ru/fonts/YS%20Text-Regular.woff2) format("woff2");
+}
+
+/* Основные стили для тела документа */
+body {
+  /* Middle-ground body font: YS Text (site), with Inter and system fallbacks */
+  font-family: 'YS Text', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+/* Переменные цветовой схемы для всего сайта */
+:root {
+  /* Основные цвета */
+  --primary: #155799;
+  --secondary: #159957;
+  --accent: #00c200;
+  
+  /* Текст */
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --text-light: #f0f0f0;
+  --text-dark: #2d3436;
+  --text-muted: rgba(108, 117, 125, 0.8);
+  --header-color: rgba(240, 240, 240, 1);
+
+  /* Фоны */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-dark: #1e1e21;
+  --bg-darker: #121212;
+  
+  /* Карточки и контейнеры */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-bg-dark: rgba(43, 43, 45, 0.95);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(0, 0, 0, 0.37);
+  
+  /* Кнопки и интерактивные элементы */
+  --btn-primary: var(--accent);
+  --btn-hover: #00a000;
+  --btn-active: #008000;
+  
+  /* Границы и тени */
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  /* Таблицы */
+  --table-header: rgba(21, 87, 153, 0.1);
+  --table-row-hover: rgba(21, 87, 153, 0.05);
+  --table-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Headings should span full width above columns and stay centered
+h1, h2 {
+  display: block;
+  width: 100%;
+  text-align: center;
+  -webkit-column-span: all;
+  column-span: all;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+*/
+
+/* Center span buttons inside each column regardless of column alignment. Using flex keeps them centered
+   when column is narrow or when single-column layout is active. */
+span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  background-color: var(--green-main);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Keep anchor inside span as a flex item so it centers properly */
+a.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-size: 15px;
+  color: #fff;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+  padding: 0 6px;
+}
+
+/* Универсальный cont — заменяй предыдущие определения .cont */
+/* Контейнер .cont — ширина под контент, но не выходит за пределы экрана */
+.cont {
+  position: relative;
+  margin: 0 auto;
+  width: fit-content;       /* зависит от содержимого */
+  max-width: 95vw;          /* но не шире экрана */
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  box-sizing: border-box;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  z-index: 10;
+  display: block;
+}
+
+/* Секция ссылок: ограничиваем ширину, чтобы максимум 3 колонки могли появиться */
+.cont-links.cont-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 20px;
+  width: fit-content; /* grid станет fit по содержимому */
+  max-width: calc(3 * 260px + 40px); /* ограничение: не больше 3 колонок (запас для gap) */
+  margin: 0 auto;
+}
+
+/* При очень узком экране — 1 колонка */
+@media (max-width: 700px) {
+  .cont-links.cont-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* fallback column layout */
+.cont-links.cont-column {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width: fit-content;
+  max-width: 95vw;
+} 
+/* если мало места — fallback в 2 колонки (минимум) */
+@media (max-width: 520px) {
+  .cont-links.cont-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Заголовки */
+h1 {
+  font-size: 30px;
+  font-family: "YSMusic Headline", sans-serif;
+  font-weight: 700;
+  color: var(--header-color);
+  margin-top: 10px;
+}
+
+h2 {
+  color: var(--header-color);
+  font-family: "YS Text", sans-serif;
+}
+
+/* Общие стили для ссылок и кнопок */
+a {
+  font-family: 'YS Text', Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  text-decoration: none;
+  color: rgb(240, 240, 240);
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+/* Span buttons with better mobile centering */
+span {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--green-main);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: none;
+  text-align: center;
+  font-weight: 600;
+}
+
+span:hover {
+  background-color: var(--green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+span:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Button links with proper sizing */
+a.btn {
+  font-family: 'YS Text', sans-serif;
+  text-decoration: none;
+  font-size: 15px;
+  color: #fff;
+  display: inline-block;
+  width: auto;
+  min-width: 33%;
+  line-height: 1.2;
+  padding: 0 6px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+button {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+/* Стили для темной темы */
+body.dark-mode {
+  /* Переопределение цветов для темной темы */
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  
+  --bg-primary: var(--bg-dark);
+  --bg-secondary: var(--bg-darker);
+  
+  --card-bg: var(--card-bg-dark);
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  
+  --table-header: rgba(255, 255, 255, 0.1);
+  --table-row-hover: rgba(255, 255, 255, 0.05);
+  --table-border: rgba(255, 255, 255, 0.1);
+  
+  /* Основной цвет текста */
+  color: var(--text-primary);
+}
+
+/* Общие стили для canvas */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+/* Стили для вывода кода */
+.code-output {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  margin-top: 10px;
+}
+
+/* Темная тема для кода */
+.dark-mode .code-output {
+  background: #2d2d2d;
+  color: #f8f8f8;
+}
+
+/* Общие стили для формы загрузки файлов */
+.upload-area {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: var(--primary);
+  background-color: rgba(21, 87, 153, 0.1);
+}
+
+/* Утилиты */
+.hidden {
+  display: none;
+}
+
+/* Footer styles */
+h6 {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  opacity: 0.7;
+  color: var(--text-color);
+  text-align: center;
+  -webkit-column-span: all;
+  column-span: all;
+  break-inside: avoid;
+  font-size: 11px;
+}
+
+h6 a {
+  color: var(--green-main);
+  text-decoration: underline;
+  font-weight: bold;
+  transition: color 0.2s ease;
+  font-size: inherit;
+}
+
+h6 a:hover {
+  color: var(--green-hover);
+}
+
+/* Адаптивный дизайн */
+@media (max-width: 768px) {
+  .cont {
+    width: 90% !important;
+    max-width: 95% !important;
+    margin: 15px auto !important;
+    padding: 16px !important;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  .cont-links.cont-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(220px, 1fr));
+    gap: 0px 8px;
+  }
+
+  a.btn {
+    font-size: 16px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure container scrolls properly on mobile */
+  .cont::-webkit-scrollbar {
+    width: 4px !important;
+  }
+}
+
+/* Контейнеры cont */
+.cont-header-center {
+  width: 100%;
+  text-align: center;
+}
+.cont-header-split { display:flex; gap:18px; align-items:center;}
+.cont-header-left, .cont-header-right { flex:1; }
+.cont-header-left { text-align: left; }
+.cont-header-right { text-align: right; }
+
+/* GRID: минимум 2 колонки */
+.cont-links.cont-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr)); /* минимум 2 колонки */
+  gap: 8px 8px;
+}
+
+/* расширяем на широких экранах */
+@media (min-width: 1200px) {
+  .cont-links.cont-grid {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+  }
+}
+
+/* column fallback */
+.cont-links.cont-column {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.lumo-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-top: 100px;
+}
+
+/* Theme switch styles */
+.lumo-theme-switch {
+  width:46px;
+  height:46px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;        /* иконка чуть больше */
+  border: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
+  color: var(--text-color, #f0f0f0);
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+  padding: 0;
+  line-height: 1;
+}
+.lumo-theme-switch:focus { outline: 2px solid rgba(0,0,0,0.12); }
+
+/* positions (как раньше) */
+.lumo-theme-pos-bottom-right { position: fixed; right: 12px; bottom: 12px; z-index: 9999; }
+.lumo-theme-pos-bottom-left  { position: fixed; left: 12px; bottom: 12px; z-index: 9999; }
+.lumo-theme-pos-top-right    { position: fixed; right: 12px; top: 12px; z-index: 9999; }
+.lumo-theme-pos-top-left     { position: fixed; left: 12px; top: 12px; z-index: 9999; }
+.lumo-theme-pos-center       { position: fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:9999; }
+.lumo-theme-pos-top          { position: fixed; left:50%; top:12px; transform:translateX(-50%); z-index:9999; }
+.lumo-theme-pos-bottom       { position: fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:9999; }
+.lumo-theme-pos-left         { position: fixed; left:12px; top:50%; transform:translateY(-50%); z-index:9999; }
+.lumo-theme-pos-right        { position: fixed; right:12px; top:50%; transform:translateY(-50%); z-index:9999; }
+
+/* Back button (looks similar to theme but smaller) */
+.lumo-back-button {
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.06));
+  color: var(--text-color, #f0f0f0);
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  backdrop-filter: blur(6px);
+  padding: 0;
+  line-height: 1;
+  z-index: 9999;
+  color: white !important;
+}
+
+/* default positions reuse theme position classes */
+.lumo-back-button.lumo-theme-pos-bottom-right,
+.lumo-back-button.lumo-theme-pos-bottom-left,
+.lumo-back-button.lumo-theme-pos-top-left,
+.lumo-back-button.lumo-theme-pos-top-right,
+.lumo-back-button.lumo-theme-pos-top,
+.lumo-back-button.lumo-theme-pos-bottom,
+.lumo-back-button.lumo-theme-pos-left,
+.lumo-back-button.lumo-theme-pos-right,
+.lumo-back-button.lumo-theme-pos-center {
+  position: fixed;
+}
+
+/* If needed, fine tune offsets for each position (these normally come from position classes)
+   but the inline style set by JS will shift the back button left of theme when same pos. */

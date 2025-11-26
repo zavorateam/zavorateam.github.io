@@ -1,269 +1,256 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Форматирование химических формул</title>
-  <link rel="icon" href="./favicon.svg">
-  <link rel="stylesheet" href="./common_styles.css">
-  <style>
-    :root {
-      --text: #333;
-      --bg-light: #f0f0f0;
-      --card-bg: #ffffff;
-      --table-border: rgba(0, 0, 0, 0.1);
-    }
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Форматирование химических формул</title>
+    <link rel="icon" href="../assets/favicon.svg">
+    <link rel="stylesheet" href="../assets/common_styles.css">
+    <style>
+      :root {
+        --text: #333;
+        --bg-light: #f0f0f0;
+        --card-bg: #ffffff;
+        --table-border: rgba(0, 0, 0, 0.1);
+      }
 
-    body.dark-mode {
-      --text: #bebebe;
-      --bg-light: #1e1e21;
-      --card-bg: rgba(43, 43, 45, 0.9);
-      --table-border: rgba(255, 255, 255, 0.1);
-    }
+      body.dark-mode {
+        --text: #bebebe;
+        --bg-light: #1e1e21;
+        --card-bg: rgba(43, 43, 45, 0.9);
+        --table-border: rgba(255, 255, 255, 0.1);
+      }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: var(--bg-light);
-      color: var(--text);
-      transition: all 0.3s ease;
-    }
-    .header-nav {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .back-btn {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: var(--green-main);
-      color: #fff;
-      border-radius: 5px;
-      font-weight: bold;
-      text-decoration: none;
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-    }
-    .back-btn:hover {
-      background-color: var(--green-hover);
-      transform: translateY(-2px);
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .tool-section {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    textarea {
-      background: var(--bg-light);
-      color: var(--text);
-      width: 96%;
-      min-height: 150px;
-      margin-bottom: 20px;
-      padding: 15px;
-      font-size: 16px;
-      border: 1px solid var(--table-border);
-      border-radius: 4px;
-      resize: vertical;
-      font-family: monospace;
-    }
-    #formattedOutput {
-      width: 96%;
-      min-height: 150px;
-      padding: 15px;
-      font-size: 16px;
-      background-color: var(--bg-light);
-      color: var(--text);
-      border: 1px solid var(--table-border);
-      border-radius: 4px;
-      overflow-wrap: break-word;
-      margin-top: 20px;
-    }
-    h1 {
-      color: #333;
-      margin-top: 0;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .theme-toggle {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--green-main);
-      color: white;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      background: var(--green-hover);
-    }
-    
-    ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-light);
-      border-radius: 5px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--green-main);
-      border-radius: 5px;
-      transition: all 0.3s ease;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--green-hover);
-    }
-
-    textarea::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    textarea::-webkit-scrollbar-track {
-      background: var(--bg-light);
-      border-radius: 4px;
-    }
-
-    textarea::-webkit-scrollbar-thumb {
-      background: var(--green-main);
-      border-radius: 4px;
-    }
-
-    textarea::-webkit-scrollbar-thumb:hover {
-      background: var(--green-hover);
-    }
-  
-    * {
-      scrollbar-width: thin;
-      scrollbar-color: var(--green-main) var(--bg-light);
-    }
-    
-    /* Адаптивная верстка */
-    @media (max-width: 768px) {
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: var(--bg-light);
+        color: var(--text);
+        transition: all 0.3s ease;
+      }
+      .header-nav {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--green-main);
+        color: #fff;
+        border-radius: 5px;
+        font-weight: bold;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+      .back-btn:hover {
+        background-color: var(--green-hover);
+        transform: translateY(-2px);
+      }
       .container {
-        padding: 10px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .tool-section {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
       textarea {
-        min-height: 120px;
-        padding: 5px;
+        background: var(--bg-light);
+        color: var(--text);
+        width: 96%;
+        min-height: 150px;
+        margin-bottom: 20px;
+        padding: 15px;
+        font-size: 16px;
+        border: 1px solid var(--table-border);
+        border-radius: 4px;
+        resize: vertical;
+        font-family: monospace;
+      }
+      #formattedOutput {
+        width: 96%;
+        min-height: 150px;
+        padding: 15px;
+        font-size: 16px;
+        background-color: var(--bg-light);
+        color: var(--text);
+        border: 1px solid var(--table-border);
+        border-radius: 4px;
+        overflow-wrap: break-word;
+        margin-top: 20px;
+      }
+      a {
+        color: var(--text) !important;
+      }
+      h1 {
+        color: var(--text);
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
       }
       .theme-toggle {
-        bottom: 1rem;
-        right: 1rem;
-        width: 40px;
-        height: 40px;
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--green-main);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
       }
-      .formatted {
-        padding: 5px !important;
+      .theme-toggle:hover {
+        transform: scale(1.1);
+        background: var(--green-hover);
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="header-nav">
-    <a href="./anycraft.html" class="back-btn">← Вернуться на главную</a>
-    <h1>Форматирование химических формул</h1>
-  </div>
+      
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
 
-  <div class="container">
-    <div class="tool-section">
-      <textarea id="inputFormula" placeholder="Введите текст с химическими формулами (например: H2O, CO2, Na2SO4)"></textarea>
-      <div id="formattedOutput" class="formatted"></div>
+      ::-webkit-scrollbar-track {
+        background: var(--bg-light);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--green-main);
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--green-hover);
+      }
+
+      textarea::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      textarea::-webkit-scrollbar-track {
+        background: var(--bg-light);
+        border-radius: 4px;
+      }
+
+      textarea::-webkit-scrollbar-thumb {
+        background: var(--green-main);
+        border-radius: 4px;
+      }
+
+      textarea::-webkit-scrollbar-thumb:hover {
+        background: var(--green-hover);
+      }
+    
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--green-main) var(--bg-light);
+      }
+      
+      /* Адаптивная верстка */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+        textarea {
+          min-height: 120px;
+          padding: 5px;
+        }
+        .theme-toggle {
+          bottom: 1rem;
+          right: 1rem;
+          width: 40px;
+          height: 40px;
+        }
+        .formatted {
+          padding: 5px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-nav">
+      <a href="./index.html?file=anycraft.ztmf" class="back-btn">← Вернуться на главную</a>
+      <h1>Форматирование химических формул</h1>
     </div>
-  </div>
-  <script>
-      const inputFormula = document.getElementById('inputFormula');
-      const formattedOutput = document.getElementById('formattedOutput');
-  
-      inputFormula.addEventListener('input', updateFormattedFormula);
-  
-      function updateFormattedFormula() {
-        const inputText = inputFormula.value;
-        const formattedText = formatTextWithChemicalFormulas(inputText);
-        formattedOutput.innerHTML = formattedText;
-      }
-  
-      function formatTextWithChemicalFormulas(text) {
-        // Разделяем текст на строки
-        const lines = text.split('\n');
-        const formattedLines = lines.map(line => formatChemicalFormula(line));
-        return formattedLines.join('<br>'); // Соединяем обратно с тегом <br> для переноса строк
-      }
-  
-  
-      function formatChemicalFormula(formula) {
-        let formattedFormula = "";
-        let openParenthesisCount = 0;
-  
-        for (let i = 0; i < formula.length; i++) {
-          const char = formula[i];
-  
-          if (/[0-9]/.test(char) && isIndex(formula, i)) { // Проверяем, является ли число индексом
-            formattedFormula += `<sub>${char}</sub>`;
-          } else if (char === '(') {
-            formattedFormula += char;
-            openParenthesisCount++;
-          } else if (char === ')') {
-            formattedFormula += char;
-            openParenthesisCount--;
-          } else {
-            formattedFormula += char;
+    <div class="container">
+      <div class="tool-section">
+        <textarea id="inputFormula" placeholder="Введите текст с химическими формулами (например: H2O, CO2, Na2SO4)"></textarea>
+        <div id="formattedOutput" class="formatted"></div>
+      </div>
+    </div>
+    <script>
+        const inputFormula = document.getElementById('inputFormula');
+        const formattedOutput = document.getElementById('formattedOutput');
+    
+        inputFormula.addEventListener('input', updateFormattedFormula);
+    
+        function updateFormattedFormula() {
+          const inputText = inputFormula.value;
+          const formattedText = formatTextWithChemicalFormulas(inputText);
+          formattedOutput.innerHTML = formattedText;
+        }
+    
+        function formatTextWithChemicalFormulas(text) {
+          // Разделяем текст на строки
+          const lines = text.split('\n');
+          const formattedLines = lines.map(line => formatChemicalFormula(line));
+          return formattedLines.join('<br>'); // Соединяем обратно с тегом <br> для переноса строк
+        }
+    
+    
+        function formatChemicalFormula(formula) {
+          let formattedFormula = "";
+          let openParenthesisCount = 0;
+    
+          for (let i = 0; i < formula.length; i++) {
+            const char = formula[i];
+    
+            if (/[0-9]/.test(char) && isIndex(formula, i)) { // Проверяем, является ли число индексом
+              formattedFormula += `<sub>${char}</sub>`;
+            } else if (char === '(') {
+              formattedFormula += char;
+              openParenthesisCount++;
+            } else if (char === ')') {
+              formattedFormula += char;
+              openParenthesisCount--;
+            } else {
+              formattedFormula += char;
+            }
           }
+    
+          while (openParenthesisCount > 0) {
+            formattedFormula += ')';
+            openParenthesisCount--;
+          }
+          return formattedFormula;
         }
-  
-        while (openParenthesisCount > 0) {
-          formattedFormula += ')';
-          openParenthesisCount--;
+    
+        // Функция для определения, является ли число индексом
+        function isIndex(formula, index) {
+          // Проверяем, что перед числом идет буква (элемент) или закрывающая скобка
+          if (index > 0) {
+            const prevChar = formula[index - 1];
+            return /[A-Za-z)]/.test(prevChar);
+          }
+          return false;
         }
-        return formattedFormula;
-      }
-  
-      // Функция для определения, является ли число индексом
-      function isIndex(formula, index) {
-        // Проверяем, что перед числом идет буква (элемент) или закрывающая скобка
-        if (index > 0) {
-          const prevChar = formula[index - 1];
-          return /[A-Za-z)]/.test(prevChar);
-        }
-        return false;
-      }
-  
-  
-  </script>
-  <button class="theme-toggle" aria-label="Переключить тему">🌓</button>
-  <script>
-    // Theme toggle functionality
-    const themeToggle = document.querySelector('.theme-toggle');
-    const body = document.body;
-  
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-    });
-  
-    // Check saved theme
-    if (localStorage.getItem('darkMode') === 'true') {
-        body.classList.add('dark-mode');
-    }
-  </script>
+    
+    
+    </script>
+    <script src="https://zavorateam.github.io/lumo-framework/lumo-theme.js" defer></script>
   </body>
-  </html>
+</html>

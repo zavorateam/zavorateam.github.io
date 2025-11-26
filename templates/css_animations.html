@@ -3,13 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <title>Генератор CSS-анимаций</title>
+  <link rel="icon" href="../assets/favicon.svg">
   <style>
+    /* --------------------------------- */
+    /* 1. СТИЛИ ТЕМЫ (СВЕТЛАЯ / ТЕМНАЯ) */
+    /* --------------------------------- */
+    :root {
+      /* Светлая тема по умолчанию */
+      --text: #1a1d21;
+      --text-muted: #6b7280;
+      --bg-page: #f0f0f0;
+      --card-bg: #ffffff;
+      --input-bg: #ffffff;
+      --input-border: #ccc;
+      --primary: #4CAF50;
+      --primary-hover: #45a049;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --border-radius: 8px;
+    }
+
+    body.dark-mode {
+      /* Темная тема */
+      --text: #e0e0e0;
+      --text-muted: #a0a0a0;
+      --bg-page: #1e1e21;
+      --card-bg: #2b2b2d;
+      --input-bg: #3c3c3e;
+      --input-border: #555;
+      --primary: #5cb85c; /* Более яркий зеленый для контраста в темноте */
+      --primary-hover: #4cae4c;
+      --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    /* ----------------------------- */
+    /* 2. БАЗОВЫЕ СТИЛИ И ИНТЕРФЕЙС */
+    /* ----------------------------- */
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 20px;
-      background: #f0f0f0;
+      background: var(--bg-page);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
+    
+    h2, h3 {
+        color: var(--text);
+    }
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -17,83 +59,142 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
+    
+    @media (max-width: 900px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
     .tool-section {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: background 0.3s, box-shadow 0.3s;
     }
-    h2 {
-      margin-top: 0;
-      color: #333;
-    }
+    
+    /* Элемент предпросмотра */
     .preview-box {
       width: 100px;
       height: 100px;
-      background: #4CAF50;
+      background: var(--primary); /* Используем переменную темы */
       margin: 20px auto;
       position: relative;
+      border-radius: 6px;
     }
+    
+    /* Управление */
     .controls {
-      display: grid;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
       margin: 20px 0;
     }
+    
     .control-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 20px;
     }
+    
     label {
       display: block;
       margin-bottom: 5px;
-      color: #666;
+      color: var(--text-muted);
+      font-size: 0.95em;
     }
-    select, input {
+    
+    select, input[type="number"], input[type="text"] {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
+      padding: 10px;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--input-border);
       border-radius: 4px;
+      box-sizing: border-box;
+      transition: border-color 0.3s, background-color 0.3s;
     }
+    
+    select:focus, input:focus {
+        border-color: var(--primary);
+        outline: none;
+    }
+    
+    /* Кнопки */
     button {
       padding: 10px 20px;
-      background: #4CAF50;
+      background: var(--primary);
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin: 10px 0;
+      margin: 10px 0 0;
+      transition: background 0.2s, transform 0.1s;
+      font-weight: bold;
     }
+    
     button:hover {
-      background: #45a049;
+      background: var(--primary-hover);
+      transform: translateY(-1px);
     }
+    
+    /* Вывод кода */
     .code-output {
-      background: #f8f8f8;
-      padding: 10px;
+      background: var(--input-bg);
+      padding: 15px;
       border-radius: 4px;
+      border: 1px solid var(--input-border);
       font-family: monospace;
       white-space: pre-wrap;
       margin-top: 20px;
+      color: var(--text);
+      overflow-x: auto;
     }
+    
+    /* Ключевые кадры */
     .keyframes {
-      margin-top: 20px;
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px dashed var(--input-border);
     }
+    
     .keyframe {
       display: grid;
-      grid-template-columns: 50px 1fr 1fr;
+      grid-template-columns: 80px 1fr auto;
       gap: 10px;
       margin: 10px 0;
       padding: 10px;
-      background: #f5f5f5;
+      background: var(--bg-page); /* Немного отличается от фона карточки */
       border-radius: 4px;
+      align-items: center;
+      transition: background 0.3s;
     }
+
+    .keyframe-percent {
+        padding-right: 0;
+    }
+    
     .add-keyframe {
       text-align: center;
       margin: 10px 0;
     }
+    
+    .keyframe button {
+        margin: 0;
+        background: #dc3545;
+        padding: 10px;
+    }
+    .keyframe button:hover {
+        background: #c82333;
+    }
   </style>
 </head>
 <body>
+  <div class="header-nav">
+    <a href="./index.html?file=anycraft.ztmf" class="back-btn">← Вернуться на главную</a>
+    <h1>Форматирование химических формул</h1>
+  </div>
   <div class="container">
     <div class="tool-section">
       <h2>Предпросмотр анимации</h2>
@@ -264,5 +365,6 @@
     // Генерируем начальную анимацию
     generateAnimation();
   </script>
+  <script src="https://zavorateam.github.io/lumo-framework/lumo-theme.js" defer></script>
 </body>
 </html> 
