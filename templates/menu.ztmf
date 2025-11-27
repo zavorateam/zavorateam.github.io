@@ -496,8 +496,8 @@ style {
     },
     footer {
         section{
-            <a href="https://t.me/alexgyver" class="social-btn" target="_blank"><img src="../index_files/t_logo_2x.png" alt="Telegram" width="24" height="24">Telegram</a>
-            <a href="https://www.youtube.com/c/AlexGyver" class="social-btn" target="_blank"><img src="../index_files/youtube_logo_icon.svg" alt="YouTube" width="25" height="18">YouTube</a>
+            <a href="https://t.me/alexgyver" class="social-btn" target="_blank"><img src="../assets/telegram.png" alt="Telegram" width="24" height="24">Telegram</a>
+            <a href="https://www.youtube.com/c/AlexGyver" class="social-btn" target="_blank"><img src="../assets/youtube.png" alt="YouTube" width="25" height="18">YouTube</a>
             <a href="https://rutube.ru/channel/26330627/" class="social-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Rutube_icon.svg" alt="RuTube" width="24" height="24">RuTube</a>
         }
     }
