@@ -4,7 +4,7 @@ async function fetchAndPopulateCountries() {
         // ВАЖНО: Проверьте правильность пути к XML. 
         // Если index.html находится в корне, а assets/loaded.xml – в корне, 
         // путь должен быть относительным от index.html, например, '/assets/loaded.xml'
-        const response = await fetch('./loaded.xml');
+        const response = await fetch('https://zavorateam.github.io/assets/loaded.xml');
         if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
         
         const text = await response.text();
