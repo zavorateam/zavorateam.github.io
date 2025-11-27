@@ -187,7 +187,7 @@ style {
     /* .quadro - Основные большие карточки */
     .quadro {
         flex: 1;
-        min-width: 300px; /* Чтобы не сжимались слишком сильно */
+        min-width: 250px; /* Чтобы не сжимались слишком сильно */
         background: var(--bg-card);
         border-radius: var(--radius-lg);
         padding: 32px;
@@ -293,9 +293,11 @@ style {
     }
 
     a.btn {
-        min-height: 1.5em;
+        min-height: 1.8em;
         text-justify: center;
-        background-color: var(--card-bg)
+        background-color: var(--card-bg);
+        padding-top: 4px;
+        margin: 4px;
     }
 
     .lesson-list li a {
