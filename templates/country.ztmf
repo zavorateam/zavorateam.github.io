@@ -68,7 +68,6 @@ style {
         border-radius: 15px;
         padding: 0rem;
         box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        overflow-x: auto;
         min-width: fit-content;
         display: block !important;
     }
