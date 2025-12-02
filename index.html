@@ -1,41 +1,566 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru" class="dark">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Zavorateam Projects</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="./index_files/logo 1.svg">
-  <meta http-equiv="refresh" content="0; url=./templates/index.html">
-  <style>
-    body {
-      font-family: "YSMusic Headline", sans-serif;
-      background-color: rgb(100, 100, 100);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .message {
-      text-align: center;
-      background-color: rgba(0, 0, 0, 0.404);
-      padding: 20px;
-      border-radius: 10px;
-    }
-    a {
-      color: rgb(0, 194, 0);
-      text-decoration: none;
-    }
-    a:hover {
-      color: rgb(0, 155, 0);
-    }
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Zavorateam | Developer Portfolio</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        background: '#18181b',
+                        surface: '#27272a',
+                        primary: '#3b82f6',
+                        secondary: '#71717a',
+                        accent: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Phosphor icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --------------------------
+           Consolidated reusable styles
+           -------------------------- */
+
+        :root {
+            --nav-icon-color: #9CA3AF; /* default icon gray */
+            --nav-active-color: #3b82f6; /* primary */
+            --aside-bg: #111113;
+        }
+
+        html,body { height: 100%; }
+
+        /* glass base */
+        .glass {
+            background: rgba(39,39,42,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* nav item base */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem; /* py-2.5 px-3 */
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #9CA3AF;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background .16s ease, color .16s ease, padding .16s ease;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-item:focus { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.04); }
+        .nav-item i.ph { 
+            display: inline-block;
+            min-width: 1.25rem; /* reserve space and center */
+            text-align: center;
+            color: var(--nav-icon-color);
+            font-size: 1.15rem;
+            transition: color .16s ease, transform .12s ease;
+        }
+        .nav-icon { color: var(--nav-icon-color)}
+
+        /* active nav item */
+        .nav-item.active { color: white; background: rgba(59,130,246,0.08); }
+        .nav-item.active i.ph { color: var(--nav-active-color); transform: translateY(0); }
+
+        /* collapsed aside state */
+        aside.collapsed { width: 5rem !important; /* Tailwind w-20 (80px) -> we prefer compact; override to exact */ }
+        /* make nav items compact squares in collapsed mode */
+        aside.collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+            width: 44px;
+            height: 44px;
+            gap: 0;
+            margin: 6px auto; /* center vertically with spacing in nav */
+            border-radius: 8px;
+        }
+        /* ensure icon centered and no extra margin */
+        aside.collapsed .nav-item i.ph { margin: 0; }
+        /* hide text smoothly */
+        .sidebar-text {
+            display: inline-block;
+            transition: opacity .16s ease, width .16s ease, margin .16s ease;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        aside.collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            margin-left: 0;
+            pointer-events: none;
+            display: inline-block; /* keep in DOM for transitions but visually hidden */
+        }
+
+        /* collapse button styling alignment */
+        .collapse-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            justify-content: flex-start;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            color: #9CA3AF;
+            transition: background .16s ease, color .16s ease;
+            cursor: pointer;
+        }
+        .collapse-btn i.ph { font-size: 1rem; color: var(--nav-icon-color); }
+
+        aside.collapsed .collapse-btn {
+            justify-content: center;
+            padding: 0;
+            width: 44px;
+            height: 44px;
+            gap: 0;
+            margin: 0 auto;
+        }
+        aside.collapsed .collapse-btn .sidebar-text { display: inline-block; } /* already hidden by collapsed rules */
+
+        /* ensure footer area (collapse button) visually matches active nav when active */
+        aside.collapsed .collapse-btn:hover { background: rgba(255,255,255,0.04); color: #fff; }
+
+        /* small utility */
+        .icon-circle { width: 2.5rem; height: 2.5rem; display:inline-flex; align-items:center; justify-content:center; border-radius:0.5rem; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+        /* fade helper */
+        .fade-in { animation: fadeIn 0.36s ease-out forwards; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to {opacity:1; transform:translateY(0);} }
+
+        /* modal transitions */
+        #modalBackdrop { transition: opacity .28s ease; }
+        #modalContent { transition: transform .22s cubic-bezier(.2,.9,.3,1), opacity .18s ease; }
+
+        #asideHeader .logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        aside.collapsed .logo-wrapper {
+            width: 44px;
+            height: 44px;
+            margin: 6px auto;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        aside.collapsed .logo-text {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
+
+        /* responsive default hiding (mobile) */
+        @media (max-width: 1023px) {
+            aside { transform: translateX(-100%); }
+        }
+    </style>
 </head>
-<body>
-  <div class="message">
-    <h1>Перенаправление на новую версию сайта...</h1>
-    <p>Если вы не были автоматически перенаправлены, <a href="./templates/index.html">нажмите здесь</a>.</p>
-  </div>
+<body class="bg-background text-white h-screen flex overflow-hidden selection:bg-primary selection:text-white font-sans antialiased">
+
+    <!-- mobile overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 hidden glass" onclick="toggleSidebar()"></div>
+
+    <!-- ASIDE -->
+   <aside id="asideHeader" class="fixed lg:relative z-50 h-full bg-[color:var(--aside-bg)] border-r border-white/10 flex flex-col justify-between transition-all duration-200 w-64">
+        <!-- logo/header -->
+        <div class="p-4 flex items-center h-16 border-b border-white/5">
+            <div class="logo-wrapper w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
+                <img src="./assets/favicon.svg" alt="logo">
+            </div>
+            <span class="logo-text ml-3 font-bold text-lg tracking-tight sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">
+                Zavorateam
+            </span>
+        </div>
+
+       <!-- nav -->
+       <nav class="flex-1 py-4 px-2 flex flex-col gap-1.5" style="overflow: hidden;">
+           <button onclick="switchTab('about')" class="nav-item active" data-tab="about" id="nav-about" title="Обо мне">
+               <i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path fill="#9CA3AF" d="M8 8.5c3.85 0 7 2.5 7 4.5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2c0-2 3.15-4.5 7-4.5M8 10c-1.61 0-3.064.526-4.092 1.234C2.798 12.001 2.5 12.733 2.5 13a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5c0-.267-.297-1-1.408-1.766C11.064 10.526 9.609 10 8 10m0-9a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7m0 1.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg></i>
+               <span class="ml-3 sidebar-text">Обо мне</span>
+           </button>
+
+           <button onclick="switchTab('projects')" class="nav-item" data-tab="projects" id="nav-projects" title="Проекты">
+               <i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path fill="#9CA3AF" fill-rule="evenodd" d="m5.283 13.211-2.02-4.037A2.5 2.5 0 0 1 3 8.056v-.112c0-.388.09-.77.264-1.118L5.283 2.79a.523.523 0 0 1 .934 0l2.02 4.037A2.5 2.5 0 0 1 8.5 7.944v.112c0 .388-.09.77-.264 1.118L6.217 13.21a.523.523 0 0 1-.934 0M5.75 15a2.02 2.02 0 0 1-1.809-1.118L1.922 9.845a4 4 0 0 1-.422-1.79v-.11a4 4 0 0 1 .422-1.79l2.019-4.037a2.023 2.023 0 0 1 3.618 0l.44.882.442-.882a2.023 2.023 0 0 1 3.618 0l2.019 4.037a4 4 0 0 1 .422 1.79v.11a4 4 0 0 1-.422 1.79l-2.02 4.037a2.022 2.022 0 0 1-3.617 0L8 13l-.441.882A2.02 2.02 0 0 1 5.75 15m3.088-3.677.945 1.888a.523.523 0 0 0 .934 0l2.019-4.037A2.5 2.5 0 0 0 13 8.056v-.112a2.5 2.5 0 0 0-.264-1.118L10.717 2.79a.523.523 0 0 0-.934 0l-.945 1.888.74 1.478A4 4 0 0 1 10 7.945v.11a4 4 0 0 1-.422 1.79z" clip-rule="evenodd"/></svg></i>
+               <span class="ml-3 sidebar-text">Проекты</span>
+           </button>
+
+           <button onclick="switchTab('contact')" class="nav-item" data-tab="contact" id="nav-contact" title="Контакты">
+               <i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><path fill="#9CA3AF" fill-rule="evenodd" d="M3.5 4h9c.25 0 .485.06.692.169L8.75 7.5a1.25 1.25 0 0 1-1.5 0L2.808 4.169C3.015 4.06 3.251 4 3.5 4M2.001 5.438 2 5.5v5A1.5 1.5 0 0 0 3.5 12h9a1.5 1.5 0 0 0 1.5-1.5v-5l-.001-.062L9.65 8.7a2.75 2.75 0 0 1-3.3 0zM.5 5.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3z" clip-rule="evenodd"/></svg></i>
+               <span class="ml-3 sidebar-text">Контакты</span>
+           </button>
+       </nav>
+
+       <!-- footer collapse -->
+       <div class="p-2 border-t border-white/5 flex items-center justify-center">
+           <button id="collapseBtn" class="collapse-btn" onclick="toggleCollapse()" title="Свернуть / Развернуть">
+               <i id="collapseIcon" class="ph ph-caret-left"></i>
+           </button>
+       </div>
+   </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col relative min-w-0 bg-black/20">
+        <!-- mobile header -->
+        <header class="lg:hidden h-16 border-b border-white/10 flex items-center px-4 justify-between bg-[color:var(--aside-bg)]">
+            <div class="flex items-center">
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-md hover:bg-white/10 text-gray-400">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+                <span class="ml-3 font-bold text-lg">Zavorateam</span>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs">U</div>
+        </header>
+
+        <!-- content -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth" id="mainContainer">
+            <!-- ABOUT -->
+            <div id="about" class="tab-content max-w-5xl mx-auto space-y-8 fade-in">
+                <div class="glass rounded-2xl p-6 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+
+                    <div class="text-center md:text-left flex-1">
+                        <div class="flex flex-col md:flex-row md:items-center gap-3 mb-2 justify-center md:justify-start">
+                            <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Roman Zavora</h1>
+                            <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-mono border border-blue-500/20" style="margin-top:0.5em;">OPEN TO WORK</span>
+                        </div>
+                        <p class="text-xl text-gray-300 font-medium mb-4">Full-stack разработчик & C++ Инженер</p>
+                        <p class="text-gray-400 leading-relaxed max-w-2xl mb-6">
+                            Начинающий разработчик с опытом участия в крупных тестированиях и хакатонах. 
+                            Увлечен созданием высокопроизводительных систем и удобных интерфейсов.
+                        </p>
+
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-sm text-gray-300 cursor-default">C++</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-sm text-gray-300 cursor-default">React</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-sm text-gray-300 cursor-default">HTML/CSS</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-sm text-gray-300 cursor-default">Linux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- achievements -->
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="ph ph-trophy mr-2 text-yellow-500"></i> Достижения
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div onclick="openModal('pilotazh')" class="glass p-5 rounded-xl hover:bg-white/5 transition-all cursor-pointer group border border-white/5 hover:border-blue-500/30">
+                            <div class="icon-circle bg-blue-500/20 text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 309 309" fill="none"><path class="control__path" fill="#5b99fc" fill-rule="evenodd" clip-rule="evenodd" d="M68.4423 26.0393C93.7686 9.06174 123.545 0 154.005 0C194.846 0 234.015 16.275 262.896 45.2451C291.777 74.2153 308.005 113.508 308.01 154.481C308.013 185.039 298.984 214.911 282.065 240.321C265.145 265.731 241.094 285.537 212.953 297.234C184.813 308.931 153.847 311.993 123.972 306.034C94.0966 300.074 66.6537 285.361 45.1138 263.755C23.5739 242.148 8.90442 214.619 2.96053 184.649C-2.98335 154.678 0.0653089 123.612 11.721 95.3799C23.3767 67.1476 43.1159 43.0168 68.4423 26.0393ZM180.336 140.561C212.051 151.8 224.284 177.329 224.284 215.345V255.047H99.593V48.1729H154.908C175.847 48.1729 184.602 51.8575 194.493 59.5386C208.902 70.8654 211.166 87.3096 211.166 95.5561C211.299 106.453 207.484 117.028 200.43 125.316C195.128 132.023 188.214 137.269 180.336 140.561ZM196.038 211.485C196.038 168.722 182.396 145.328 147.339 145.328V134.927H147.553C152.962 134.963 158.306 133.751 163.173 131.385C168.041 129.018 172.301 125.561 175.624 121.28C182.066 113.463 183.387 106.093 183.688 99.5137H147.582V89.3566H183.378C182.573 82.4432 179.883 75.8863 175.604 70.4072C167.413 60.1917 155.812 58.4761 148.175 58.4761H127.771V243.779H147.582V174.57H173.554V243.652H196.038V211.485Z"></path></svg></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Высший Пилотаж</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">Разработка инновационных решений для аэрокосмической отрасли.</p>
+                        </div>
+
+                        <div onclick="openModal('nto')" class="glass p-5 rounded-xl hover:bg-white/5 transition-all cursor-pointer group border border-white/5 hover:border-purple-500/30">
+                            <div class="icon-circle bg-purple-500/20 text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i><svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.50766 6.33951C4.56953 6.30858 4.6287 6.28169 4.68855 6.25211C4.03292 5.46822 4.00401 5.11595 4.12168 4.95863C4.52313 4.42282 5.69182 3.88163 7.39511 3.88163C8.354 3.88163 9.35459 4.06248 10.292 4.40332C11.813 4.95662 12.778 5.36402 13.4161 5.63293C14.0522 5.89983 14.4362 6.06185 14.8202 6.1432C15.1308 6.20841 15.4079 6.24068 15.6654 6.24068C15.8248 6.24068 15.9673 6.22455 16.1005 6.20169C16.0231 6.0316 15.9425 5.85613 15.8557 5.66857C15.7288 5.39623 15.5876 5.13076 15.4327 4.87325C15.3175 4.86117 15.203 4.84277 15.0898 4.81812C14.8255 4.76165 14.4853 4.61846 13.9211 4.38114C13.2695 4.10752 12.2878 3.69406 10.7351 3.12934C9.66487 2.73765 8.53478 2.53452 7.39511 2.52899C5.47194 2.52899 3.8164 3.14481 3.07201 4.13575C2.37738 5.06149 2.88574 6.10824 3.49564 6.90288C3.82043 6.69918 4.158 6.50892 4.50766 6.33951Z" fill="#BB77FC"/><path d="M18.0281 4.61285C18.0564 4.67268 18.0813 4.72916 18.1075 4.7863C18.4699 4.47033 18.8895 4.16914 19.1928 4.16914C19.2529 4.16707 19.3116 4.18744 19.3575 4.22629C20.2378 4.91605 20.9384 7.56082 19.9042 10.5357C19.5322 11.6103 19.1317 12.6749 18.7033 13.7284C18.4417 14.3798 18.2843 14.7724 18.2036 15.1671C18.0967 15.6975 18.09 16.121 18.1445 16.4713C18.3112 16.392 18.4861 16.3073 18.669 16.2185C18.9453 16.0841 19.2015 15.9395 19.445 15.7869C19.4564 15.6834 19.4739 15.5691 19.4994 15.44C19.5546 15.1704 19.6944 14.8215 19.9271 14.2433C20.1947 13.5791 20.5982 12.5754 21.1496 10.9895C22.3425 7.56351 21.5658 4.25385 20.1631 3.15265C19.8879 2.93237 19.5453 2.81344 19.1928 2.81583C18.5768 2.81583 17.975 3.16542 17.4707 3.57014C17.6738 3.90561 17.862 4.25385 18.0281 4.61285Z" fill="#BB77FC"/><path d="M19.7023 18.4397L19.5207 18.5271C20.1764 19.311 20.206 19.662 20.0876 19.82C19.6855 20.3558 18.5181 20.8983 16.8135 20.8983C15.8566 20.8983 14.8554 20.7168 13.9187 20.3759C12.3976 19.8226 11.4327 19.4159 10.7939 19.1477C10.1584 18.8788 9.77512 18.7167 9.38914 18.6354C9.12107 18.5756 8.84746 18.544 8.5728 18.5413C8.40268 18.5413 8.25339 18.5601 8.11218 18.5856L8.35426 19.1107C8.48135 19.385 8.62794 19.6492 8.78327 19.9087C8.88885 19.9188 8.99913 19.9342 9.12017 19.9605C9.38511 20.0163 9.72603 20.1595 10.2902 20.3981C11.3405 20.8439 12.4027 21.2614 13.4755 21.6499C14.5521 22.0425 15.708 22.2496 16.8135 22.2496C18.4839 22.2496 20.3942 21.6331 21.138 20.6428C21.8319 19.7171 21.3236 18.6697 20.7143 17.8757C20.3875 18.0819 20.0496 18.2702 19.7023 18.4397Z" fill="#BB77FC"/><path d="M6.18085 20.1658L6.08738 19.9614C5.70342 20.3123 5.30736 20.6438 5.06124 20.6438C5.03502 20.6438 4.96777 20.6438 4.85144 20.553C3.9719 19.8626 3.27189 17.2192 4.3061 14.2436C4.67812 13.1686 5.07836 12.1036 5.5064 11.0496C5.76797 10.3995 5.92734 10.0062 6.00669 9.61292C6.11428 9.08114 6.121 8.6576 6.06586 8.30801C5.89843 8.38802 5.72359 8.47205 5.54136 8.56079C5.26365 8.69458 5.00879 8.84248 4.7647 8.99576C4.75244 9.11087 4.73449 9.2253 4.7109 9.33863C4.65644 9.60821 4.51657 9.95646 4.28391 10.534C4.01628 11.1988 3.61214 12.2039 3.0594 13.7898C1.86784 17.2171 2.6445 20.5255 4.04721 21.626C4.35989 21.8727 4.70149 21.9971 5.06124 21.9971C5.68056 21.9971 6.20573 21.6415 6.72687 21.1883C6.52917 20.8589 6.3456 20.5174 6.18085 20.1658Z" fill="#BB77FC"/><path d="M2.54951 13.6046L2.62482 13.3929C1.62558 13.3303 1.37207 13.2275 1.33172 12.9169C1.18648 11.7928 2.51925 9.41696 5.30852 8.06096C6.31486 7.56931 7.33467 7.1057 8.36676 6.67067C9.00154 6.40041 9.38281 6.23705 9.71231 6.01587C10.1601 5.71535 10.4601 5.41753 10.6618 5.12912C10.4783 5.05949 10.2943 4.99136 10.1097 4.92475C9.83574 4.82566 9.55674 4.74106 9.27388 4.6713C9.19318 4.7392 9.09837 4.80979 8.98675 4.88575C8.76081 5.03702 8.42123 5.18223 7.8584 5.42224C6.80617 5.86582 5.76641 6.33839 4.74031 6.83942C1.52807 8.40046 -0.210848 11.302 0.0204703 13.0937C0.1832 14.3589 1.24229 14.6332 2.22943 14.7213C2.31819 14.3462 2.42242 13.973 2.54951 13.6046Z" fill="#BB77FC"/><path d="M10.9169 2.6078L11.1065 2.67704C11.1839 1.65718 11.4064 1.38961 11.5981 1.36272C11.6523 1.35557 11.7068 1.35198 11.7615 1.35197C13.0546 1.35197 15.1754 2.91167 16.3448 5.4314C16.8254 6.46244 17.2788 7.50596 17.7045 8.56089C17.9694 9.20897 18.1274 9.60091 18.344 9.93638C18.6351 10.3895 18.9209 10.6934 19.2 10.8991C19.2625 10.725 19.3271 10.5435 19.393 10.3505C19.4972 10.0527 19.5799 9.76159 19.6478 9.47452C19.5771 9.38481 19.5111 9.29146 19.4501 9.19485C19.3022 8.96358 19.1603 8.61669 18.9263 8.04121C18.656 7.37699 18.2478 6.37327 17.5397 4.85054C16.0758 1.69887 13.4708 0 11.7615 0C11.6465 0 11.5335 0.00672295 11.4246 0.0208409C10.2969 0.17345 9.93178 1.27465 9.81276 2.27569C10.1866 2.36645 10.5558 2.4767 10.9169 2.6078Z" fill="#BB77FC"/><path d="M24.1893 11.6842C24.04 10.5293 22.9655 10.1548 21.9857 10.0331C21.8976 10.4163 21.7914 10.7982 21.6603 11.1747L21.5964 11.3575C22.5902 11.4375 22.8518 11.6647 22.878 11.8617C23.0226 12.9858 21.6898 15.363 18.9012 16.7183C17.895 17.2096 16.8754 17.6732 15.8437 18.1086C15.2089 18.3789 14.8269 18.5422 14.4975 18.7634C14.0489 19.0633 13.7504 19.3611 13.548 19.6508C13.7228 19.716 13.9057 19.7833 14.1 19.8539C14.3737 19.954 14.6535 20.0374 14.9366 20.1073C15.0172 20.0394 15.1107 19.9695 15.2237 19.8929C15.449 19.7423 15.7899 19.597 16.3541 19.357C17.0016 19.0801 17.9827 18.6626 19.4688 17.9405C22.6803 16.3788 24.4199 13.4772 24.1893 11.6842Z" fill="#BB77FC"/><path d="M13.2934 22.1721L13.1038 22.1022C13.0258 23.1221 12.8032 23.3903 12.6116 23.4165C12.5574 23.4237 12.5028 23.4273 12.4482 23.4273C11.1544 23.4273 9.0349 21.8662 7.86554 19.3478C7.17158 17.8574 6.77081 16.8705 6.5052 16.219C6.24026 15.5703 6.08156 15.179 5.86638 14.8422C5.5732 14.387 5.28271 14.0892 5.00633 13.8882L4.81536 14.4294C4.71181 14.7279 4.6338 15.021 4.56522 15.3094C4.62641 15.3874 4.69096 15.4782 4.75955 15.5851C4.90816 15.8163 5.05004 16.1639 5.2854 16.7407C5.55437 17.4036 5.96388 18.4066 6.66927 19.9287C8.13384 23.079 10.7389 24.7792 12.4482 24.7799C12.5639 24.7799 12.6768 24.7725 12.7844 24.7571C13.9128 24.6051 14.2779 23.5039 14.3969 22.5042C14.0233 22.4139 13.6549 22.303 13.2934 22.1721Z" fill="#BB77FC"/></svg></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Призёр НТО</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">Национальная технологическая олимпиада.</p>
+                        </div>
+
+                        <div onclick="openModal('engineers')" class="glass p-5 rounded-xl hover:bg-white/5 transition-all cursor-pointer group border border-white/5 hover:border-orange-500/30">
+                            <div class="icon-circle bg-orange-500/20 text-orange-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-gear text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Инженеры Будущего</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">Призёр конкурса в треке системного программирования.</p>
+                        </div>
+
+                        <div onclick="openModal('cyber')" class="glass p-5 rounded-xl hover:bg-white/5 transition-all cursor-pointer group border border-white/5 hover:border-red-500/30">
+                            <div class="icon-circle bg-red-500/20 text-red-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-shield-check text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Кибербезопасность</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2">Победитель всероссийского этапа олимпиады.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- job -->
+                <div class="border border-dashed border-white/20 rounded-2xl p-6 bg-white/2">
+                    <h3 class="text-lg font-bold text-white mb-2">Желаемая позиция</h3>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <i class="ph ph-briefcase text-xl text-gray-500"></i>
+                        <span>Системный программист / Junior Backend / Системный администратор</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROJECTS -->
+            <div id="projects" class="tab-content hidden max-w-6xl mx-auto h-full flex flex-col fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-white">Проекты</h2>
+                </div>
+
+                <div class="flex-1 bg-[#1e1e24] rounded-xl border border-white/10 overflow-hidden flex flex-col">
+
+                    <!-- toolbar -->
+                    <div class="h-12 bg-[#27272a] border-b border-white/5 flex items-center px-4 gap-3">
+
+                        <!-- buttons -->
+                        <button id="iframeBack"
+                            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 disabled:opacity-40 disabled:hover:bg-white/5">
+                            ←
+                        </button>
+                        <button id="iframeForward"
+                            class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 disabled:opacity-40 disabled:hover:bg-white/5">
+                            →
+                        </button>
+
+                        <!-- URL -->
+                        <a id="iframeURL"
+                        href="./templates/index.html"
+                        target="_blank"
+                        class="flex-1 mx-4 h-8 bg-black/30 rounded flex items-center px-3 text-xs text-gray-400 font-mono hover:text-white transition-colors overflow-hidden whitespace-nowrap">
+                            ./templates/index.html
+                        </a>
+                    </div>
+
+                    <!-- resized iframe container -->
+                    <div class="flex-1 h-[calc(100vh-14rem)]">
+                        <iframe id="projectFrame"
+                                src="./templates/index.html"
+                                class="w-full h-full"></iframe>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTACT -->
+            <div id="contact" class="tab-content hidden max-w-2xl mx-auto fade-in h-full flex items-center justify-center">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ph ph-envelope-open text-3xl text-gray-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Свяжитесь со мной</h2>
+                    <p class="text-gray-400 mb-8">Я всегда открыт для новых предложений и интересных проектов.</p>
+
+                    <a href="mailto:main@zavorf.ru" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg shadow-blue-500/25">
+                        <i class="ph ph-paper-plane-tilt mr-2"></i>
+                        Написать письмо
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- modal -->
+    <div id="modalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center opacity-0">
+        <div id="modalContent" class="bg-[#18181b] border border-white/10 rounded-2xl w-full max-w-2xl m-4 transform scale-95 overflow-hidden shadow-2xl">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#202023]">
+                <h3 id="modalTitle" class="text-xl font-bold text-white">Заголовок</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <p id="modalDescription" class="text-gray-300 leading-relaxed mb-4">Описание...</p>
+                <div id="modalMedia" class="rounded-lg overflow-hidden bg-black/50 min-h-[200px] flex items-center justify-center border border-white/5">
+                    <span class="text-gray-600 italic">Медиа контент</span>
+                </div>
+            </div>
+            <div class="p-4 border-t border-white/10 bg-[#202023] flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const modalData = {
+        'pilotazh': {
+            title: 'Высший Пилотаж',
+            desc: 'Проект "Высший Пилотаж" - это масштабная инициатива...',
+            media: '<div class="h-48 bg-gradient-to-r from-blue-900 to-slate-900 flex items-center justify-center"><i class="ph ph-airplane text-6xl text-white/20"></i></div>'
+        },
+        'nto': {
+            title: 'Национальная технологическая олимпиада',
+            desc: 'Престижное соревнование командного формата...',
+            media: '<div class="h-48 bg-gradient-to-r from-purple-900 to-slate-900 flex items-center justify-center"><i class="ph ph-trophy text-6xl text-white/20"></i></div>'
+        },
+        'engineers': {
+            title: 'Инженеры Будущего',
+            desc: 'Всероссийский форум...',
+            media: '<div class="h-48 bg-gradient-to-r from-orange-900 to-slate-900 flex items-center justify-center"><i class="ph ph-gear text-6xl text-white/20"></i></div>'
+        },
+        'cyber': {
+            title: 'Олимпиада по Кибербезопасности',
+            desc: 'Победа на всероссийском этапе...',
+            media: '<div class="h-48 bg-gradient-to-r from-red-900 to-slate-900 flex items-center justify-center"><i class="ph ph-lock-key text-6xl text-white/20"></i></div>'
+        }
+    };
+
+    const aside = document.getElementById('asideHeader');
+    const collapseIcon = document.getElementById('collapseIcon');
+    const overlay = document.getElementById('mobileOverlay');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalContent = document.getElementById('modalContent');
+
+    let isCollapsed = false;
+
+    function toggleCollapse() {
+        if (window.innerWidth < 1024) return; // mobile separate
+        isCollapsed = !isCollapsed;
+        aside.classList.toggle('collapsed');
+
+        // Remove existing width classes
+        aside.classList.remove('w-64', 'w-20');
+
+        // Add appropriate width class based on collapsed state
+        if (isCollapsed) {
+            aside.classList.add('w-20');
+        } else {
+            aside.classList.add('w-64');
+        }
+
+        // swap caret icons (ensure both classes toggled)
+        collapseIcon.classList.toggle('ph-caret-left');
+        collapseIcon.classList.toggle('ph-caret-right');
+
+        // IMPORTANT: do NOT remove active class from nav items here.
+        // We only change visual state via CSS in collapsed mode, active remains.
+    }
+
+    function toggleSidebar() {
+        const isHidden = aside.classList.contains('-translate-x-full');
+        if (isHidden) {
+            aside.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        } else {
+            aside.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            const i = btn.querySelector('i.ph');
+            if (btn.dataset.tab === tabId) {
+                btn.classList.add('active');
+                if(i) i.style.color = ''; // rely on CSS var for active
+            } else {
+                btn.classList.remove('active');
+                if(i) i.style.color = '';
+            }
+        });
+
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+            content.classList.remove('fade-in');
+        });
+
+        const activeContent = document.getElementById(tabId);
+        if (!activeContent) return;
+        activeContent.classList.remove('hidden');
+        void activeContent.offsetWidth;
+        activeContent.classList.add('fade-in');
+
+        if (window.innerWidth < 1024) toggleSidebar();
+    }
+
+    function openModal(id) {
+        const d = modalData[id];
+        if(!d) return;
+        document.getElementById('modalTitle').innerText = d.title;
+        document.getElementById('modalDescription').innerText = d.desc;
+        document.getElementById('modalMedia').innerHTML = d.media;
+        modalBackdrop.classList.remove('hidden');
+        setTimeout(()=> {
+            modalBackdrop.style.opacity = '1';
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+    function closeModal() {
+        modalBackdrop.style.opacity = '0';
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        setTimeout(()=> modalBackdrop.classList.add('hidden'), 260);
+    }
+    modalBackdrop.addEventListener('click', (e)=> { if(e.target === modalBackdrop) closeModal(); });
+
+    window.addEventListener('resize', ()=> {
+        if (window.innerWidth >= 1024) {
+            overlay.classList.add('hidden');
+            aside.classList.remove('-translate-x-full');
+        } else {
+            aside.classList.add('-translate-x-full');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', ()=> {
+        switchTab('about');
+        if (window.innerWidth >= 1024) aside.classList.remove('-translate-x-full'); else aside.classList.add('-translate-x-full');
+    });
+</script>
+<script>
+const iframe = document.getElementById("projectFrame");
+const iframeURL = document.getElementById("iframeURL");
+const iframeBack = document.getElementById("iframeBack");
+const iframeForward = document.getElementById("iframeForward");
+
+// обновляем URL в тулбаре при загрузке
+iframe.addEventListener("load", () => {
+    try {
+        const url = iframe.contentWindow.location.href;
+        iframeURL.href = url;
+        iframeURL.textContent = url;
+
+        iframeBack.disabled = !iframe.contentWindow.history.length;
+    } catch (e) {
+        // кросс-домен нельзя читать — не наш случай
+    }
+});
+
+// кнопка "назад"
+iframeBack.addEventListener("click", () => {
+    try {
+        iframe.contentWindow.history.back();
+    } catch (e) {}
+});
+
+// кнопка "вперёд"
+iframeForward.addEventListener("click", () => {
+    try {
+        iframe.contentWindow.history.forward();
+    } catch (e) {}
+});
+</script>
+
 </body>
 </html>

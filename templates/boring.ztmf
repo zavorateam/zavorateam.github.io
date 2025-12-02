@@ -37,7 +37,7 @@ style {
 cont {
     center[
         <h1>zavorateam.github.io</h1>
-        <h2>Инструменты и генераторы</h2>
+        <h2>Ссылки на </h2>
     ],
     grid[
         <span><a class="btn" href="./yam_gen.html">Плейлистген ЯМузыки</a></span>
@@ -49,6 +49,7 @@ cont {
         <span><a class="btn" href="https://doma.ai">Doma.ai</a></span>
         <span><a class="btn" href="https://adobescript.ru">AdobeScript</a></span>
         <span><a class="btn" href="https://textovod.ru">Textovod</a></span>
+        <span><a class="btn" href="https://www.artlebedev.ru/tools/">Artlebedev</a></span>
     ]
 }
 components = bg {<canvas bg="cnprtcl" width="1920" height="1080"></canvas>}, theme {bottom-right},  back {bottom-left, index.html}
