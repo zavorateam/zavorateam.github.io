@@ -116,7 +116,7 @@
   }
   .logo-icon {
     width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--bg-blob));
+    background: linear-gradient(122deg,rgb(255, 255, 255) 10%, rgb(245, 140, 83) 20%, rgb(245, 140, 83) 30%, rgb(255, 255, 255) 50%, rgb(245, 140, 83) 70%, rgb(245, 140, 83) 80%, rgb(255, 255, 255) 90%);
     display: flex; align-items: center; justify-content: center;
     color: white; font-weight: bold; font-size: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -404,6 +404,54 @@
   .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
   @keyframes pulse { 0%{opacity:1} 50%{opacity:0.4} 100%{opacity:1} }
 
+  /* --- Radio Button Group Style --- */
+  .radio-group {
+    display: flex; gap: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 6px;
+  }
+
+  .custom-radio {
+    /* Hide the default radio button */
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .radio-group label {
+    /* Style the label to look like a button */
+    display: block;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s;
+    /* Reset label specific styles from general label rule */
+    text-transform: none; /* Keep normal case for radio labels */
+    letter-spacing: normal;
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+  
+  .radio-group label:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+  }
+
+  /* Style when checked */
+  .custom-radio:checked + label {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+  }
+
 </style>
 </head>
 <body data-theme="dark">
@@ -419,7 +467,7 @@
   <aside class="sidebar">
     <header>
       <div class="logo-area">
-        <div class="logo-icon">J</div>
+        <div class="logo-icon"><img src="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/assets/favicon.svg"></div>
         <div>
           <h1 id="ui-title">Editor Pro</h1>
           <p class="subtitle" id="ui-sub">JSON Management</p>
@@ -504,6 +552,35 @@
             <label id="lbl-week">Week</label>
             <input type="number" id="inp-week" placeholder="1-52">
           </div>
+
+          <div class="col-4">
+            <label id="lbl-rating">Rating (0-10)</label>
+            <input type="number" id="inp-rating" placeholder="7.5" step="0.1" min="0" max="10">
+          </div>
+          <div class="col-8">
+            </div>
+
+          <div class="col-6">
+            <label id="lbl-production-group">Production Type</label>
+            <div class="radio-group" id="production-group">
+              <input type="radio" id="prod-domestic" name="production" value="domestic" class="custom-radio">
+              <label for="prod-domestic" id="lbl-prod-domestic">Domestic</label>
+              <input type="radio" id="prod-foreign" name="production" value="foreign" class="custom-radio">
+              <label for="prod-foreign" id="lbl-prod-foreign">Foreign</label>
+            </div>
+          </div>
+          
+          <div class="col-6">
+            <label id="lbl-media-group">Media Type</label>
+            <div class="radio-group" id="media-group">
+              <input type="radio" id="type-movie" name="media_type" value="movie" class="custom-radio">
+              <label for="type-movie" id="lbl-type-movie">Movie</label>
+              <input type="radio" id="type-series" name="media_type" value="series" class="custom-radio">
+              <label for="type-series" id="lbl-type-series">Series</label>
+            </div>
+          </div>
+
+          <div class="section-label" id="sec-ru">Content (RU - Default)</div>
           
           <!-- New Fields: Length (Col 4) and Cast/Crew (Col 12) -->
           <div class="col-4">
@@ -618,6 +695,13 @@ const UI = {
     
     // New Meta Fields
     lblLength: 'Длина (Дни)', lblAuthors: 'Авторы', lblActors: 'Актеры', lblDirector: 'Режиссер',
+    lblRating: 'Рейтинг (0-10)',
+    lblProductionGroup: 'Производство',
+    lblProdDomestic: 'Отечеств.',
+    lblProdForeign: 'Заруб.',
+    lblMediaGroup: 'Тип Контента',
+    lblTypeMovie: 'Фильм',
+    lblTypeSeries: 'Сериал',
 
     // Custom Fields (Translated)
     lblF1: 'Текст 1', lblF2: 'Текст 2',
@@ -645,9 +729,16 @@ const UI = {
 
     // New Meta Fields
     lblLength: 'Length (Days)', lblAuthors: 'Authors', lblActors: 'Actors', lblDirector: 'Director',
+    lblRating: 'Rating (0-10)',
+    lblProductionGroup: 'Production Type',
+    lblProdDomestic: 'Domestic',
+    lblProdForeign: 'Foreign',
+    lblMediaGroup: 'Media Type',
+    lblTypeMovie: 'Movie',
+    lblTypeSeries: 'Series',
     
     // Custom Fields (Translated)
-    lblF1: 'Text 1', lblF2: 'Text 2',
+    lblF1: 'Field 1', lblF2: 'Field 2',
     
     // Sections
     secDate: 'Date & Meta',
@@ -841,6 +932,13 @@ function setLang(l) {
   document.getElementById('lbl-authors').innerText = dict.lblAuthors;
   document.getElementById('lbl-actors').innerText = dict.lblActors;
   document.getElementById('lbl-director').innerText = dict.lblDirector;
+  document.getElementById('lbl-rating').innerText = dict.lblRating;
+  document.getElementById('lbl-production-group').innerText = dict.lblProductionGroup;
+  document.getElementById('lbl-prod-domestic').innerText = dict.lblProdDomestic;
+  document.getElementById('lbl-prod-foreign').innerText = dict.lblProdForeign;
+  document.getElementById('lbl-media-group').innerText = dict.lblMediaGroup;
+  document.getElementById('lbl-type-movie').innerText = dict.lblTypeMovie;
+  document.getElementById('lbl-type-series').innerText = dict.lblTypeSeries;
   document.getElementById('lbl-f1').innerText = dict.lblF1;
   document.getElementById('lbl-f2').innerText = dict.lblF2;
 
@@ -919,10 +1017,12 @@ function selectEpisode(idx) {
   document.getElementById('inp-year').value = ep.year || '';
   document.getElementById('inp-month').value = ep.month || '';
   document.getElementById('inp-week').value = ep.week || '';
-  document.getElementById('inp-length').value = ep.length || ''; // New
-  document.getElementById('inp-authors').value = ep.authors || ''; // New
-  document.getElementById('inp-actors').value = ep.actors || ''; // New
-  document.getElementById('inp-director').value = ep.director || ''; // New
+  document.getElementById('inp-length').value = ep.length || '';
+  document.getElementById('inp-authors').value = ep.authors || '';
+  document.getElementById('inp-actors').value = ep.actors || '';
+  document.getElementById('inp-director').value = ep.director || '';
+
+  document.getElementById('inp-rating').value = ep.rating || '';
   
   document.getElementById('inp-title').value = ep.title || '';
   document.getElementById('inp-desc').value = ep.description || '';
@@ -937,6 +1037,17 @@ function selectEpisode(idx) {
   document.getElementById('inp-f1').value = ep.field1 || '';
   document.getElementById('inp-f2').value = ep.field2 || '';
 
+  const prodVal = ep.production || 'domestic'; // default to domestic
+  const prodRadio = document.querySelector(`input[name="production"][value="${prodVal}"]`);
+  if(prodRadio) prodRadio.checked = true;
+
+  // Media Type: movie/series
+  const mediaVal = ep.media_type || 'movie'; // default to movie
+  const mediaRadio = document.querySelector(`input[name="media_type"][value="${mediaVal}"]`);
+  if(mediaRadio) mediaRadio.checked = true;
+  
+  document.getElementById('inp-title').value = ep.title || '';
+
   // Mobile: Scroll to editor
   if(window.innerWidth < 900) {
     document.getElementById('editor-view').scrollIntoView({behavior: 'smooth'});
@@ -950,10 +1061,15 @@ function updateStateFromForm() {
   ep.year = parseInt(document.getElementById('inp-year').value) || 0;
   ep.month = parseInt(document.getElementById('inp-month').value) || 0;
   ep.week = parseInt(document.getElementById('inp-week').value) || 0;
-  ep.length = parseInt(document.getElementById('inp-length').value) || 0; // New
-  ep.authors = document.getElementById('inp-authors').value; // New
-  ep.actors = document.getElementById('inp-actors').value; // New
-  ep.director = document.getElementById('inp-director').value; // New
+  ep.length = parseInt(document.getElementById('inp-length').value) || 0;
+  ep.authors = document.getElementById('inp-authors').value;
+  ep.actors = document.getElementById('inp-actors').value;
+  ep.director = document.getElementById('inp-director').value;
+  ep.rating = parseFloat(document.getElementById('inp-rating').value) || 0; // <<< NEW
+  
+  // Radio Buttons: find selected value
+  ep.production = document.querySelector('input[name="production"]:checked')?.value || 'domestic'; // <<< NEW
+  ep.media_type = document.querySelector('input[name="media_type"]:checked')?.value || 'movie'; // <<< NEW
 
   ep.title = document.getElementById('inp-title').value;
   ep.description = document.getElementById('inp-desc').value;
@@ -979,8 +1095,11 @@ function addEpisode() {
     title: 'Новый Эпизод',
     title_en: 'New Episode (EN)',
     year: new Date().getFullYear(),
-    month: 1, week: 1, length: 7, // Default length
-    authors: '', actors: '', director: '', // New fields
+    month: 1, week: 1, length: 7,
+    authors: '', actors: '', director: '',
+    rating: 0,
+    production: 'domestic',
+    media_type: 'movie',
     description: '', description_en: '',
     preview: '', video_link: '', history_link: '',
     field1: '', field2: ''

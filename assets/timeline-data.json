@@ -9,10 +9,16 @@
     "actors": "Ролан Быков, Анатолий Папанов",
     "director": "Алексей Герман",
     "history_link": "https://ru.wikipedia.org/wiki/Вторжение_в_Польшу_(1939)",
-    "preview": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
+    "preview": "https://s5.tvp.pl/images2/5/f/2/uid_5f24e33b818b497db941328383c9f66d_width_1373_play_0_pos_0_gs_0_height_779.jpg",
     "video_link": "https://www.youtube.com/watch?v=example1",
     "field1": "Продолжительность: 16 дней",
-    "field2": "Потери: ~200,000 чел."
+    "field2": "Потери: ~200,000 чел.",
+    "length": 200,
+    "title_en": "Start of WW 2",
+    "description_en": "fdjsklfjdsfjkdls",
+    "rating": 8,
+    "production": "domestic",
+    "media_type": "movie"
   },
   {
     "year": 1943,
@@ -27,7 +33,13 @@
     "preview": "https://upload.wikimedia.org/wikipedia/ru/thumb/3/3d/%D0%94%D0%B5%D0%B2%D0%BE%D1%87%D0%BA%D0%B0_%D0%B8%D1%89%D0%B5%D1%82_%D0%BE%D1%82%D1%86%D0%B0.jpg/500px-%D0%94%D0%B5%D0%B2%D0%BE%D1%87%D0%BA%D0%B0_%D0%B8%D1%89%D0%B5%D1%82_%D0%BE%D1%82%D1%86%D0%B0.jpg",
     "video_link": "https://vkvideo.ru/video-228708311_456239542",
     "field1": "Советский фильм режиссёра Льва Голуба, снятый на киностудии Беларусьфильм в 1959 году по одноимённой пьесе Евгения Рысса, переработанной позднее писателем в повесть с тем же названием. ",
-    "field2": "Фильм снимали в городе Мозырь и его окрестностях в 1958 году. "
+    "field2": "Фильм снимали в городе Мозырь и его окрестностях в 1958 году. ",
+    "length": 0,
+    "title_en": "вапрол",
+    "description_en": "аввпролагпнарпвва",
+    "rating": 9,
+    "production": "domestic",
+    "media_type": "series"
   },
   {
     "year": 1942,
@@ -57,7 +69,13 @@
     "preview": "https://upload.wikimedia.org/wikipedia/ru/1/13/%D0%92%D0%B5%D1%81%D0%BD%D0%B0_%D0%BD%D0%B0_%D0%9E%D0%B4%D0%B5%D1%80%D0%B5_%D0%BF%D0%BE%D1%81%D1%82%D0%B5%D1%80.jpg",
     "video_link": "https://www.youtube.com/watch?v=example4",
     "field1": "Советский художественный фильм 1967 года режиссёра Леона Саакова, военная драма по мотивам одноимённого романа Эммануила Казакевича. ",
-    "field2": "Фильм снимался в Калининградской области"
+    "field2": "Фильм снимался в Калининградской области",
+    "length": 0,
+    "rating": 0,
+    "production": "foreign",
+    "media_type": "movie",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1942,
@@ -102,7 +120,13 @@
     "preview": "https://upload.wikimedia.org/wikipedia/ru/thumb/2/2f/%D0%96%D0%B5%D0%BD%D1%8F%2C_%D0%96%D0%B5%D0%BD%D0%B5%D1%87%D0%BA%D0%B0_%D0%B8_%C2%AB%D0%BA%D0%B0%D1%82%D1%8E%D1%88%D0%B0%C2%BB_%28%D0%BE%D0%B1%D0%BB%D0%BE%D0%B6%D0%BA%D0%B0_DVD%29.jpg/330px-%D0%96%D0%B5%D0%BD%D1%8F%2C_%D0%96%D0%B5%D0%BD%D0%B5%D1%87%D0%BA%D0%B0_%D0%B8_%C2%AB%D0%BA%D0%B0%D1%82%D1%8E%D1%88%D0%B0%C2%BB_%28%D0%BE%D0%B1%D0%BB%D0%BE%D0%B6%D0%BA%D0%B0_DVD%29.jpg",
     "video_link": "https://www.youtube.com/watch?v=example7",
     "field1": "Фильм повествует о любви интеллигентного юноши гвардии рядового Жени Колышкина и связистки Женечки Земляникиной. ",
-    "field2": "История, когда советский солдат, заблудившись с посылкой, попал к немцам под Новый год, была заимствована из фронтовых газет."
+    "field2": "История, когда советский солдат, заблудившись с посылкой, попал к немцам под Новый год, была заимствована из фронтовых газет.",
+    "length": 0,
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1943,
@@ -126,7 +150,16 @@
     "video_link": "https://www.youtube.com/watch?v=example8",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%9E%D1%81%D0%B2%D0%BE%D0%B1%D0%BE%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5_(%D0%BA%D0%B8%D0%BD%D0%BE%D1%8D%D0%BF%D0%BE%D0%BF%D0%B5%D1%8F)",
     "field1": "Киноэпопея из пяти фильмов о Великой Отечественной войне режиссёра Юрия Озерова,",
-    "field2": "Для съёмок фильма привлекались Т-34-85 из Киевского и Харьковского танковых училищ и с баз хранения КВО."
+    "field2": "Для съёмок фильма привлекались Т-34-85 из Киевского и Харьковского танковых училищ и с баз хранения КВО.",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1942,
@@ -186,18 +219,33 @@
     "video_link": "https://www.youtube.com/watch?v=example13",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%97%D0%BE%D1%81%D1%8F_(%D1%84%D0%B8%D0%BB%D1%8C%D0%BC)",
     "field1": "Советско-польский художественный фильм, снятый в 1967 году на Киностудии им. Горького режиссёром Михаилом Богиным. ",
-    "field2": "Премьера состоялась 19 сентября 1967 года."
+    "field2": "Премьера состоялась 19 сентября 1967 года.",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "foreign",
+    "media_type": "movie",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1944,
     "month": 9,
     "week": 2,
     "title": "Победа",
-    "description": "Санитарка Надя помогает эвакуировать раненых бойцов в тыл, проявляя храбрость и стойкость.",
+    "description": "Санитарка Надя помогает эвакуировать раненых бойцов в тыл, проявляя храбрость и стойкость. Фильм длится через всю войну",
     "preview": "https://upload.wikimedia.org/wikipedia/ru/thumb/7/7d/%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0_%C2%AB%D0%9F%D0%BE%D0%B1%D0%B5%D0%B4%D0%B0%C2%BB_%28%D0%A1%D0%A1%D0%A1%D0%A0-%D0%93%D0%94%D0%A0-%D0%A4%D0%B8%D0%BD%D0%BB%D1%8F%D0%BD%D0%B4%D0%B8%D1%8F%2C_1984%29.jpg/330px-%D0%9F%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0_%C2%AB%D0%9F%D0%BE%D0%B1%D0%B5%D0%B4%D0%B0%C2%BB_%28%D0%A1%D0%A1%D0%A1%D0%A0-%D0%93%D0%94%D0%A0-%D0%A4%D0%B8%D0%BD%D0%BB%D1%8F%D0%BD%D0%B4%D0%B8%D1%8F%2C_1984%29.jpg",
     "video_link": "https://www.youtube.com/watch?v=example14",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%9F%D0%BE%D0%B1%D0%B5%D0%B4%D0%B0_(%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%2C_1985)",
     "field1": "Советский двухсерийный художественный фильм режиссёра Евгения Матвеева, снятый в 1984 году.",
-    "field2": "Литературной основой картины является одноимённый роман Александра Чаковского."
+    "field2": "Литературной основой картины является одноимённый роман Александра Чаковского.",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "title_en": "",
+    "description_en": ""
   }
 ]
