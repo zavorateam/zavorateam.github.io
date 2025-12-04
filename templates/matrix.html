@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<title>Matrix Generator v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  :root{
+    --bg:#061217; --panel:#07161a; --muted:#95aeb3; --accent:#38d58a; --card:#0b1416;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:var(--bg);color:#e6f3f2}
+  .wrap{display:flex;gap:14px;padding:16px}
+  .left{width:420px;background:var(--panel);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.6)}
+  .right{flex:1;background:linear-gradient(180deg,#071217,#0b1113);padding:14px;border-radius:10px}
+  h1{margin:0 0 8px 0;font-size:18px}
+  label{display:block;font-size:13px;color:var(--muted);margin:8px 0 6px}
+  .tabs{display:flex;gap:6px;margin-bottom:8px}
+  .tab{padding:8px 10px;background:transparent;border:1px solid transparent;border-radius:6px;cursor:pointer;color:var(--muted)}
+  .tab.act{background:#0b2a22;border-color:#114; color:#dff7ee}
+  input[type=file]{display:block}
+  input, select, button, textarea{background:#071218;color:#e6f3f2;border:1px solid #133; padding:8px;border-radius:6px}
+  button{cursor:pointer}
+  .preview{background:#041216;border-radius:8px;padding:12px;min-height:440px;overflow:auto}
+  .tiles{display:grid;gap:10px;margin-top:10px}
+  .tile{background:#041014;border:1px solid #0e3130;padding:8px;border-radius:6px}
+  canvas{display:block;border-radius:4px}
+  .row{display:flex;gap:8px;align-items:center}
+  .small{font-size:12px;color:var(--muted)}
+  .export{width:100%;height:160px;background:#051416;border:1px solid #0e3330;max-width: 96%;resize: vertical;}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pad-row{display:flex;gap:6px;align-items:center}
+  pre{white-space:pre-wrap;word-break:break-word;background:#041217;padding:8px;border-radius:6px;border:1px solid #0f2424;color:#bfeadb}
+  .note{font-size:12px;color:#8aa6a6;margin-top:6px}
+  .switch{display:inline-flex;gap:6px;align-items:center}
+  .smallInput{width:68px;padding:6px}
+</style>
+</head>
+<body>
+  <div style="padding:10px 18px 0 18px">
+    <h1>Matrix Generator</h1>
+    <div class="small" style="color:var(--muted)">Import / Font / Image — выбирай сверху. Все изменения рендерятся автоматически.</div>
+  </div>
+
+  <div class="wrap">
+    <div class="left">
+      <div class="tabs" role="tablist">
+        <div id="tabImport" class="tab act">Import</div>
+        <div id="tabFont" class="tab">Font</div>
+        <div id="tabImage" class="tab">Image</div>
+      </div>
+
+      <!-- Import panel -->
+      <div id="panelImport">
+        <label class="small">Разделяйте tile пустой строкой.</label>
+        <textarea id="importArea" rows="6" placeholder="0b00111100\n0b01100110\n...\n\n0b00111100\n..."></textarea>
+      </div>
+
+      <!-- Font panel -->
+      <div id="panelFont" style="display:none">
+        <label class="small">Загрузить шрифт (TTF/OTF/WOFF)</label>
+        <input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2">
+        <input id="glyphs" placeholder="012+-:ПR">
+      </div>
+
+      <!-- Image panel -->
+      <div id="panelImage" style="display:none">
+        <label class="small">Загрузить изображение (PNG/JPG/SVG)</label>
+        <input id="imgFile" type="file" accept=".png,.jpg,.jpeg,.svg">
+      </div>
+
+      <hr style="border:0;height:1px;background:#083a32;margin:12px 0">
+
+      <label class="small">Tile (w × h)</label>
+      <div class="row">
+        <select id="tileW"><option>8</option><option>16</option><option>24</option><option>32</option></select>
+        <select id="tileH"><option>8</option><option>16</option><option>24</option><option>32</option></select>
+        <div style="flex:1"></div>
+        <label class="small">Supersample</label>
+        <select id="supersample"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+      </div>
+
+      <label class="small">Grid (cols × rows)</label>
+      <div class="row">
+        <input id="cols" type="number" value="4" min="1" style="width:84px">
+        <input id="rows" type="number" value="2" min="1" style="width:84px">
+      </div>
+
+      <label class="small">Padding (pixels) — T R B L</label>
+      <div class="pad-row">
+        <input id="padTop" class="smallInput" type="number" value="0" min="0">
+        <input id="padRight" class="smallInput" type="number" value="0" min="0">
+        <input id="padBottom" class="smallInput" type="number" value="0" min="0">
+        <input id="padLeft" class="smallInput" type="number" value="0" min="0">
+      </div>
+
+      <label class="small">Binarize mode</label>
+      <div class="row">
+        <select id="mode"><option value="threshold">Threshold</option><option value="nearest">Nearest</option><option value="average">Average</option></select>
+        <label class="small" style="margin-left:8px">Threshold</label>
+        <input id="threshold" type="number" value="128" min="0" max="255" style="width:84px">
+        <div style="flex:1"></div>
+      </div>
+
+      <label class="small">Preview options</label>
+      <div class="row">
+        <label class="small">Display</label>
+        <select id="displayMode"><option value="single">Single canvas</option><option value="tiles">Tiles view</option></select>
+        <label class="small">Pixel scale</label>
+        <input id="pixelScale" type="number" value="6" min="1" style="width:84px">
+      </div>
+
+      <div class="controls">
+        <button id="exportC">Export C</button>
+        <button id="exportJSON">Export JSON</button>
+        <button id="clearAll">Clear</button>
+      </div>
+
+      <div style="margin-top:10px">
+        <label class="small">Export output</label>
+        <textarea id="export" class="export" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="preview">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="small">Preview</div>
+            <div id="info" class="small" style="margin-top:6px">Нет данных</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:14px;margin-top:12px;align-items:flex-start">
+          <div style="min-width:420px">
+            <canvas id="mainCanvas" width="640" height="320" style="background:#051318;border-radius:8px;border:1px solid #0c3330;display:block"></canvas>
+          </div>
+          <div style="flex:1">
+            <div class="small">Tiles</div>
+            <div id="tilesWrap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="note">Клик по tile — открыть редактор пикселей.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
+<script>
+/* ====== State ====== */
+let modeTab = 'import'; // import | font | image
+let loadedImage = null;   // Image element for raster/SVG
+let fontBlobURL = null;   // blob url for loaded font
+let fontFamilyName = null; // name registered via FontFace
+let lastTiles = [];       // array of matrices (each tile: h rows x w cols)
+let lastW = 8, lastH = 8, lastCols = 1, lastRows = 1;
+
+/* UI nodes */
+const tabImport = document.getElementById('tabImport');
+const tabFont = document.getElementById('tabFont');
+const tabImage = document.getElementById('tabImage');
+const panelImport = document.getElementById('panelImport');
+const panelFont = document.getElementById('panelFont');
+const panelImage = document.getElementById('panelImage');
+
+const fileFont = document.getElementById('fontFile');
+const fileImg = document.getElementById('imgFile');
+const importArea = document.getElementById('importArea');
+
+const tileWSel = document.getElementById('tileW');
+const tileHSel = document.getElementById('tileH');
+const colsInput = document.getElementById('cols');
+const rowsInput = document.getElementById('rows');
+const padTop = document.getElementById('padTop');
+const padRight = document.getElementById('padRight');
+const padBottom = document.getElementById('padBottom');
+const padLeft = document.getElementById('padLeft');
+const modeSel = document.getElementById('mode');
+const thrInput = document.getElementById('threshold');
+const displayMode = document.getElementById('displayMode');
+const pixelScale = document.getElementById('pixelScale');
+const supersampleSel = document.getElementById('supersample');
+
+const glyphsInput = document.getElementById('glyphs');
+
+const mainCanvas = document.getElementById('mainCanvas');
+const mainCtx = mainCanvas.getContext('2d', {alpha:true});
+mainCtx.imageSmoothingEnabled = false;
+
+const tilesWrap = document.getElementById('tilesWrap');
+const exportArea = document.getElementById('export');
+const info = document.getElementById('info');
+
+const btnExportC = document.getElementById('exportC');
+const btnExportJSON = document.getElementById('exportJSON');
+const btnClearAll = document.getElementById('clearAll');
+
+/* ====== Helpers ====== */
+function clearNode(n){ while(n.firstChild) n.removeChild(n.firstChild); }
+function makeCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+
+/* Tabs */
+function setTab(t){
+  modeTab = t;
+  tabImport.classList.toggle('act', t==='import');
+  tabFont.classList.toggle('act', t==='font');
+  tabImage.classList.toggle('act', t==='image');
+  panelImport.style.display = t==='import' ? 'block' : 'none';
+  panelFont.style.display = t==='font' ? 'block' : 'none';
+  panelImage.style.display = t==='image' ? 'block' : 'none';
+  triggerRender();
+}
+tabImport.addEventListener('click', ()=>setTab('import'));
+tabFont.addEventListener('click', ()=>setTab('font'));
+tabImage.addEventListener('click', ()=>setTab('image'));
+
+/* File loaders */
+fileImg.addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=> {
+    const img = new Image();
+    img.onload = ()=> { loadedImage = img; info.textContent = `Image loaded: ${f.name} — ${img.width}×${img.height}`; triggerRender(); };
+    img.onerror = ()=> { alert('Error loading image'); };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+});
+
+// Font load via FontFace (use blob url to register)
+fileFont.addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if (!f) return;
+  const ab = await f.arrayBuffer();
+  // cleanup old
+  if (fontBlobURL) { try{ URL.revokeObjectURL(fontBlobURL); }catch{}; fontBlobURL=null; fontFamilyName=null; }
+  const blob = new Blob([ab], {type: 'font/' + (f.name.split('.').pop())});
+  fontBlobURL = URL.createObjectURL(blob);
+  // create random family name
+  fontFamilyName = 'UserFont_' + Date.now();
+  const face = new FontFace(fontFamilyName, `url(${fontBlobURL})`);
+  try {
+    await face.load();
+    document.fonts.add(face);
+    info.textContent = `Font loaded: ${f.name} (${fontFamilyName})`;
+    triggerRender();
+  } catch(err){
+    alert('Font load error: ' + err);
+  }
+});
+
+/* parse import area (JSON or 0b groups) */
+/* Fixed: split into groups by empty line(s); accept commas/newlines; keep multiple tiles */
+importArea.addEventListener('input', ()=>{ if (modeTab==='import') parseImportArea(); });
+
+function parseImportArea(){
+  const raw = importArea.value.replace(/\r/g,'');
+  if (!raw.trim()) return;
+  try {
+    // try JSON first
+    const txtTrim = raw.trim();
+    if (txtTrim.startsWith('[') || txtTrim.startsWith('{')) {
+      const obj = JSON.parse(txtTrim);
+      if (Array.isArray(obj) && obj.length>0 && obj[0].data){
+        const mats = obj.map(b => b.data.map(s => {
+          const m = String(s).match(/0b([01]+)/);
+          if (!m) throw 'Bad data entry: ' + s;
+          return m[1].split('').map(ch=>ch==='1'?1:0);
+        }));
+        // set last dims from first block
+        lastTiles = mats;
+        lastW = obj[0].w; lastH = obj[0].h;
+        const colsUI = Math.max(1, parseInt(colsInput.value,10) || 4);
+        lastCols = Math.min(colsUI, mats.length) || Math.min(8, mats.length);
+        lastRows = Math.ceil(mats.length/lastCols);
+        info.textContent = 'Imported JSON tiles';
+        triggerRender();
+        return;
+      }
+    }
+
+    // split into groups separated by one or more blank lines
+    const groupsRaw = raw.split(/\n{2,}/).map(s=>s.trim()).filter(Boolean);
+    const mats = groupsRaw.map(gr => {
+      // split by commas or newlines, ignore empty lines
+      const lines = gr.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+      if (lines.length === 0) throw 'Empty group';
+      // all lines must have same width
+      const rows = lines.map(l => {
+        const m = l.match(/0b([01]+)/);
+        if (!m) throw 'Bad line: ' + l;
+        return m[1].split('').map(ch=>ch==='1'?1:0);
+      });
+      // ensure all rows have same length
+      const w = rows[0].length;
+      for (let r of rows) if (r.length !== w) throw 'Uneven row width';
+      return rows;
+    });
+
+    lastTiles = mats;
+    lastW = lastTiles[0][0].length;
+    lastH = lastTiles[0].length;
+    const colsUI = Math.max(1, parseInt(colsInput.value,10) || 4);
+    lastCols = Math.min(colsUI, mats.length) || Math.min(8,mats.length);
+    lastRows = Math.ceil(mats.length/lastCols);
+    info.textContent = `Imported ${mats.length} tile(s)`;
+    triggerRender();
+  } catch(e){
+    info.textContent = 'Import parse error: ' + (e && e.message ? e.message : String(e));
+  }
+}
+
+/* ===== Render pipeline ===== */
+const liveRender = debounce(renderGrid, 120);
+
+[
+  tileWSel, tileHSel, colsInput, rowsInput, padTop, padRight, padBottom, padLeft,
+  modeSel, thrInput, displayMode, pixelScale, supersampleSel, glyphsInput
+].forEach(el => el.addEventListener('input', liveRender));
+
+[fileImg, fileFont].forEach(el => el.addEventListener('change', liveRender));
+
+btnClearAll.addEventListener('click', ()=>{ lastTiles = []; clearNode(tilesWrap); exportArea.value=''; info.textContent='Cleared'; renderCanvas(); });
+
+/* Main render function */
+async function renderGrid(){
+  // read params
+  const tileW = parseInt(tileWSel.value,10);
+  const tileH = parseInt(tileHSel.value,10);
+  const cols = Math.max(1, parseInt(colsInput.value,10));
+  const rows = Math.max(1, parseInt(rowsInput.value,10));
+  const padT = Math.max(0, parseInt(padTop.value,10));
+  const padR = Math.max(0, parseInt(padRight.value,10));
+  const padB = Math.max(0, parseInt(padBottom.value,10));
+  const padL = Math.max(0, parseInt(padLeft.value,10));
+  const mode = modeSel.value;
+  const threshold = Math.max(0, Math.min(255, parseInt(thrInput.value,10)||128));
+  const ss = Math.max(1, parseInt(supersampleSel.value,10) || 1);
+
+  lastW = tileW; lastH = tileH;
+
+  // Path A: import tab
+  if (modeTab === 'import'){
+    if (!lastTiles || lastTiles.length===0){ info.textContent = 'Import: paste bitmap then it will render'; renderCanvas(); return; }
+    info.textContent = `Import: ${lastTiles.length} tile(s)`;
+    // respect UI grid if user set cols/rows — but do not re-chunk data
+    lastCols = Math.min(cols, Math.max(1, lastTiles.length));
+    lastRows = Math.ceil(lastTiles.length / lastCols);
+    renderCanvas();
+    renderTilesView();
+    return;
+  }
+
+  // Path B: font
+  if (modeTab === 'font'){
+    if (!fontFamilyName) { info.textContent = 'Font not loaded'; return; }
+    const glyphs = (glyphsInput.value || '').split('');
+    if (glyphs.length === 0){ info.textContent = 'Enter glyphs to generate'; return; }
+    const mats = [];
+    // compute pad in supersampled px
+    const pad = { left: padL, right: padR, top: padT, bottom: padB };
+    for (let i=0;i<cols*rows && i<glyphs.length;i++){
+      const ch = glyphs[i];
+      const tileCanvas = drawGlyphToCanvasFont(fontFamilyName, ch, tileW, tileH, ss, pad);
+      const mat = tileToMatrix(tileCanvas, mode, threshold, ss);
+      mats.push(mat);
+    }
+    lastTiles = mats;
+    lastCols = cols;
+    lastRows = Math.ceil(mats.length / lastCols);
+    info.textContent = `Font: generated ${mats.length} tiles`;
+    renderCanvas();
+    renderTilesView();
+    return;
+  }
+
+  // Path C: image
+  if (modeTab === 'image'){
+    if (!loadedImage) { info.textContent = 'Image not loaded'; return; }
+    // Build big canvas sized (tileW*cols*ss, tileH*rows*ss)
+    const bigW = tileW * cols * ss;
+    const bigH = tileH * rows * ss;
+    const big = makeCanvas(bigW, bigH);
+    const g = big.getContext('2d', {alpha:true});
+    g.imageSmoothingEnabled = false;
+    // clear
+    g.fillStyle = '#000'; g.fillRect(0,0,bigW,bigH);
+    // compute target area minus padding (padding given in px at ss=1; convert)
+    const padLpx = padL * ss, padRpx = padR * ss, padTpx = padT * ss, padBpx = padB * ss;
+    const availW = bigW - padLpx - padRpx;
+    const availH = bigH - padTpx - padBpx;
+    // fit image into avail, preserving aspect
+    const scale = Math.min(availW / loadedImage.width, availH / loadedImage.height);
+    const dw = Math.round(loadedImage.width * scale);
+    const dh = Math.round(loadedImage.height * scale);
+    const ox = padLpx + Math.floor((availW - dw)/2);
+    const oy = padTpx + Math.floor((availH - dh)/2);
+    g.drawImage(loadedImage, 0,0,loadedImage.width, loadedImage.height, ox, oy, dw, dh);
+
+    // slice tiles and convert
+    const mats = [];
+    for (let ry=0; ry<rows; ry++){
+      for (let rx=0; rx<cols; rx++){
+        const x = rx * tileW * ss;
+        const y = ry * tileH * ss;
+        const tc = makeCanvas(tileW * ss, tileH * ss);
+        const tg = tc.getContext('2d', {alpha:true});
+        tg.imageSmoothingEnabled = false;
+        tg.drawImage(big, x, y, tileW*ss, tileH*ss, 0,0, tileW*ss, tileH*ss);
+        const mat = tileToMatrix(tc, mode, threshold, ss);
+        mats.push(mat);
+      }
+    }
+    lastTiles = mats;
+    lastCols = cols; lastRows = rows;
+    info.textContent = `Image → ${mats.length} tiles (ss=${ss})`;
+    renderCanvas();
+    renderTilesView();
+    return;
+  }
+}
+
+/* draw glyph using loaded fontFamilyName via FontFace into a high-res canvas (tileW*ss x tileH*ss)
+   Pads are in px at ss=1 (top/right/bottom/left) */
+function drawGlyphToCanvasFont(family, ch, tileW, tileH, ss, pads){
+  const w = tileW * ss, h = tileH * ss;
+  const padL = (pads && pads.left ? pads.left * ss : 0);
+  const padR = (pads && pads.right ? pads.right * ss : 0);
+  const padT = (pads && pads.top ? pads.top * ss : 0);
+  const padB = (pads && pads.bottom ? pads.bottom * ss : 0);
+  const usableW = Math.max(1, w - padL - padR);
+  const usableH = Math.max(1, h - padT - padB);
+
+  const c = makeCanvas(w,h);
+  const ctx = c.getContext('2d', {alpha:true});
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+
+  // Start with fontSize proportional to usableH, then shrink until fits usableW
+  // Use a safety margin
+  let fontSize = Math.floor(usableH * 0.95);
+  while (fontSize > 8) {
+    ctx.font = `${fontSize}px "${family}"`;
+    const metrics = ctx.measureText(ch);
+    const textWidth = metrics.width || fontSize; // fallback
+    // try to estimate height from metrics if available
+    const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.7;
+    const descent = metrics.actualBoundingBoxDescent || fontSize * 0.3;
+    const textHeight = ascent + descent;
+    if (textWidth <= usableW * 0.98 && textHeight <= usableH * 0.98) break;
+    fontSize = Math.floor(fontSize * 0.88);
+  }
+  ctx.font = `${fontSize}px "${family}"`;
+  // center in usable rectangle
+  const cx = padL + usableW / 2;
+  const cy = padT + usableH / 2;
+  // draw white text (we only care about brightness)
+  ctx.fillText(ch, cx, cy);
+  return c;
+}
+
+/* convert high-res tile canvas (w*ss x h*ss) into matrix h x w */
+function tileToMatrix(tileCanvas, mode, threshold, ss){
+  const srcW = tileCanvas.width, srcH = tileCanvas.height;
+  const outW = Math.floor(srcW / ss), outH = Math.floor(srcH / ss);
+  const ctx = tileCanvas.getContext('2d');
+  const id = ctx.getImageData(0,0,srcW,srcH).data;
+  const mat = [];
+  for (let y=0;y<outH;y++){
+    const row = [];
+    for (let x=0;x<outW;x++){
+      // source region [x*ss .. (x+1)*ss -1], [y*ss .. (y+1)*ss -1]
+      if (mode === 'nearest'){
+        const sx = x*ss + Math.floor(ss/2), sy = y*ss + Math.floor(ss/2);
+        const idx = (sy*srcW + sx)*4;
+        const r = id[idx], g = id[idx+1], b = id[idx+2], a = id[idx+3];
+        const lum = a===0 ? 0 : Math.round(0.299*r + 0.587*g + 0.114*b);
+        row.push(lum >= threshold ? 1 : 0);
+      } else {
+        // average luminance in region
+        let sum = 0, cnt=0;
+        for (let yy = y*ss; yy < (y+1)*ss; yy++){
+          for (let xx = x*ss; xx < (x+1)*ss; xx++){
+            const i = (yy*srcW + xx)*4;
+            const r = id[i], g = id[i+1], b = id[i+2], a = id[i+3];
+            const lum = a===0 ? 0 : Math.round(0.299*r + 0.587*g + 0.114*b);
+            sum += lum; cnt++;
+          }
+        }
+        const avg = cnt ? Math.round(sum / cnt) : 0;
+        if (mode === 'average') row.push(avg >= threshold ? 1 : 0);
+        else /* threshold mode fallback using center */ {
+          const sx = x*ss + Math.floor(ss/2), sy = y*ss + Math.floor(ss/2);
+          const idx = (sy*srcW + sx)*4;
+          const r = id[idx], g = id[idx+1], b = id[idx+2], a = id[idx+3];
+          const lum = a===0 ? 0 : Math.round(0.299*r + 0.587*g + 0.114*b);
+          row.push(lum >= threshold ? 1 : 0);
+        }
+      }
+    }
+    mat.push(row);
+  }
+  return mat;
+}
+
+/* render main canvas from lastTiles */
+function renderCanvas(){
+  // mainCanvas sized by pixelScale * grid
+  const scale = Math.max(1, parseInt(pixelScale.value,10) || 6);
+  const cols = lastCols || Math.ceil(Math.sqrt(lastTiles.length||1));
+  const rows = lastRows || Math.ceil((lastTiles.length||1)/cols);
+  const w = lastW || 8, h = lastH || 8;
+  const totalW = cols * w * scale;
+  const totalH = rows * h * scale;
+  // resize canvas appropriately (limit to window)
+  mainCanvas.width = Math.max(320, Math.min(1600, totalW + 20));
+  mainCanvas.height = Math.max(160, Math.min(900, totalH + 20));
+  const ctx = mainCtx;
+  ctx.clearRect(0,0,mainCanvas.width, mainCanvas.height);
+  // center grid
+  const offsetX = Math.floor((mainCanvas.width - totalW)/2);
+  const offsetY = Math.floor((mainCanvas.height - totalH)/2);
+  // background
+  ctx.fillStyle = '#051218'; ctx.fillRect(0,0,mainCanvas.width, mainCanvas.height);
+
+  // draw pixels as squares with slight inner highlight
+  for (let t=0; t<lastTiles.length; t++){
+    const tx = t % cols, ty = Math.floor(t / cols);
+    const mat = lastTiles[t];
+    for (let y=0;y<h;y++){
+      for (let x=0;x<w;x++){
+        const bit = mat[y][x];
+        const px = offsetX + (tx*w + x) * scale;
+        const py = offsetY + (ty*h + y) * scale;
+        if (bit){
+          // bright pixel
+          ctx.fillStyle = '#39d58a';
+          ctx.fillRect(px+1, py+1, Math.max(1,scale-2), Math.max(1,scale-2));
+          // inner darker
+          ctx.fillStyle = 'rgba(0,0,0,0.06)';
+          const inset = Math.max(1,Math.floor(scale*0.2));
+          ctx.fillRect(px + inset, py + inset, Math.max(1,scale - inset*2), Math.max(1,scale - inset*2));
+        } else {
+          // off pixel subtle
+          ctx.fillStyle = '#041318';
+          ctx.fillRect(px, py, scale, scale);
+        }
+      }
+    }
+  }
+
+  // if tiles view selected, display small previews
+  if (displayMode.value === 'tiles') renderTilesView();
+}
+
+/* show tiles panel */
+function renderTilesView(){
+  clearNode(tilesWrap);
+  const colsPreview = Math.min(6, Math.max(1, lastTiles.length));
+  tilesWrap.style.gridTemplateColumns = `repeat(${colsPreview},1fr)`;
+  lastTiles.forEach((mat, idx)=>{
+    const tileEl = document.createElement('div'); tileEl.className='tile';
+    const canvas = makeCanvas(lastW, lastH);
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle='#fff';
+    for (let y=0;y<lastH;y++) for (let x=0;x<lastW;x++) if (mat[y][x]) ctx.fillRect(x,y,1,1);
+    const scale = Math.max(6, Math.floor(96 / Math.max(lastW,lastH)));
+    canvas.style.width = (lastW*scale) + 'px'; canvas.style.height = (lastH*scale) + 'px';
+    canvas.style.imageRendering = 'pixelated';
+    tileEl.appendChild(canvas);
+    const pre = document.createElement('pre'); pre.textContent = mat.map(r=>'0b'+r.map(v=>v?'1':'0').join('')).join(',\n');
+    tileEl.appendChild(pre);
+    tileEl.addEventListener('click', ()=> openEditor(mat, lastW, lastH, idx, (newMat)=>{
+      lastTiles[idx] = newMat; renderCanvas(); renderTilesView(); exportArea.value = ''; // reset export
+    }));
+    tilesWrap.appendChild(tileEl);
+  });
+}
+
+/* open editor popup */
+function openEditor(mat, w, h, idx, onSave){
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style,{position:'fixed',left:0,top:0,right:0,bottom:0,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999});
+  const box = document.createElement('div'); Object.assign(box.style,{background:'#071417',padding:12,borderRadius:8,minWidth:260});
+  const grid = document.createElement('div'); grid.style.display='grid'; grid.style.gridTemplateColumns = `repeat(${w},20px)`; grid.style.gap='4px';
+  const copy = mat.map(r=>r.slice());
+  for (let y=0;y<h;y++){
+    for (let x=0;x<w;x++){
+      const cell = document.createElement('div'); cell.style.width='20px'; cell.style.height='20px';
+      cell.style.background = copy[y][x] ? '#39d58a' : '#041214'; cell.style.border='1px solid #0a2320';
+      cell.dataset.x=x; cell.dataset.y=y;
+      cell.addEventListener('click', ()=>{ copy[Number(cell.dataset.y)][Number(cell.dataset.x)] ^= 1; cell.style.background = copy[cell.dataset.y][cell.dataset.x] ? '#39d58a':'#041214';});
+      grid.appendChild(cell);
+    }
+  }
+  const btnSave = document.createElement('button'); btnSave.textContent='Save'; btnSave.style.marginTop='8px';
+  const btnCancel = document.createElement('button'); btnCancel.textContent='Cancel'; btnCancel.style.marginLeft='8px';
+  btnSave.onclick = ()=>{ onSave(copy); document.body.removeChild(overlay); };
+  btnCancel.onclick = ()=>{ document.body.removeChild(overlay); };
+  box.appendChild(grid); box.appendChild(btnSave); box.appendChild(btnCancel); overlay.appendChild(box); document.body.appendChild(overlay);
+}
+
+/* Export functions */
+btnExportC.addEventListener('click', ()=>{
+  if (!lastTiles || lastTiles.length===0) return alert('Нет тайлов для экспорта');
+  let out = '';
+  lastTiles.forEach((mat,i)=>{
+    const name = `glyph_${i}_${lastW}x${lastH}`;
+    out += `const uint8_t ${name}[] = {\n  `;
+    out += mat.map(r=>'0b'+r.map(v=>v?'1':'0').join('')).join(',\n  ');
+    out += `\n};\n\n`;
+  });
+  exportArea.value = out;
+});
+btnExportJSON.addEventListener('click', ()=>{
+  if (!lastTiles || lastTiles.length===0) return alert('Нет тайлов для экспорта');
+  const blocks = lastTiles.map((m,i)=>({index:i,w:lastW,h:lastH,data:m.map(r=>'0b'+r.map(v=>v?'1':'0').join(''))}));
+  const blob = new Blob([JSON.stringify(blocks,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='tiles.json'; a.click(); URL.revokeObjectURL(a.href);
+  exportArea.value = JSON.stringify(blocks,null,2);
+});
+
+/* Trigger render (debounced) */
+function triggerRender(){ liveRender(); }
+
+/* initial render */
+renderGrid();
+
+/* expose some helpers to console for debugging */
+window._matrix_v3 = {
+  renderGrid, renderCanvas, lastTiles
+};
+</script>
+</body>
+</html>
+
