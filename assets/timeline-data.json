@@ -18,7 +18,7 @@
     "description_en": "fdjsklfjdsfjkdls",
     "rating": 8,
     "production": "domestic",
-    "media_type": "movie"
+    "media_type": "series"
   },
   {
     "year": 1943,
@@ -58,7 +58,7 @@
   },
   {
     "year": 1945,
-    "month": 5,
+    "month": 3,
     "week": 3,
     "title": "Весна на Одере",
     "description": "Действие разворачивается вокруг группы медсестер, обслуживающих советские войска в ходе наступления на Берлин.",
@@ -90,7 +90,13 @@
     "preview": "https://upload.wikimedia.org/wikipedia/ru/4/42/1961_ballada_o_soldate.jpg",
     "video_link": "https://www.youtube.com/watch?v=example5",
     "field1": "Фильм повествует о нескольких днях из жизни солдата, который едет в отпуск к матери.",
-    "field2": "Сценарист Валентин Ежов и режиссёр Григорий Чухрай были удостоены Ленинской премии."
+    "field2": "Сценарист Валентин Ежов и режиссёр Григорий Чухрай были удостоены Ленинской премии.",
+    "length": 0,
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1942,
@@ -105,7 +111,13 @@
     "preview": "https://upload.wikimedia.org/wikipedia/ru/thumb/d/df/%D0%A1%D1%83%D0%B4%D1%8C%D0%B1%D0%B0_%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA%D0%B0_%28%D0%BF%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0%29.jpg/330px-%D0%A1%D1%83%D0%B4%D1%8C%D0%B1%D0%B0_%D1%87%D0%B5%D0%BB%D0%BE%D0%B2%D0%B5%D0%BA%D0%B0_%28%D0%BF%D0%BE%D1%81%D1%82%D0%B5%D1%80_%D1%84%D0%B8%D0%BB%D1%8C%D0%BC%D0%B0%29.jpg",
     "video_link": "https://www.youtube.com/watch?v=example6",
     "field1": "Советский художественный фильм по одноимённому рассказу Михаила Шолохова. ",
-    "field2": "В фильме звучит популярное танго «О, донна Клара» Ежи Петербургского."
+    "field2": "В фильме звучит популярное танго «О, донна Клара» Ежи Петербургского.",
+    "length": 0,
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1944,
@@ -123,8 +135,8 @@
     "field2": "История, когда советский солдат, заблудившись с посылкой, попал к немцам под Новый год, была заимствована из фронтовых газет.",
     "length": 0,
     "rating": 0,
-    "production": "domestic",
-    "media_type": "series",
+    "production": "foreign",
+    "media_type": "movie",
     "title_en": "",
     "description_en": ""
   },
@@ -138,7 +150,16 @@
     "video_link": "https://www.youtube.com/watch?v=example8",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%90_%D0%B7%D0%BE%D1%80%D0%B8_%D0%B7%D0%B4%D0%B5%D1%81%D1%8C_%D1%82%D0%B8%D1%85%D0%B8%D0%B5...",
     "field1": "Российская военная драма режиссёра Рената Давлетьярова",
-    "field2": "Для саундтрека к фильму группа «Любэ» и офицеры группы «Альфа» записали одноимённую песню «А зори здесь тихие»."
+    "field2": "Для саундтрека к фильму группа «Любэ» и офицеры группы «Альфа» записали одноимённую песню «А зори здесь тихие».",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "foreign",
+    "media_type": "movie",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1944,
@@ -157,7 +178,7 @@
     "director": "",
     "rating": 0,
     "production": "domestic",
-    "media_type": "series",
+    "media_type": "movie",
     "title_en": "",
     "description_en": ""
   },
@@ -171,7 +192,16 @@
     "video_link": "https://www.youtube.com/watch?v=example9",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0_%D0%BD%D0%B0_%D0%B4%D0%BE%D1%80%D0%BE%D0%B3%D0%B0%D1%85",
     "field1": "Картина вышла на большой экран только в 1986 году под названием «Проверка на дорогах» (в титрах год съёмки указан как 1985).",
-    "field2": "Сам режиссёр считает, что причиной запрета стала показанная в фильме жалость к людям, сдавшимся в плен. "
+    "field2": "Сам режиссёр считает, что причиной запрета стала показанная в фильме жалость к людям, сдавшимся в плен. ",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1942,
@@ -183,7 +213,16 @@
     "video_link": "https://www.youtube.com/watch?v=example10",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%9E%D0%BD%D0%B8_%D1%81%D1%80%D0%B0%D0%B6%D0%B0%D0%BB%D0%B8%D1%81%D1%8C_%D0%B7%D0%B0_%D0%A0%D0%BE%D0%B4%D0%B8%D0%BD%D1%83_(%D1%84%D0%B8%D0%BB%D1%8C%D0%BC)",
     "field1": "В кинотеатрах СССР фильм посмотрели 40,6 миллионов зрителей.",
-    "field2": "На месте съёмок фильма в хуторе Мелоклетском Клетского района Волгоградской области установлена часовня и памятник."
+    "field2": "На месте съёмок фильма в хуторе Мелоклетском Клетского района Волгоградской области установлена часовня и памятник.",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "foreign",
+    "media_type": "movie",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1941,
@@ -195,7 +234,16 @@
     "video_link": "https://www.youtube.com/watch?v=example11",
     "history_link": "https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D1%89%D0%B0%D0%BD%D0%B8%D0%B5_%D1%81%D0%BB%D0%B0%D0%B2%D1%8F%D0%BD%D0%BA%D0%B8_(%D1%84%D0%B8%D0%BB%D1%8C%D0%BC)",
     "field1": "Основные места съёмок в Крыму — посёлок Рыбачье, Коктебель и город Судак. ",
-    "field2": "Одна из героинь фильма—медицинская сестра, мобилизованная в армию."
+    "field2": "Одна из героинь фильма—медицинская сестра, мобилизованная в армию.",
+    "length": 0,
+    "authors": "",
+    "actors": "",
+    "director": "",
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series",
+    "title_en": "",
+    "description_en": ""
   },
   {
     "year": 1944,
@@ -226,7 +274,7 @@
     "director": "",
     "rating": 0,
     "production": "foreign",
-    "media_type": "movie",
+    "media_type": "series",
     "title_en": "",
     "description_en": ""
   },
@@ -246,6 +294,9 @@
     "actors": "",
     "director": "",
     "title_en": "",
-    "description_en": ""
+    "description_en": "",
+    "rating": 0,
+    "production": "domestic",
+    "media_type": "series"
   }
 ]
