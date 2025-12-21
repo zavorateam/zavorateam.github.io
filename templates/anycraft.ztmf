@@ -45,10 +45,10 @@ cont {
     <span><a class="btn" href="./index.html?file=checker.ztmf">Проверка битых ссылок</a></span>
     <span><a class="btn" href="./index.html?file=favgen.ztmf">Генератор favicon</a></span>
     <span><a class="btn" href="./pythonner.html">Решений ЕГЭ №2</a></span>
-    <span><a class='btn' href="./chematter.html">Химических формул</a></span>
+    <span><a class="btn" href="./chematter.html">Химических формул</a></span>
     <span><a class="btn" href="./index.html?file=country.ztmf">Коды стран</a></span>
     <span><a class="btn" href="./index.html?file=textovod.ztmf">Текстовод</a></span>
-    <span><a class="btn" href="./matrix.html>Генератор матриц</a></span>
+    <span><a class="btn" href="./matrix.html">Матриц на MAX7219</a></span>
     <span><a class="btn" href="https://randomall.ru/">Текстовых сочетаний</a></span>
     <span><a class="btn" href="https://adobescript.ru/generator/road-sign-russia">Дорожных указателей</a></span>
     <span><a class="btn" href="https://autocraft.app/example/">Autocraft</a></span>
