@@ -314,7 +314,7 @@ style {
     }
 
     .lesson-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -322,7 +322,7 @@ style {
     }
 
     .lib-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -350,7 +350,6 @@ style {
     }
 
     .btn:hover {
-        background: var(--primary);
         color: white;
     }
 
@@ -408,6 +407,15 @@ style {
         display: revert !important;
         background: none !important;
         box-shadow: none !important;
+    }
+
+    /* Исправление шрифтов для Juxtopposed стиля */
+    h1 {
+        font-family: 'Juxel', sans-serif !important;
+    }
+
+    h2, h3, p, li, a, .btn {
+        font-family: 'Epilepsy Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
     }
 
     /* 10. Адаптивность для мобильных */

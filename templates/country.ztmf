@@ -314,7 +314,7 @@ style {
     }
 
     .lesson-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -322,7 +322,7 @@ style {
     }
 
     .lib-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -350,7 +350,7 @@ style {
     }
 
     .btn:hover {
-        background: var(--primary);
+        background: none;
         color: white;
     }
 

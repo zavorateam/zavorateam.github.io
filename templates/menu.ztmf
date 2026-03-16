@@ -279,7 +279,7 @@ style {
     }
 
     .lesson-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -287,7 +287,7 @@ style {
     }
 
     .lib-list li a:hover {
-        background: var(--primary);
+        background: none;
         color: #fff;
         box-shadow: var(--shadow-md);
         transform: translateX(4px);
@@ -315,7 +315,7 @@ style {
     }
 
     .btn:hover {
-        background: var(--primary);
+        background: none;
         color: white;
     }
 
@@ -402,6 +402,15 @@ style {
             justify-content: center;
         }
     }
+
+    /* Исправление шрифтов для Juxtopposed стиля */
+    h1 {
+        font-family: 'Juxel', sans-serif !important;
+    }
+
+    h2, .lesson-list li a, .lib-list li a, .fit a, .btn, .social-btn {
+        font-family: 'Epilepsy Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    }
     </style>
 }
 </meta>
@@ -423,7 +432,7 @@ style {
                 quadro{
                     <h2>Уроки по железкам</h2>
                     <p>Практические уроки по работе с Arduino</p>
-                    <a href="https://kit.alexgyver.ru/lessons/" class="btn">Перейти к урокам</a>
+                    <a href="https://alexgyver.ru/lessons/" class="btn">Перейти к урокам</a>
                 },
                 quadro{
                     <h2>Теоретические уроки</h2>
