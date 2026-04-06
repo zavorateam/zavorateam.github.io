@@ -35,6 +35,7 @@ cont {
             <a class="link" href="https://adobescript.ru">AdobeScript</a>
             <a class="link" href="https://textovod.ru">Textovod</a>
             <a class="link" href="https://www.artlebedev.ru/tools/">Artlebedev</a>
+            <a class="link" href="./planning.html">Aura PPS</a>
         </div>
     </main>
 }
