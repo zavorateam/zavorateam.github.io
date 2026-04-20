@@ -4,48 +4,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Timeline Editor Pro</title>
+
+<!-- Подключение SheetJS для парсинга Excel файлов -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <style>
   /* -------------------
-     Core Variables
+     Core Variables (Windows 10 Style)
      ------------------- */
   :root {
-    --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-stack: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     
     /* Dark Theme (Default) */
-    --bg-app: #0f1115;
-    --bg-blob: #4f46e5;
+    --win-bg: #111111;
+    --win-panel: #252526;
+    --win-panel-header: #2d2d30;
+    --win-border: #3e3e42;
+    --win-border-light: #555555;
     
-    --glass-surf: rgba(30, 35, 45, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-highlight: rgba(255, 255, 255, 0.03);
+    --win-text: #f1f1f1;
+    --win-text-muted: #9d9d9d;
     
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
+    --win-accent: #0078d7; /* Win10 Blue */
+    --win-accent-hover: #1c97ea;
     
-    --accent: #6366f1;
-    --accent-hover: #818cf8;
+    --win-input-bg: #333337;
+    --win-input-border: #3e3e42;
+    --win-input-focus: #0078d7;
     
-    --input-bg: rgba(0, 0, 0, 0.2);
-    --radius: 16px;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --win-item-hover: #3e3e40;
+    --win-item-active: #0078d7;
+    
+    --radius: 0px; /* Sharp corners */
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
   body[data-theme="light"] {
-    --bg-app: #f0f2f5;
-    --bg-blob: #60a5fa;
+    --win-bg: #e6e6e6;
+    --win-panel: #ffffff;
+    --win-panel-header: #f2f2f2;
+    --win-border: #cccccc;
+    --win-border-light: #a6a6a6;
     
-    --glass-surf: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-highlight: rgba(255, 255, 255, 0.5);
+    --win-text: #000000;
+    --win-text-muted: #666666;
     
-    --text-main: #1e293b;
-    --text-muted: #64748b;
+    --win-input-bg: #ffffff;
+    --win-input-border: #7a7a7a;
+    --win-input-focus: #0078d7;
     
-    --accent: #3b82f6;
-    --accent-hover: #60a5fa;
+    --win-item-hover: #e5e5e5;
+    --win-item-active: #cce8ff;
     
-    --input-bg: rgba(255, 255, 255, 0.5);
-    --shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   /* -------------------
@@ -55,42 +66,53 @@
   body {
     margin: 0; padding: 0;
     font-family: var(--font-stack);
-    background-color: var(--bg-app);
-    color: var(--text-main);
+    background-color: var(--win-bg);
+    color: var(--win-text);
     min-height: 100vh;
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Background Ambient Blobs */
+  /* -------------------
+     Background Ambient (Win10 Light Rays Effect)
+     ------------------- */
   .ambient-light {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     z-index: -1; pointer-events: none; overflow: hidden;
+    background: var(--win-bg);
   }
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.4;
-    animation: float 10s infinite ease-in-out;
+  .ambient-light::before, .ambient-light::after {
+    content: ''; position: absolute;
+    width: 200%; height: 200%;
+    top: -50%; left: -50%;
+    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(0, 120, 215, 0.08) 15%, transparent 30%, transparent 50%, rgba(0, 120, 215, 0.05) 65%, transparent 80%);
+    animation: spin 60s linear infinite;
   }
-  .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--bg-blob); }
-  .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: var(--accent); animation-delay: -5s; }
-
-  @keyframes float {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(20px, 40px); }
+  .ambient-light::after {
+    animation-duration: 90s;
+    animation-direction: reverse;
+    background: conic-gradient(from 180deg at 50% 50%, transparent 0%, rgba(0, 120, 215, 0.06) 10%, transparent 20%);
   }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
   /* -------------------
-     Layout
+     Windows 10 Scrollbars
+     ------------------- */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--win-bg); }
+  ::-webkit-scrollbar-thumb { background: #686868; border: 1px solid var(--win-bg); }
+  ::-webkit-scrollbar-thumb:hover { background: #9e9e9e; }
+  body[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c1c1c1; }
+  body[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+  /* -------------------
+     Layout (Original Restored: 1fr left, 450px right)
      ------------------- */
   .app-container {
     max-width: 1800px;
     margin: 0 auto;
     padding: 20px;
     display: grid;
-    /* List takes space, Editor is fixed width */
     grid-template-columns: 1fr 450px;
     gap: 24px;
     height: 100vh;
@@ -105,44 +127,15 @@
     overflow: hidden; 
   }
 
-  /* Header inside sidebar on Desktop */
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 20px;
-  }
-
-  .logo-area {
-    display: flex; align-items: center; gap: 12px;
-  }
-  .logo-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(122deg,rgb(255, 255, 255) 10%, rgb(245, 140, 83) 20%, rgb(245, 140, 83) 30%, rgb(255, 255, 255) 50%, rgb(245, 140, 83) 70%, rgb(245, 140, 83) 80%, rgb(255, 255, 255) 90%);
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: bold; font-size: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
-  h1 { font-size: 18px; margin: 0; font-weight: 700; line-height: 1.2; }
-  .subtitle { font-size: 12px; color: var(--text-muted); margin: 0; }
-
-  /* -------------------
-     Components: Panels (Glassmorphism)
-     ------------------- */
+  /* Panels */
   .panel {
-    background: var(--glass-surf);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    background: var(--win-panel);
+    border: 1px solid var(--win-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     display: flex; flex-direction: column;
     overflow: hidden;
     position: relative;
-  }
-  
-  .panel::before {
-    content:''; position: absolute; inset: 0;
-    background: linear-gradient(180deg, var(--glass-highlight) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 0;
   }
 
   /* -------------------
@@ -153,313 +146,231 @@
     height: 100%;
     overflow: hidden;
   }
-  
-  /* Container for the scrollable list and the button at the bottom */
-  .list-wrapper {
-    flex: 1;
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 20px;
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--win-accent);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: bold; font-size: 20px;
+  }
+  h1 { font-size: 18px; margin: 0; font-weight: 400; line-height: 1.2; }
+  .subtitle { font-size: 12px; color: var(--win-text-muted); margin: 0; }
+
+  /* Toggles */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .toggle-switch {
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    border: 1px solid var(--win-border);
+    background: var(--win-input-bg);
   }
-
-  .toolbar {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    align-items: center;
+  .toggle-opt {
+    padding: 4px 10px; font-size: 12px; cursor: pointer;
+    color: var(--win-text-muted); transition: all 0.1s;
   }
+  .toggle-opt:hover { background: var(--win-item-hover); color: var(--win-text); }
+  .toggle-opt.active { background: var(--win-accent); color: #fff; }
 
-  /* List Area */
+  /* List Container */
+  .list-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .list-container {
-    flex: 1; /* Allow list to take up available space */
-    overflow-y: auto;
-    padding: 12px;
+    flex: 1; overflow-y: auto; padding: 12px;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
-    align-content: start;
-    
-    /* Custom Scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) transparent;
+    gap: 12px; align-content: start;
   }
-  .list-container::-webkit-scrollbar { width: 4px; }
-  .list-container::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 
   /* Episode Item */
   .ep-item {
-    display: flex; gap: 12px; padding: 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative; z-index: 1;
+    display: flex; gap: 12px; padding: 10px;
+    background: var(--win-input-bg);
+    border: 1px solid var(--win-border);
+    cursor: pointer; transition: background 0.1s;
     height: 100%;
   }
-  .ep-item:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .ep-item:hover { background: var(--win-item-hover); }
   .ep-item.active {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-    border-color: rgba(255,255,255,0.2);
+    background: var(--win-item-active);
+    border-color: var(--win-accent);
+    color: body[data-theme="light"] ? #000 : #fff;
   }
-  .ep-item.active .ep-desc { color: rgba(255,255,255,0.8); }
+  body[data-theme="light"] .ep-item.active { color: #000; border-left: 4px solid var(--win-accent); }
+  body[data-theme="dark"] .ep-item.active { border-left: 4px solid #fff; }
 
   .ep-thumb {
-    width: 80px; height: 56px; border-radius: 8px;
+    width: 80px; height: 56px;
     background: #000; object-fit: cover; flex-shrink: 0;
+    border: 1px solid var(--win-border);
   }
-  .ep-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .ep-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; line-height: 1.3; }
-  .ep-desc { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ep-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .ep-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ep-desc { font-size: 12px; color: var(--win-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ep-item.active .ep-desc { color: inherit; opacity: 0.8; }
 
-  /* New Episode Button (Bottom of List) */
-  #btn-add-wrapper {
-    padding: 16px 0 0 0;
-    flex-shrink: 0;
-  }
+  #btn-add-wrapper { padding: 16px; border-top: 1px solid var(--win-border); flex-shrink: 0; background: var(--win-panel-header); }
 
   /* -------------------
-     Controls Panel (Top Right) - SLIDE-UP EFFECT
+     Controls Panel (Slide-up logic restored)
+     ------------------- */
+/* -------------------
+     Controls Panel (Slide-up logic restored)
      ------------------- */
   .controls-panel {
-    flex-shrink: 0;
-    padding: 16px;
-    display: flex; flex-wrap: wrap; gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.3s ease-in-out; /* Smooth transition for slide */
+    flex-shrink: 0; 
+    padding: 8px 12px; /* Уменьшили отступы панели (было 16px) */
+    display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: center; justify-content: space-between;
+    transition: all 0.3s ease-in-out;
     transform: translateY(0);
-    position: relative; 
     z-index: 10;
   }
-  
-  /* Collapsed state class for slide-up */
   .controls-panel.collapsed {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-    /* Slide up off screen and remove height */
+    max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0;
     transform: translateY(-100%); 
-    margin-bottom: -16px; /* Negate the gap from col-right to allow editor to fill space */
-    overflow: hidden;
-    border: none;
-    pointer-events: none; /* Disable interaction when hidden */
+    margin-bottom: -16px; 
+    border: none; pointer-events: none;
   }
+
+  /* Делаем кнопки внутри этой панели меньше */
+  .controls-panel .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .tool-toggle {
+    width: 26px; height: 26px; /* Уменьшили иконку скрытия панели (было 32px) */
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--win-text);
+    background: transparent; border: 1px solid transparent;
+    transition: all 0.1s;
+  }
+  .tool-toggle:hover { background: var(--win-item-hover); border-color: var(--win-border-light); }
+  .tool-toggle.active { background: var(--win-accent); color: white; border-color: var(--win-accent); }
+  
+  /* Делаем саму SVG иконку чуть меньше для баланса */
+  .tool-toggle svg { width: 14px; height: 14px; transform-origin: center; transition: transform 0.3s; }
+  .tool-toggle.active svg { transform: rotate(180deg); }
 
   /* -------------------
      Editor Area
      ------------------- */
-  .editor-panel {
-    flex: 1; /* Grow to fill space */
-    min-height: 0; 
-    padding: 0;
-    display: flex; flex-direction: column;
-  }
-
-  .editor-scroll {
-    flex: 1; overflow-y: auto; padding: 24px;
-  }
-
+  .editor-panel { flex: 1; min-height: 0; padding: 0; display: flex; flex-direction: column; }
+  .editor-scroll { flex: 1; overflow-y: auto; padding: 24px; display: none; /* hidden by default */ }
+  
   .editor-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--glass-border);
-    background: rgba(0,0,0,0.1); 
-    flex-shrink: 0;
+    padding: 16px 24px; border-bottom: 1px solid var(--win-border);
+    background: var(--win-panel-header); flex-shrink: 0;
   }
-  .editor-title-area { display: flex; align-items: center; gap: 10px; }
-  .editor-title { font-size: 16px; font-weight: 700; }
+  .editor-title { font-size: 16px; font-weight: 600; }
 
-  /* Tool toggle button (for collapse controls) */
-  .tool-toggle {
-    width: 32px; height: 32px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text-muted);
-    background: rgba(255,255,255,0.05);
-    transition: all 0.2s;
+  /* Empty State */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--win-text-muted); text-align: center; padding: 40px;
   }
-  .tool-toggle:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
-  .tool-toggle.active { color: white; background: var(--accent); } /* Active state for collapse button */
-  .tool-toggle svg { transform-origin: center; transition: transform 0.3s; }
-  .tool-toggle.active svg { transform: rotate(180deg); } /* Arrow rotation */
-
 
   /* Form Grid */
-  .form-grid {
-    display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px;
-  }
+  .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
   .col-12 { grid-column: span 12; }
   .col-6 { grid-column: span 6; }
   .col-4 { grid-column: span 4; }
+  .col-8 { grid-column: span 8; }
 
   label {
-    display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
-    color: var(--text-muted); margin-bottom: 4px; font-weight: 600;
+    display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--win-text-muted); margin-bottom: 4px; font-weight: 600;
   }
   
   input, textarea, select {
     width: 100%;
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-main);
+    background: var(--win-input-bg);
+    border: 1px solid var(--win-input-border);
+    color: var(--win-text);
     padding: 8px 12px;
-    border-radius: 8px;
     font-family: inherit; font-size: 13px;
-    transition: all 0.2s;
+    transition: border-color 0.1s;
   }
-  input:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-  }
-  textarea { min-height: 60px; resize: vertical; }
+  input:hover, textarea:hover { border-color: var(--win-border-light); }
+  input:focus, textarea:focus { border-color: var(--win-accent); background: var(--win-input-bg); }
+  textarea { min-height: 80px; resize: vertical; }
 
   .section-label {
-    grid-column: span 12;
-    margin-top: 12px; margin-bottom: 4px;
-    font-size: 12px; font-weight: bold; color: var(--accent);
+    grid-column: span 12; margin-top: 16px; margin-bottom: 4px;
+    font-size: 13px; font-weight: bold; color: var(--win-accent);
     display: flex; align-items: center; gap: 8px;
   }
-  .section-label::after { content:''; flex:1; height:1px; background: var(--glass-border); }
+  .section-label::after { content:''; flex:1; height:1px; background: var(--win-border); }
 
   /* Buttons */
   .btn {
-    border: none; background: rgba(255,255,255,0.1);
-    color: var(--text-main);
-    padding: 8px 14px; border-radius: 8px;
-    cursor: pointer; font-size: 13px; font-weight: 600;
-    transition: all 0.2s;
+    border: 1px solid var(--win-border-light); 
+    background: var(--win-input-bg);
+    color: var(--win-text);
+    padding: 8px 14px; 
+    cursor: pointer; font-size: 13px;
+    transition: background 0.1s, border-color 0.1s;
     display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
   }
-  .btn:hover { background: rgba(255,255,255,0.2); }
-  .btn:active { transform: scale(0.96); }
+  .btn:hover { background: var(--win-item-hover); }
+  .btn:active { background: var(--win-border); }
   
-  .btn.primary { background: var(--accent); color: white; }
-  .btn.primary:hover { background: var(--accent-hover); }
-  
-  .btn.danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-  .btn.danger:hover { background: rgba(239, 68, 68, 0.4); }
+  .btn.primary { background: var(--win-accent); color: white; border-color: var(--win-accent); }
+  .btn.primary:hover { background: var(--win-accent-hover); border-color: var(--win-accent-hover); }
+
+  .btn.danger { background: transparent; border-color: #e81123; color: #ff6b6b; }
+  .btn.danger:hover { background: #e81123; color: white; border-color: #e81123; }
 
   .btn-group { display: flex; gap: 8px; }
 
-  /* -------------------
-     Mobile Response
-     ------------------- */
+  /* Radio Buttons */
+  .radio-group {
+    display: flex; border: 1px solid var(--win-input-border);
+  }
+  .custom-radio { position: absolute; opacity: 0; width: 0; height: 0; }
+  .radio-group label {
+    flex: 1; text-align: center; padding: 6px 10px; font-size: 12px;
+    color: var(--win-text); background: var(--win-input-bg);
+    cursor: pointer; margin-bottom: 0; border-right: 1px solid var(--win-input-border);
+    text-transform: none; font-weight: 400; letter-spacing: normal;
+  }
+  .radio-group label:last-child { border-right: none; }
+  .radio-group label:hover { background: var(--win-item-hover); }
+  .custom-radio:checked + label { background: var(--win-accent); color: white; }
+
+  /* Status Bar */
+  .status-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--win-accent); color: white;
+    padding: 6px 20px; font-size: 12px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 100; transform: translateY(100%); transition: transform 0.2s;
+  }
+  .status-bar.visible { transform: translateY(0); }
+
+  /* Mobile Response */
   @media (max-width: 900px) {
-    .app-container {
-      grid-template-columns: 1fr;
-      padding: 10px;
-      height: auto; min-height: 100vh;
-      display: block; 
-    }
+    .app-container { grid-template-columns: 1fr; padding: 10px; height: auto; min-height: 100vh; display: block; }
     .col-right { height: auto; margin-top: 20px; }
     .sidebar { height: auto; max-height: 60vh; margin-bottom: 0; }
     .list-wrapper { max-height: 50vh; }
     .list-container { max-height: 40vh; display: block; } 
     .ep-item { margin-bottom: 8px; height: auto; }
     .editor-panel { min-height: 70vh; }
-    /* Mobile: Controls should always be visible and in flow */
-    .controls-panel.collapsed { max-height: none !important; opacity: 1 !important; transform: none !important; margin-bottom: 16px; border: 1px solid var(--glass-border); pointer-events: auto;}
-    .tool-toggle { display: none; } /* Hide collapse on mobile */
+    .controls-panel.collapsed { max-height: none !important; opacity: 1 !important; transform: none !important; margin-bottom: 16px; border: 1px solid var(--win-border); pointer-events: auto;}
+    .tool-toggle { display: none; }
+    .ambient-light { display: none; } /* Better perf on mobile */
   }
-
-  /* Toggle Switch */
-  .toggle-switch {
-    background: rgba(0,0,0,0.2);
-    border-radius: 20px;
-    padding: 2px;
-    display: inline-flex;
-    border: 1px solid var(--glass-border);
-  }
-  .toggle-opt {
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    color: var(--text-muted);
-  }
-  .toggle-opt.active {
-    background: var(--glass-border);
-    color: var(--text-main);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-
-  /* Status Bar */
-  .status-bar {
-    position: fixed; bottom: 20px; right: 20px;
-    background: var(--glass-surf);
-    padding: 8px 16px; border-radius: 20px;
-    font-size: 12px; color: var(--text-muted);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    z-index: 100;
-    display: flex; align-items: center; gap: 8px;
-    animation: slideUp 0.3s ease-out;
-  }
-  @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
-  .status-dot.success { background: #10b981; }
-  .status-dot.error { background: #ef4444; }
-  .status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
-  @keyframes pulse { 0%{opacity:1} 50%{opacity:0.4} 100%{opacity:1} }
-
-  /* --- Radio Button Group Style --- */
-  .radio-group {
-    display: flex; gap: 8px;
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    padding: 6px;
-  }
-
-  .custom-radio {
-    /* Hide the default radio button */
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .radio-group label {
-    /* Style the label to look like a button */
-    display: block;
-    cursor: pointer;
-    flex: 1;
-    text-align: center;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    color: var(--text-muted);
-    background: transparent;
-    transition: all 0.2s;
-    /* Reset label specific styles from general label rule */
-    text-transform: none; /* Keep normal case for radio labels */
-    letter-spacing: normal;
-    font-weight: 500;
-    margin-bottom: 0;
-  }
-  
-  .radio-group label:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-  }
-
-  /* Style when checked */
-  .custom-radio:checked + label {
-    background: var(--accent);
-    color: white;
-    box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
-  }
-
 </style>
 </head>
 <body data-theme="dark">
 
-<div class="ambient-light">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-</div>
+<div class="ambient-light"></div>
 
 <div class="app-container">
   
@@ -467,10 +378,10 @@
   <aside class="sidebar">
     <header>
       <div class="logo-area">
-        <div class="logo-icon"><img src="https://raw.githubusercontent.com/zavorateam/zavorateam.github.io/refs/heads/main/assets/favicon.svg"></div>
+        <div class="logo-icon">TE</div>
         <div>
-          <h1 id="ui-title">Editor Pro</h1>
-          <p class="subtitle" id="ui-sub">JSON Management</p>
+          <h1 id="ui-title">Timeline Editor Pro</h1>
+          <p class="subtitle" id="ui-sub">Управление базой фильмов</p>
         </div>
       </div>
       
@@ -481,8 +392,8 @@
           <div class="toggle-opt" id="lang-en">EN</div>
         </div>
         <div class="toggle-switch">
-          <div class="toggle-opt active" id="theme-dark">Moon</div>
-          <div class="toggle-opt" id="theme-light">Sun</div>
+          <div class="toggle-opt active" id="theme-dark">Dark</div>
+          <div class="toggle-opt" id="theme-light">Light</div>
         </div>
       </div>
     </header>
@@ -490,129 +401,129 @@
     <div class="list-wrapper panel">
         <div class="list-container" id="list-container">
             <!-- List items injected here -->
-            <div style="padding:20px; text-align:center; color:var(--text-muted);">
-                No data loaded
-            </div>
         </div>
-        <div id="btn-add-wrapper" style="padding: 16px; border-top: 1px solid var(--glass-border);">
-            <!-- Button moved here -->
-            <button id="btn-add" class="btn primary small" style="width:100%;">+ New Episode</button>
+        <div id="btn-add-wrapper">
+            <button id="btn-add" class="btn primary" style="width:100%; justify-content: center;">+ Новый Эпизод</button>
         </div>
     </div>
   </aside>
 
-  <!-- RIGHT: Editor Column (Narrower) -->
+  <!-- RIGHT: Editor Column (Fixed 450px) -->
   <div class="col-right">
     
     <!-- Controls Panel (Collapsible) -->
     <div class="panel controls-panel" id="controls-panel">
       <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
           <div class="btn-group">
-            <button id="btn-load" class="btn small">Load Cloud</button>
-            <button id="btn-save" class="btn small primary">Save Cloud</button>
+            <button id="btn-load" class="btn">Load Cloud</button>
+            <button id="btn-save" class="btn primary">Save Cloud</button>
           </div>
           <div class="btn-group">
-            <button id="btn-import" class="btn small">Import</button>
-            <button id="btn-export" class="btn small primary">Export</button>
+            <button id="btn-import" class="btn">Import</button>
+            <button id="btn-export" class="btn primary">Export</button>
           </div>
-          <!-- Toggle button moved here and styled to control this panel -->
           <div class="tool-toggle active" id="toggle-controls" title="Toggle Controls">
-            <!-- Arrow Down/Up Icon -->
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-up-down"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
           </div>
       </div>
     </div>
 
     <!-- Main Editor -->
     <main class="panel editor-panel" id="editor-view">
+      
       <div class="editor-header">
-        <div class="editor-title-area">
-          <div class="editor-title" id="lbl-editor">Editor</div>
-        </div>
-        <div class="btn-group">
-          <button id="btn-dup" class="btn small">Dup</button>
-          <button id="btn-del" class="btn small danger">Del</button>
+        <div class="editor-title" id="lbl-editor">Редактор</div>
+        <div class="btn-group" id="editor-actions" style="display:none;">
+          <button id="btn-dup" class="btn">Dup</button>
+          <button id="btn-del" class="btn danger">Del</button>
         </div>
       </div>
 
-      <div class="editor-scroll">
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+        <span id="lbl-empty">Элемент не выбран. Выберите карточку слева или создайте новую.</span>
+      </div>
+
+      <!-- Editor Form -->
+      <div class="editor-scroll" id="editor-inner">
         <div id="form-container" class="form-grid">
           
           <!-- Meta Section -->
-          <div class="section-label" id="sec-date">Date & Meta</div>
+          <div class="section-label" id="sec-date">Дата и Мета</div>
           <div class="col-4">
-            <label id="lbl-year">Year</label>
+            <label id="lbl-year">Год</label>
             <input type="number" id="inp-year" placeholder="2023">
           </div>
           <div class="col-4">
-            <label id="lbl-month">Month</label>
+            <label id="lbl-month">Месяц</label>
             <input type="number" id="inp-month" placeholder="1-12">
           </div>
           <div class="col-4">
-            <label id="lbl-week">Week</label>
+            <label id="lbl-week">Неделя</label>
             <input type="number" id="inp-week" placeholder="1-52">
           </div>
 
           <div class="col-4">
-            <label id="lbl-rating">Rating (0-10)</label>
+            <label id="lbl-rating">Рейтинг (0-10)</label>
             <input type="number" id="inp-rating" placeholder="7.5" step="0.1" min="0" max="10">
           </div>
-          <div class="col-8">
-            </div>
+          <div class="col-8"></div>
 
           <div class="col-6">
-            <label id="lbl-production-group">Production Type</label>
+            <label id="lbl-production-group">Производство</label>
             <div class="radio-group" id="production-group">
               <input type="radio" id="prod-domestic" name="production" value="domestic" class="custom-radio">
-              <label for="prod-domestic" id="lbl-prod-domestic">Domestic</label>
+              <label for="prod-domestic" id="lbl-prod-domestic">Отечеств.</label>
               <input type="radio" id="prod-foreign" name="production" value="foreign" class="custom-radio">
-              <label for="prod-foreign" id="lbl-prod-foreign">Foreign</label>
+              <label for="prod-foreign" id="lbl-prod-foreign">Заруб.</label>
             </div>
           </div>
           
           <div class="col-6">
-            <label id="lbl-media-group">Media Type</label>
+            <label id="lbl-media-group">Тип Контента</label>
             <div class="radio-group" id="media-group">
               <input type="radio" id="type-movie" name="media_type" value="movie" class="custom-radio">
-              <label for="type-movie" id="lbl-type-movie">Movie</label>
+              <label for="type-movie" id="lbl-type-movie">Фильм</label>
               <input type="radio" id="type-series" name="media_type" value="series" class="custom-radio">
-              <label for="type-series" id="lbl-type-series">Series</label>
+              <label for="type-series" id="lbl-type-series">Сериал</label>
             </div>
           </div>
 
-          <div class="section-label" id="sec-ru">Content (RU - Default)</div>
-          
-          <!-- New Fields: Length (Col 4) and Cast/Crew (Col 12) -->
           <div class="col-4">
-            <label id="lbl-length">Length (Days)</label>
+            <label id="lbl-length">Длина (Дни)</label>
             <input type="number" id="inp-length" placeholder="1-1000">
           </div>
           <div class="col-12">
-            <label id="lbl-authors">Authors</label>
-            <input type="text" id="inp-authors" placeholder="Author 1, Author 2">
+            <label id="lbl-authors">Авторы</label>
+            <input type="text" id="inp-authors" placeholder="Сценаристы">
           </div>
           <div class="col-12">
-            <label id="lbl-actors">Actors</label>
-            <input type="text" id="inp-actors" placeholder="Actor 1, Actor 2">
+            <label id="lbl-actors">Актеры</label>
+            <input type="text" id="inp-actors" placeholder="Главные роли">
           </div>
           <div class="col-12">
-            <label id="lbl-director">Director</label>
-            <input type="text" id="inp-director" placeholder="Director Name">
+            <label id="lbl-director">Режиссер</label>
+            <input type="text" id="inp-director" placeholder="Имя режиссера">
           </div>
 
           <!-- Content RU Section -->
-          <div class="section-label" id="sec-ru">Content (RU - Default)</div>
+          <div class="section-label" id="sec-ru">Контент (RU)</div>
           <div class="col-12">
-            <label id="lbl-title">Title (RU)</label>
+            <label id="lbl-title">Заголовок (RU)</label>
             <input type="text" id="inp-title">
           </div>
           <div class="col-12">
-            <label id="lbl-desc">Description (RU)</label>
+            <label id="lbl-desc">Описание (RU)</label>
             <textarea id="inp-desc"></textarea>
           </div>
 
           <!-- Content EN Section -->
-          <div class="section-label" id="sec-en">Content (EN - International)</div>
+          <div class="section-label" id="sec-en">Контент (EN)</div>
           <div class="col-12">
             <label id="lbl-title-en">Title (EN)</label>
             <input type="text" id="inp-title-en" placeholder="English Title">
@@ -623,28 +534,28 @@
           </div>
 
           <!-- Media Section -->
-          <div class="section-label" id="sec-media">Media & Links</div>
+          <div class="section-label" id="sec-media">Медиа и Ссылки</div>
           <div class="col-6">
-            <label id="lbl-preview">Preview Image URL</label>
+            <label id="lbl-preview">Превью (URL)</label>
             <input type="text" id="inp-preview">
           </div>
           <div class="col-6">
-            <label id="lbl-video">Video Link</label>
+            <label id="lbl-video">Видео (Ссылка)</label>
             <input type="text" id="inp-video">
           </div>
           <div class="col-12">
-            <label id="lbl-history">History Source Link</label>
+            <label id="lbl-history">Источник (Ссылка)</label>
             <input type="text" id="inp-history">
           </div>
 
-          <!-- Custom Fields (Text 1/2) -->
-          <div class="section-label" id="sec-custom">Custom Fields</div>
+          <!-- Custom Fields -->
+          <div class="section-label" id="sec-custom">Доп. поля</div>
           <div class="col-6">
-            <label id="lbl-f1">Field 1</label>
+            <label id="lbl-f1">Поле 1</label>
             <input type="text" id="inp-f1">
           </div>
           <div class="col-6">
-            <label id="lbl-f2">Field 2</label>
+            <label id="lbl-f2">Поле 2</label>
             <input type="text" id="inp-f2">
           </div>
 
@@ -655,20 +566,19 @@
 </div>
 
 <!-- Status Toast -->
-<div id="status-toast" class="status-bar" style="display:none;">
-  <div id="status-dot" class="status-dot"></div>
+<div id="status-toast" class="status-bar">
   <span id="status-text">Ready</span>
 </div>
 
 <!-- Hidden File Input -->
-<input type="file" id="file-input" style="display:none" accept=".json">
+<input type="file" id="file-input" style="display:none" accept=".json,.xlsx,.xls">
 
 <script>
 /* -------------------------------------------
    Configuration & State
    ------------------------------------------- */
 const CONFIG = {
-  gistIdDefault: 'b973e400c1b9bea04411240195566b68', // Example ID, replace with actual ID if known
+  gistIdDefault: 'b973e400c1b9bea04411240195566b68', 
   fileName: 'timeline-data.json'
 };
 
@@ -677,77 +587,43 @@ const STATE = {
   selectedIdx: -1,
   locale: 'ru',
   theme: 'dark',
-  isControlsCollapsed: false // New state for controls panel
+  isControlsCollapsed: false
 };
 
 const UI = {
   ru: {
-    title: 'Редактор Timeline',
-    sub: 'Управление базой фильмов',
-    load: 'Загрузить', save: 'Сохранить', import: 'Импорт', export: 'Экспорт',
-    add: '+ Новый Эпизод', editor: 'Редактор',
-    
-    // Labels
+    title: 'Редактор Timeline Pro', sub: 'Управление базой фильмов',
+    load: 'Загрузить', save: 'Сохранить', import: 'Импорт (.xlsx, .json)', export: 'Экспорт',
+    add: '+ Новый Эпизод', editor: 'Редактор', empty: 'Элемент не выбран. Выберите карточку слева или создайте новую.',
+    btnDup: 'Копировать', btnDel: 'Удалить',
     lblYear:'Год', lblMonth:'Месяц', lblWeek:'Неделя',
     lblTitle:'Заголовок (RU)', lblDesc:'Описание (RU)',
     lblTitleEn:'Заголовок (EN)', lblDescEn:'Описание (EN)',
     lblPreview:'Превью (URL)', lblVideo:'Видео (Ссылка)', lblHistory:'Источник (Ссылка)',
-    
-    // New Meta Fields
     lblLength: 'Длина (Дни)', lblAuthors: 'Авторы', lblActors: 'Актеры', lblDirector: 'Режиссер',
     lblRating: 'Рейтинг (0-10)',
-    lblProductionGroup: 'Производство',
-    lblProdDomestic: 'Отечеств.',
-    lblProdForeign: 'Заруб.',
-    lblMediaGroup: 'Тип Контента',
-    lblTypeMovie: 'Фильм',
-    lblTypeSeries: 'Сериал',
-
-    // Custom Fields (Translated)
+    lblProductionGroup: 'Производство', lblProdDomestic: 'Отечеств.', lblProdForeign: 'Заруб.',
+    lblMediaGroup: 'Тип Контента', lblTypeMovie: 'Фильм', lblTypeSeries: 'Сериал',
     lblF1: 'Текст 1', lblF2: 'Текст 2',
-    
-    // Sections (Localization)
-    secDate: 'Дата и Мета',
-    secRu: 'Контент (RU - Основной)',
-    secEn: 'Контент (EN - Перевод)',
-    secMedia: 'Медиа и Ссылки',
-    secCustom: 'Доп. поля',
-
-    msgSaved: 'Сохранено!', msgErr: 'Ошибка', msgLoad: 'Данные загружены'
+    secDate: 'Дата и Мета', secRu: 'Контент (RU - Основной)', secEn: 'Контент (EN - Перевод)', secMedia: 'Медиа и Ссылки', secCustom: 'Доп. поля',
+    msgSaved: 'Сохранено!', msgErr: 'Ошибка', msgLoad: 'Данные загружены', msgImportSuccess: 'Импортировано: {count} записей', msgNoData: 'Список пуст'
   },
   en: {
-    title: 'Timeline Editor',
-    sub: 'Movie Database Manager',
-    load: 'Load Cloud', save: 'Save Cloud', import: 'Import', export: 'Export',
-    add: '+ New Episode', editor: 'Editor',
-    
-    // Labels
+    title: 'Timeline Editor Pro', sub: 'Movie Database Manager',
+    load: 'Load Cloud', save: 'Save Cloud', import: 'Import (.xlsx, .json)', export: 'Export',
+    add: '+ New Episode', editor: 'Editor', empty: 'No item selected. Select a card on the left or create a new one.',
+    btnDup: 'Duplicate', btnDel: 'Delete',
     lblYear:'Year', lblMonth:'Month', lblWeek:'Week',
     lblTitle:'Title (RU)', lblDesc:'Description (RU)',
     lblTitleEn:'Title (EN)', lblDescEn:'Description (EN)',
     lblPreview:'Preview (URL)', lblVideo:'Video (Link)', lblHistory:'History (Link)',
-
-    // New Meta Fields
     lblLength: 'Length (Days)', lblAuthors: 'Authors', lblActors: 'Actors', lblDirector: 'Director',
     lblRating: 'Rating (0-10)',
-    lblProductionGroup: 'Production Type',
-    lblProdDomestic: 'Domestic',
-    lblProdForeign: 'Foreign',
-    lblMediaGroup: 'Media Type',
-    lblTypeMovie: 'Movie',
-    lblTypeSeries: 'Series',
-    
-    // Custom Fields (Translated)
+    lblProductionGroup: 'Production Type', lblProdDomestic: 'Domestic', lblProdForeign: 'Foreign',
+    lblMediaGroup: 'Media Type', lblTypeMovie: 'Movie', lblTypeSeries: 'Series',
     lblF1: 'Field 1', lblF2: 'Field 2',
-    
-    // Sections
-    secDate: 'Date & Meta',
-    secRu: 'Content (RU - Default)',
-    secEn: 'Content (EN - International)',
-    secMedia: 'Media & Links',
-    secCustom: 'Custom Fields',
-
-    msgSaved: 'Saved Successfully!', msgErr: 'Error', msgLoad: 'Data Loaded'
+    secDate: 'Date & Meta', secRu: 'Content (RU - Default)', secEn: 'Content (EN - International)', secMedia: 'Media & Links', secCustom: 'Custom Fields',
+    msgSaved: 'Saved Successfully!', msgErr: 'Error', msgLoad: 'Data Loaded', msgImportSuccess: 'Imported: {count} records', msgNoData: 'List is empty'
   }
 };
 
@@ -755,141 +631,89 @@ const UI = {
    Core Logic
    ------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  // Init Theme
   const savedTheme = localStorage.getItem('tl_theme') || 'dark';
   setTheme(savedTheme);
 
-  // Init Locale
   const savedLang = localStorage.getItem('tl_lang') || 'ru';
   setLang(savedLang);
 
-  // Bind Events
   bindEvents();
+  renderList();
+  setEditorVisible(false); // Make sure empty state is shown initially
 });
 
 function bindEvents() {
-  // Theme Toggle
   document.getElementById('theme-dark').onclick = () => setTheme('dark');
   document.getElementById('theme-light').onclick = () => setTheme('light');
-
-  // Lang Toggle
   document.getElementById('lang-ru').onclick = () => setLang('ru');
   document.getElementById('lang-en').onclick = () => setLang('en');
 
-  // Buttons
   document.getElementById('btn-add').onclick = addEpisode;
   document.getElementById('btn-del').onclick = deleteEpisode;
   document.getElementById('btn-dup').onclick = duplicateEpisode;
+  
   document.getElementById('btn-export').onclick = exportData;
   document.getElementById('btn-import').onclick = () => document.getElementById('file-input').click();
   document.getElementById('file-input').onchange = handleFileUpload;
 
-  // Cloud
   document.getElementById('btn-load').onclick = loadFromGist;
   document.getElementById('btn-save').onclick = saveToGist;
   
-  // Controls Toggle (Slide-up logic)
   document.getElementById('toggle-controls').onclick = toggleControlsPanel;
 
-  // Form Inputs (Auto-save to state)
-  const inputs = document.querySelectorAll('input, textarea');
-  inputs.forEach(el => {
-    el.addEventListener('input', updateStateFromForm);
-  });
+  const inputs = document.querySelectorAll('input[type="text"], input[type="number"], textarea');
+  inputs.forEach(el => { el.addEventListener('input', updateStateFromForm); });
+  
+  const radios = document.querySelectorAll('input[type="radio"]');
+  radios.forEach(el => { el.addEventListener('change', updateStateFromForm); });
 }
 
-/* Replace your old toggleControlsPanel() with this */
+/* -------------------------------------------
+   UI & Localization Functions
+   ------------------------------------------- */
 function toggleControlsPanel() {
   STATE.isControlsCollapsed = !STATE.isControlsCollapsed;
   const panel = document.getElementById('controls-panel');
   const toggleBtn = document.getElementById('toggle-controls');
-
-  // helper: find existing handle
   let handle = document.querySelector('.toggle-controls-handle');
 
   if (STATE.isControlsCollapsed) {
-    // collapse panel
     panel.classList.add('collapsed');
-    toggleBtn && toggleBtn.classList.add('active');
+    toggleBtn.classList.add('active');
 
-    // create the top handle if not exists
     if (!handle) {
       handle = document.createElement('button');
       handle.className = 'toggle-controls-handle';
-      handle.setAttribute('type', 'button');
-      handle.setAttribute('aria-label', 'Open controls');
-      handle.style.cssText = [
-        'color:var(--text-muted)',
-        'position:fixed',
-        'top:-30px',
-        'right:15em',
-        'transform:translate(-50%,-50%)', /* start hidden above the border */
-        'margin-top:8px',
-        'z-index:9999',
-        'width:44px',
-        'height:44px',
-        'border-radius:8px',
-        'display:flex',
-        'align-items:center',
-        'justify-content:center',
-        'background:var(--glass-surf)',
-        'border:1px solid var(--glass-border)',
-        'box-shadow:0 6px 18px rgba(0,0,0,0.12)',
-        'cursor:pointer',
-        'opacity:0',
-        'transition:transform .22s ease, opacity .18s ease'
-      ].join(';');
-
-      // chevron down svg
-      handle.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <path d="M6 9l6 6 6-6"></path>
-        </svg>
+      handle.style.cssText = `
+        color:var(--win-text-muted); position:fixed; top:-30px; right:15em;
+        transform:translate(-50%,-50%); margin-top:8px; z-index:9999;
+        width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+        background:var(--win-panel); border:1px solid var(--win-border);
+        box-shadow:0 4px 12px rgba(0,0,0,0.3); cursor:pointer; opacity:0;
+        transition:transform .22s ease, opacity .18s ease; border-radius:0;
       `;
-
-      // click opens the panel
-      handle.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        // expand via same function
-        toggleControlsPanel();
-      });
-
+      handle.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>`;
+      handle.addEventListener('click', (ev) => { ev.stopPropagation(); toggleControlsPanel(); });
       document.body.appendChild(handle);
-
-      // let browser paint initial state, then slide it down a bit
       requestAnimationFrame(() => {
-        handle.style.transform = 'translate(-50%, 10px)'; // visible just below top border
+        handle.style.transform = 'translate(-50%, 10px)';
         handle.style.opacity = '1';
       });
     } else {
-      // if exists but was hidden, show it
       handle.style.transform = 'translate(-50%, 10px)';
       handle.style.opacity = '1';
     }
-
   } else {
-    // expand panel
     panel.classList.remove('collapsed');
-    toggleBtn && toggleBtn.classList.remove('active');
-
-    // hide/remove handle with a small animation
+    toggleBtn.classList.remove('active');
     if (handle) {
       handle.style.opacity = '0';
-      handle.style.transform = 'translate(-50%,-50%)'; // move back up
-      // remove after transition
-      setTimeout(() => {
-        if (handle && handle.parentNode) handle.parentNode.removeChild(handle);
-      }, 220);
+      handle.style.transform = 'translate(-50%,-50%)';
+      setTimeout(() => { if (handle && handle.parentNode) handle.parentNode.removeChild(handle); }, 220);
     }
   }
 }
 
-
-/* -------------------------------------------
-   UI Functions
-   ------------------------------------------- */
 function setTheme(t) {
   STATE.theme = t;
   document.body.setAttribute('data-theme', t);
@@ -904,7 +728,6 @@ function setLang(l) {
   document.getElementById('lang-ru').className = `toggle-opt ${l==='ru'?'active':''}`;
   document.getElementById('lang-en').className = `toggle-opt ${l==='en'?'active':''}`;
   
-  // Update Text
   const dict = UI[l];
   document.getElementById('ui-title').innerText = dict.title;
   document.getElementById('ui-sub').innerText = dict.sub;
@@ -914,8 +737,10 @@ function setLang(l) {
   document.getElementById('btn-export').innerText = dict.export;
   document.getElementById('btn-add').innerText = dict.add;
   document.getElementById('lbl-editor').innerText = dict.editor;
+  document.getElementById('lbl-empty').innerText = dict.empty;
+  document.getElementById('btn-dup').innerText = dict.btnDup;
+  document.getElementById('btn-del').innerText = dict.btnDel;
   
-  // Labels
   document.getElementById('lbl-year').innerText = dict.lblYear;
   document.getElementById('lbl-month').innerText = dict.lblMonth;
   document.getElementById('lbl-week').innerText = dict.lblWeek;
@@ -927,45 +752,48 @@ function setLang(l) {
   document.getElementById('lbl-video').innerText = dict.lblVideo;
   document.getElementById('lbl-history').innerText = dict.lblHistory;
   
-  // New Labels
   document.getElementById('lbl-length').innerText = dict.lblLength;
   document.getElementById('lbl-authors').innerText = dict.lblAuthors;
   document.getElementById('lbl-actors').innerText = dict.lblActors;
   document.getElementById('lbl-director').innerText = dict.lblDirector;
   document.getElementById('lbl-rating').innerText = dict.lblRating;
+  
   document.getElementById('lbl-production-group').innerText = dict.lblProductionGroup;
   document.getElementById('lbl-prod-domestic').innerText = dict.lblProdDomestic;
   document.getElementById('lbl-prod-foreign').innerText = dict.lblProdForeign;
   document.getElementById('lbl-media-group').innerText = dict.lblMediaGroup;
   document.getElementById('lbl-type-movie').innerText = dict.lblTypeMovie;
   document.getElementById('lbl-type-series').innerText = dict.lblTypeSeries;
+  
   document.getElementById('lbl-f1').innerText = dict.lblF1;
   document.getElementById('lbl-f2').innerText = dict.lblF2;
 
-  // Section Headers
   document.getElementById('sec-date').innerText = dict.secDate;
   document.getElementById('sec-ru').innerText = dict.secRu;
   document.getElementById('sec-en').innerText = dict.secEn;
   document.getElementById('sec-media').innerText = dict.secMedia;
   document.getElementById('sec-custom').innerText = dict.secCustom;
 
-  // Re-render list because titles might change based on language preference
   renderList();
 }
 
 function showStatus(text, type='neutral') {
   const el = document.getElementById('status-toast');
-  const dot = document.getElementById('status-dot');
   const txt = document.getElementById('status-text');
-  
-  el.style.display = 'flex';
   txt.innerText = text;
-  dot.className = 'status-dot ' + type;
+  el.className = 'status-bar visible';
   
-  // Hide after 3s if not loading
-  if(type !== 'loading') {
-    setTimeout(() => { el.style.display = 'none'; }, 3000);
-  }
+  if(type === 'error') el.style.background = '#e81123';
+  else if(type === 'success') el.style.background = '#107c10';
+  else el.style.background = '#0078d7';
+
+  setTimeout(() => { el.className = 'status-bar'; }, 4000);
+}
+
+function setEditorVisible(isVisible) {
+  document.getElementById('editor-inner').style.display = isVisible ? 'block' : 'none';
+  document.getElementById('editor-actions').style.display = isVisible ? 'flex' : 'none';
+  document.getElementById('empty-state').style.display = isVisible ? 'none' : 'flex';
 }
 
 /* -------------------------------------------
@@ -976,29 +804,28 @@ function renderList() {
   container.innerHTML = '';
   
   if(STATE.data.length === 0) {
-    container.innerHTML = `<div style="grid-column:1/-1; padding:40px; text-align:center; opacity:0.5;">Empty</div>`;
+    container.innerHTML = `<div style="grid-column:1/-1; padding:40px; text-align:center; color:var(--win-text-muted);">${UI[STATE.locale].msgNoData}</div>`;
+    setEditorVisible(false);
     return;
   }
 
   STATE.data.forEach((ep, idx) => {
     const div = document.createElement('div');
     div.className = `ep-item ${idx === STATE.selectedIdx ? 'active' : ''}`;
+    div.id = `ep-item-${idx}`;
     div.onclick = () => selectEpisode(idx);
     
-    // Smart Title Selection based on Locale
-    let displayTitle = ep.title || 'No Title';
+    let displayTitle = ep.title || 'Без названия';
     let displayDesc = ep.description || '';
-    
-    // If EN mode and EN title exists, use it
     if(STATE.locale === 'en' && ep.title_en) {
       displayTitle = ep.title_en;
       displayDesc = ep.description_en || displayDesc;
     }
 
     div.innerHTML = `
-      <img src="${ep.preview || 'https://placehold.co/80x56/333/fff?text=No+Img'}" class="ep-thumb" onerror="this.onerror=null;this.src='https://placehold.co/80x56/333/fff?text=No+Img'">
+      <img src="${ep.preview || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZmlsbD0iIzY2NiIgZm9udC1zaXplPSIxMnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tk8gSU1HPC90ZXh0Pjwvc3ZnPg=='}" class="ep-thumb" onerror="this.onerror=null;this.src='';">
       <div class="ep-info">
-        <div class="ep-title">${escapeHtml(displayTitle)}</div>
+        <div class="ep-title" title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</div>
         <div class="ep-desc">${escapeHtml(displayDesc)}</div>
       </div>
     `;
@@ -1008,47 +835,44 @@ function renderList() {
 
 function selectEpisode(idx) {
   STATE.selectedIdx = idx;
-  renderList(); // Update active class
+  renderList();
   
   const ep = STATE.data[idx];
-  if(!ep) return;
+  if(!ep) {
+    setEditorVisible(false);
+    return;
+  }
 
-  // Bind values
-  document.getElementById('inp-year').value = ep.year || '';
-  document.getElementById('inp-month').value = ep.month || '';
-  document.getElementById('inp-week').value = ep.week || '';
-  document.getElementById('inp-length').value = ep.length || '';
-  document.getElementById('inp-authors').value = ep.authors || '';
-  document.getElementById('inp-actors').value = ep.actors || '';
-  document.getElementById('inp-director').value = ep.director || '';
+  setEditorVisible(true);
 
-  document.getElementById('inp-rating').value = ep.rating || '';
+  document.getElementById('inp-year').value = ep.year ?? '';
+  document.getElementById('inp-month').value = ep.month ?? '';
+  document.getElementById('inp-week').value = ep.week ?? '';
+  document.getElementById('inp-length').value = ep.length ?? '';
+  document.getElementById('inp-authors').value = ep.authors ?? '';
+  document.getElementById('inp-actors').value = ep.actors ?? '';
+  document.getElementById('inp-director').value = ep.director ?? '';
+  document.getElementById('inp-rating').value = ep.rating ?? '';
   
-  document.getElementById('inp-title').value = ep.title || '';
-  document.getElementById('inp-desc').value = ep.description || '';
+  document.getElementById('inp-title').value = ep.title ?? '';
+  document.getElementById('inp-desc').value = ep.description ?? '';
+  document.getElementById('inp-title-en').value = ep.title_en ?? '';
+  document.getElementById('inp-desc-en').value = ep.description_en ?? '';
   
-  // English Fields
-  document.getElementById('inp-title-en').value = ep.title_en || '';
-  document.getElementById('inp-desc-en').value = ep.description_en || '';
-  
-  document.getElementById('inp-preview').value = ep.preview || '';
-  document.getElementById('inp-video').value = ep.video_link || ep.video || '';
-  document.getElementById('inp-history').value = ep.history_link || ep.history || '';
-  document.getElementById('inp-f1').value = ep.field1 || '';
-  document.getElementById('inp-f2').value = ep.field2 || '';
+  document.getElementById('inp-preview').value = ep.preview ?? '';
+  document.getElementById('inp-video').value = ep.video_link ?? ep.video ?? '';
+  document.getElementById('inp-history').value = ep.history_link ?? ep.history ?? '';
+  document.getElementById('inp-f1').value = ep.field1 ?? '';
+  document.getElementById('inp-f2').value = ep.field2 ?? '';
 
-  const prodVal = ep.production || 'domestic'; // default to domestic
+  const prodVal = ep.production || 'domestic';
   const prodRadio = document.querySelector(`input[name="production"][value="${prodVal}"]`);
   if(prodRadio) prodRadio.checked = true;
 
-  // Media Type: movie/series
-  const mediaVal = ep.media_type || 'movie'; // default to movie
+  const mediaVal = ep.media_type || 'movie';
   const mediaRadio = document.querySelector(`input[name="media_type"][value="${mediaVal}"]`);
   if(mediaRadio) mediaRadio.checked = true;
-  
-  document.getElementById('inp-title').value = ep.title || '';
 
-  // Mobile: Scroll to editor
   if(window.innerWidth < 900) {
     document.getElementById('editor-view').scrollIntoView({behavior: 'smooth'});
   }
@@ -1056,25 +880,23 @@ function selectEpisode(idx) {
 
 function updateStateFromForm() {
   if(STATE.selectedIdx === -1) return;
-  
   const ep = STATE.data[STATE.selectedIdx];
-  ep.year = parseInt(document.getElementById('inp-year').value) || 0;
-  ep.month = parseInt(document.getElementById('inp-month').value) || 0;
-  ep.week = parseInt(document.getElementById('inp-week').value) || 0;
-  ep.length = parseInt(document.getElementById('inp-length').value) || 0;
+  
+  ep.year = parseInt(document.getElementById('inp-year').value) || null;
+  ep.month = parseInt(document.getElementById('inp-month').value) || null;
+  ep.week = parseInt(document.getElementById('inp-week').value) || null;
+  ep.length = parseInt(document.getElementById('inp-length').value) || null;
+  ep.rating = parseFloat(document.getElementById('inp-rating').value) || null;
+  
   ep.authors = document.getElementById('inp-authors').value;
   ep.actors = document.getElementById('inp-actors').value;
   ep.director = document.getElementById('inp-director').value;
-  ep.rating = parseFloat(document.getElementById('inp-rating').value) || 0; // <<< NEW
   
-  // Radio Buttons: find selected value
-  ep.production = document.querySelector('input[name="production"]:checked')?.value || 'domestic'; // <<< NEW
-  ep.media_type = document.querySelector('input[name="media_type"]:checked')?.value || 'movie'; // <<< NEW
+  ep.production = document.querySelector('input[name="production"]:checked')?.value || 'domestic';
+  ep.media_type = document.querySelector('input[name="media_type"]:checked')?.value || 'movie';
 
   ep.title = document.getElementById('inp-title').value;
   ep.description = document.getElementById('inp-desc').value;
-  
-  // English Fields
   ep.title_en = document.getElementById('inp-title-en').value;
   ep.description_en = document.getElementById('inp-desc-en').value;
   
@@ -1084,49 +906,51 @@ function updateStateFromForm() {
   ep.field1 = document.getElementById('inp-f1').value;
   ep.field2 = document.getElementById('inp-f2').value;
 
-  renderList(); // Update list item title/desc if changed
+  renderList();
 }
 
-/* -------------------------------------------
-   CRUD
-   ------------------------------------------- */
 function addEpisode() {
   const newEp = {
-    title: 'Новый Эпизод',
-    title_en: 'New Episode (EN)',
+    title: STATE.locale === 'ru' ? 'Новая запись' : 'New Record',
+    title_en: '',
     year: new Date().getFullYear(),
-    month: 1, week: 1, length: 7,
-    authors: '', actors: '', director: '',
-    rating: 0,
-    production: 'domestic',
-    media_type: 'movie',
+    month: 1, week: null, length: 0,
+    authors: '', actors: '', director: '', rating: 0,
+    production: 'domestic', media_type: 'movie',
     description: '', description_en: '',
     preview: '', video_link: '', history_link: '',
     field1: '', field2: ''
   };
   STATE.data.push(newEp);
-  selectEpisode(STATE.data.length - 1);
-  renderList();
+  
+  const newIdx = STATE.data.length - 1;
+  selectEpisode(newIdx);
+  
+  setTimeout(() => {
+    const el = document.getElementById(`ep-item-${newIdx}`);
+    if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+  }, 50);
 }
 
 function duplicateEpisode() {
   if(STATE.selectedIdx === -1) return;
   const copy = JSON.parse(JSON.stringify(STATE.data[STATE.selectedIdx]));
-  copy.title += ' (Копия)';
-  copy.title_en += ' (Copy)';
+  copy.title += ' (Copy)';
+  if(copy.title_en) copy.title_en += ' (Copy)';
+  
   STATE.data.splice(STATE.selectedIdx + 1, 0, copy);
   selectEpisode(STATE.selectedIdx + 1);
-  renderList();
 }
 
 function deleteEpisode() {
-  // Using custom modal/confirmation is better than confirm() in iframes, but for simplicity:
-  if(confirm('Удалить этот эпизод?')) {
+  if(STATE.selectedIdx === -1) return;
+  const msg = STATE.locale === 'ru' ? 'Удалить эту запись?' : 'Delete this record?';
+  if(confirm(msg)) {
     STATE.data.splice(STATE.selectedIdx, 1);
     STATE.selectedIdx = -1;
-    renderList();
-    // Clear form
+    renderList(); // This clears the selection visually
     document.querySelectorAll('input, textarea').forEach(i => i.value = '');
+    setEditorVisible(false); // CRITICAL FIX: Hide the form!
   }
 }
 
@@ -1143,195 +967,192 @@ function exportData() {
   a.click();
 }
 
+function parseDateFromText(value) {
+  if (!value) return { year: 1940, month: 1, week: null };
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return { year: value.getFullYear(), month: value.getMonth() + 1, week: null };
+  }
+  const text = String(value).trim();
+  const ddmmyyyyMatch = text.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (ddmmyyyyMatch) {
+    const month = parseInt(ddmmyyyyMatch[2]);
+    if (month >= 1 && month <= 12) return { year: parseInt(ddmmyyyyMatch[3]), month, week: null };
+  }
+  const lowerText = text.toLowerCase();
+  const yearMatch = lowerText.match(/(\d{4})/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : 1940;
+  const months = {
+    'янв': 1, 'фев': 2, 'мар': 3, 'апр': 4, 'май': 5, 'мая': 5, 'июн': 6,
+    'июл': 7, 'авг': 8, 'сен': 9, 'окт': 10, 'ноя': 11, 'дек': 12,
+    'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+    'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12
+  };
+  let month = 1;
+  for (const [name, num] of Object.entries(months)) {
+    if (lowerText.includes(name)) { month = num; break; }
+  }
+  const weekMatch = lowerText.match(/неделя?\s*(\d+)|week\s*(\d+)/i);
+  const week = weekMatch ? parseInt(weekMatch[1] || weekMatch[2]) : null;
+  return { year, month, week };
+}
+
+function parseProductionAndMediaType(sheetName) {
+  const lowerName = sheetName.toLowerCase();
+  let media_type = 'movie';
+  if (lowerName.includes('сериал') || lowerName.includes('series') || lowerName.includes('serial')) {
+    media_type = 'series';
+  }
+  let production = 'foreign';
+  if (lowerName.match(/росси|russia|ссср|soviet|отечествен|domestic|русск/)) {
+    production = 'domestic';
+  }
+  return { production, media_type };
+}
+
 function handleFileUpload(e) {
   const file = e.target.files[0];
   if(!file) return;
+
+  const isXlsx = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
   const reader = new FileReader();
-  reader.onload = (evt) => {
+
+  reader.onload = (event) => {
     try {
-      const parsedData = JSON.parse(evt.target.result);
-      if (!Array.isArray(parsedData)) {
-          throw new Error('File content is not a valid JSON array.');
+      let data = [];
+      if (isXlsx) {
+        if(typeof XLSX === 'undefined') throw new Error("SheetJS library not loaded. Ensure internet connection.");
+        const workbook = XLSX.read(event.target.result, { type: 'array', cellDates: true });
+        
+        workbook.SheetNames.forEach(sheetName => {
+          const worksheet = workbook.Sheets[sheetName];
+          if (!worksheet) return;
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          if (!jsonData || jsonData.length === 0) return;
+          
+          const { production, media_type } = parseProductionAndMediaType(sheetName);
+          
+          const sheetData = jsonData.slice(1)
+            .filter(row => row.length > 0 && (row[0] || row[1] || row[3]))
+            .map(row => {
+              const dateInfo = parseDateFromText(row[2] || '');
+              return {
+                year: dateInfo.year, month: dateInfo.month, week: dateInfo.week,
+                title: String(row[0] || '').trim(),
+                title_en: String(row[1] || '').trim(),
+                description: String(row[3] || '').trim(),
+                description_en: '',
+                director: String(row[6] || '').trim(),
+                authors: String(row[6] || '').trim(),
+                actors: String(row[7] || '').trim(),
+                history_link: String(row[8] || '').trim(),
+                preview: String(row[4] || '').trim(),
+                video_link: String(row[5] || '').trim(),
+                field1: '', field2: '',
+                production: production, media_type: media_type,
+                rating: 0, length: 0
+              };
+            });
+          data.push(...sheetData);
+        });
+      } else {
+        data = JSON.parse(event.target.result);
       }
-      STATE.data = parsedData;
+
+      if (!Array.isArray(data) || data.length === 0) throw new Error('File is empty or invalid format.');
+      
+      STATE.data = data;
       selectEpisode(0);
-      renderList();
-      showStatus(UI[STATE.locale].msgLoad, 'success');
+      showStatus(UI[STATE.locale].msgImportSuccess.replace('{count}', data.length), 'success');
+      
     } catch(err) {
-      showStatus(`Import Error: ${err.message}`, 'error');
+      console.error(err);
+      showStatus(`${UI[STATE.locale].msgImportErr}: ${err.message}`, 'error');
     }
+    e.target.value = ''; 
   };
-  reader.readAsText(file);
+
+  if(isXlsx) reader.readAsArrayBuffer(file);
+  else reader.readAsText(file);
 }
 
 /* -------------------------------------------
-   IO: Gist (GitHub)
-   ------------------------------------------- */
-/* -------------------------------------------
-   IO: Gist (GitHub) — load with token prompt + saved gistId use
+   IO: Cloud (Gist)
    ------------------------------------------- */
 async function loadFromGist() {
-  // if a gist id already saved — use it silently, otherwise ask once
   const savedGist = localStorage.getItem('tl_gist_id');
-  let gistId;
-  if (savedGist && savedGist.trim() !== '') {
-    gistId = savedGist;
-  } else {
-    gistId = prompt(`Enter Gist ID for ${CONFIG.fileName}:`, CONFIG.gistIdDefault);
-    if (!gistId) return;
-    localStorage.setItem('tl_gist_id', gistId);
-  }
+  let gistId = savedGist && savedGist.trim() !== '' ? savedGist : prompt(`Enter Gist ID for ${CONFIG.fileName}:`, CONFIG.gistIdDefault);
+  if (!gistId) return;
+  localStorage.setItem('tl_gist_id', gistId);
 
-  // token: try saved token, otherwise prompt and save
   let token = localStorage.getItem('tl_gist_token');
   if (!token || !token.trim()) {
     token = prompt("Enter GitHub Personal Access Token (with 'gist' scope):");
-    if (!token) {
-      showStatus('GitHub token required to avoid rate limits.', 'error');
-      return;
-    }
+    if (!token) return showStatus('GitHub token required.', 'error');
     localStorage.setItem('tl_gist_token', token);
   }
 
-  showStatus('Loading...', 'loading');
-
+  showStatus('Loading...', 'neutral');
   try {
     const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `token ${token}`
-      }
+      headers: { "Accept": "application/vnd.github+json", "Authorization": `token ${token}` }
     });
-
-    // Handle auth / rate / not found cases more helpfully
-    if (res.status === 401 || res.status === 403 && res.headers.get('x-oauth-scopes') === null && res.headers.get('x-ratelimit-remaining') === '0') {
-      // If unauthorized, clear token so user can re-enter next time
+    if (res.status === 401 || res.status === 403) {
       localStorage.removeItem('tl_gist_token');
-      throw new Error('Unauthorized or rate-limited. Token removed from storage — please try again with a valid token.');
+      throw new Error('Unauthorized/Rate-limited. Token removed.');
     }
-
-    if (res.status === 404) {
-      throw new Error('Gist not found (404). Check the Gist ID.');
-    }
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json();
+    if (!json.files || !json.files[CONFIG.fileName]) throw new Error(`File '${CONFIG.fileName}' not found.`);
 
-    // check for file
-    if (!json.files || !json.files[CONFIG.fileName]) {
-      throw new Error(`File '${CONFIG.fileName}' not found in Gist.`);
-    }
-
-    // content may be returned in .content property
-    const content = json.files[CONFIG.fileName].content;
-    const parsed = JSON.parse(content);
-
-    if (!Array.isArray(parsed)) {
-      throw new Error('Gist content is not a valid JSON array.');
-    }
-
-    STATE.data = parsed;
+    STATE.data = JSON.parse(json.files[CONFIG.fileName].content);
     selectEpisode(0);
-    renderList();
     showStatus(UI[STATE.locale].msgLoad, 'success');
-
   } catch (err) {
-    console.error('Gist Load Error:', err);
     showStatus(`Load Failed: ${err.message}`, 'error');
   }
 }
 
-/* -------------------------------------------
-   IO: Gist (GitHub) — save with token prompt + saved gistId use
-   ------------------------------------------- */
 async function saveToGist() {
-  // token: try saved token, otherwise prompt and save
   let token = localStorage.getItem('tl_gist_token');
   if (!token || !token.trim()) {
-    token = prompt("Enter GitHub Personal Access Token (with 'gist' scope):");
-    if (!token) {
-      showStatus('Save cancelled — token is required.', 'error');
-      return;
-    }
+    token = prompt("Enter GitHub Personal Access Token:");
+    if (!token) return showStatus('Token is required.', 'error');
     localStorage.setItem('tl_gist_token', token);
   }
 
-  // gistId: use saved if present, otherwise ask once
   let gistId = localStorage.getItem('tl_gist_id');
   if (!gistId || !gistId.trim()) {
     gistId = prompt('Enter Gist ID to save to:', CONFIG.gistIdDefault);
-    if (!gistId) {
-      showStatus('Save cancelled — gist id required.', 'error');
-      return;
-    }
+    if (!gistId) return showStatus('Gist ID required.', 'error');
     localStorage.setItem('tl_gist_id', gistId);
   }
 
-  showStatus('Saving...', 'loading');
-
-  const payload = {
-    files: {
-      [CONFIG.fileName]: {
-        content: JSON.stringify(STATE.data, null, 2)
-      }
-    }
-  };
+  showStatus('Saving...', 'neutral');
+  const payload = { files: { [CONFIG.fileName]: { content: JSON.stringify(STATE.data, null, 2) } } };
 
   try {
     const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
       method: 'PATCH',
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
-    // handle common error cases
     if (res.status === 401) {
-      // invalid token — remove so user can re-enter next time
       localStorage.removeItem('tl_gist_token');
-      throw new Error('Unauthorized (401). Token removed from storage — please re-enter a valid token.');
+      throw new Error('Unauthorized. Token removed.');
     }
-
-    if (res.status === 404) {
-      throw new Error('Gist not found (404). Check the Gist ID or create the Gist first.');
-    }
-
-    if (res.status === 403) {
-      const rlRemaining = res.headers.get('x-ratelimit-remaining');
-      if (rlRemaining === '0') {
-        throw new Error('Rate limit exceeded. Try again later or use a different token.');
-      }
-      throw new Error('Forbidden (403). Check token scopes (need "gist").');
-    }
-
-    if (!res.ok) {
-      const text = await res.text().catch(()=>'');
-      throw new Error(`HTTP ${res.status}: ${res.statusText} ${text}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     showStatus(UI[STATE.locale].msgSaved, 'success');
   } catch (err) {
-    console.error('Gist Save Error:', err);
     showStatus(`Save Failed: ${err.message}`, 'error');
   }
 }
 
 function escapeHtml(text) {
   if(!text) return '';
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
-
 </script>
 </body>
 </html>
