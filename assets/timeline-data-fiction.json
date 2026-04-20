@@ -17,7 +17,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.9,
     "length": null
   },
   {
@@ -38,7 +38,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.0,
     "length": null
   },
   {
@@ -59,7 +59,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.2,
     "length": null
   },
   {
@@ -80,7 +80,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 8.3,
     "length": 0
   },
   {
@@ -101,7 +101,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 8.4,
     "length": 0
   },
   {
@@ -122,7 +122,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.1,
     "length": null
   },
   {
@@ -143,7 +143,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.5,
     "length": null
   },
   {
@@ -164,7 +164,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.3,
     "length": null
   },
   {
@@ -185,7 +185,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.6,
     "length": null
   },
   {
@@ -206,7 +206,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.3,
     "length": null
   },
   {
@@ -227,7 +227,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.1,
     "length": null
   },
   {
@@ -248,7 +248,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.4,
     "length": null
   },
   {
@@ -269,7 +269,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.3,
     "length": null
   },
   {
@@ -290,7 +290,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.3,
     "length": null
   },
   {
@@ -311,7 +311,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.2,
     "length": null
   },
   {
@@ -332,7 +332,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.8,
     "length": null
   },
   {
@@ -353,7 +353,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.0,
     "length": null
   },
   {
@@ -372,9 +372,9 @@
     "video_link": "https://m.ok.ru/video/4715299474104",
     "field1": "",
     "field2": "",
-    "production": "domestic",
-    "media_type": "movie",
-    "rating": null,
+    "production": "foreign",
+    "media_type": "series",
+    "rating": 8.0,
     "length": null
   },
   {
@@ -395,7 +395,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.0,
     "length": null
   },
   {
@@ -416,7 +416,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.3,
     "length": null
   },
   {
@@ -437,7 +437,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.5,
     "length": null
   },
   {
@@ -458,7 +458,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.9,
     "length": null
   },
   {
@@ -479,7 +479,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.1,
     "length": null
   },
   {
@@ -500,7 +500,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.4,
     "length": null
   },
   {
@@ -521,7 +521,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.7,
     "length": null
   },
   {
@@ -542,7 +542,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.0,
     "length": null
   },
   {
@@ -563,7 +563,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.3,
     "length": null
   },
   {
@@ -584,7 +584,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.9,
     "length": null
   },
   {
@@ -605,7 +605,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.9,
     "length": null
   },
   {
@@ -626,7 +626,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.5,
     "length": 0
   },
   {
@@ -647,7 +647,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.2,
     "length": 0
   },
   {
@@ -668,7 +668,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 6.8,
     "length": 0
   },
   {
@@ -688,8 +688,8 @@
     "field1": "",
     "field2": "",
     "production": "domestic",
-    "media_type": "movie",
-    "rating": 0,
+    "media_type": "series",
+    "rating": 6.4,
     "length": 0
   },
   {
@@ -710,7 +710,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.3,
     "length": 0
   },
   {
@@ -731,7 +731,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.3,
     "length": 0
   },
   {
@@ -752,7 +752,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 5.8,
     "length": 0
   },
   {
@@ -773,7 +773,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 5.5,
     "length": 0
   },
   {
@@ -794,7 +794,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 6.7,
     "length": 0
   },
   {
@@ -815,7 +815,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.8,
     "length": 0
   },
   {
@@ -836,7 +836,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.9,
     "length": 0
   },
   {
@@ -857,7 +857,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.5,
     "length": null
   },
   {
@@ -878,7 +878,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.0,
     "length": null
   },
   {
@@ -899,7 +899,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "series",
-    "rating": 0,
+    "rating": 8.8,
     "length": 0
   },
   {
@@ -920,7 +920,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "series",
-    "rating": 0,
+    "rating": 8.4,
     "length": 0
   },
   {
@@ -941,7 +941,7 @@
     "field2": "",
     "production": "domestic",
     "media_type": "series",
-    "rating": 0,
+    "rating": 7.0,
     "length": 0
   },
   {
@@ -962,7 +962,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "series",
-    "rating": 0,
+    "rating": 8.3,
     "length": 0
   },
   {
@@ -983,7 +983,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "series",
-    "rating": 0,
+    "rating": 9.4,
     "length": 0
   },
   {
@@ -1004,7 +1004,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "series",
-    "rating": 0,
+    "rating": 7.9,
     "length": 0
   },
   {
@@ -1025,7 +1025,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 8.6,
     "length": 0
   },
   {
@@ -1046,7 +1046,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 9.0,
     "length": 0
   },
   {
@@ -1067,7 +1067,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.7,
     "length": 0
   },
   {
@@ -1088,7 +1088,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.6,
     "length": 0
   },
   {
@@ -1109,7 +1109,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.9,
     "length": 0
   },
   {
@@ -1130,7 +1130,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 8.2,
     "length": 0
   },
   {
@@ -1151,7 +1151,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.1,
     "length": 0
   },
   {
@@ -1172,7 +1172,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.9,
     "length": 0
   },
   {
@@ -1193,7 +1193,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.5,
     "length": 0
   },
   {
@@ -1214,7 +1214,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.5,
     "length": 0
   },
   {
@@ -1235,7 +1235,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 6.7,
     "length": 0
   },
   {
@@ -1256,7 +1256,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 4.5,
     "length": 0
   },
   {
@@ -1277,7 +1277,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.4,
     "length": null
   },
   {
@@ -1298,7 +1298,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.7,
     "length": 0
   },
   {
@@ -1319,7 +1319,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.8,
     "length": 0
   },
   {
@@ -1340,7 +1340,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.3,
     "length": null
   },
   {
@@ -1361,7 +1361,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -1380,9 +1380,9 @@
     "video_link": "https://qmovie.ru/video/359917-Besslavnye_ublyudki-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.4,
     "length": null
   },
   {
@@ -1403,7 +1403,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 5.9,
     "length": 0
   },
   {
@@ -1424,7 +1424,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.1,
     "length": null
   },
   {
@@ -1443,9 +1443,9 @@
     "video_link": "https://vk.com/video-78517495_456243683",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.3,
     "length": null
   },
   {
@@ -1466,7 +1466,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.7,
     "length": null
   },
   {
@@ -1487,7 +1487,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.0,
     "length": null
   },
   {
@@ -1506,9 +1506,9 @@
     "video_link": "https://vk.com/video-221600256_456241291",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.2,
     "length": null
   },
   {
@@ -1527,9 +1527,9 @@
     "video_link": "https://qmovie.ru/video/545159-Most_cherez_reku_Kvaiy-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 8.1,
     "length": null
   },
   {
@@ -1548,9 +1548,9 @@
     "video_link": "https://vk.com/video-221600256_456241144",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -1569,9 +1569,9 @@
     "video_link": "https://vk.com/video-37718121_456239984",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.5,
     "length": null
   },
   {
@@ -1590,9 +1590,9 @@
     "video_link": "https://sersoap.ru/series/BandofBrothers",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.6,
     "length": null
   },
   {
@@ -1611,9 +1611,9 @@
     "video_link": "https://qmovie.ru/video/724086-Imperiya_solntsa-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.7,
     "length": null
   },
   {
@@ -1632,9 +1632,9 @@
     "video_link": "https://vk.com/video735831744_456243225",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.8,
     "length": null
   },
   {
@@ -1653,9 +1653,9 @@
     "video_link": "https://vk.com/video-213744_160324699",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -1674,9 +1674,9 @@
     "video_link": "https://vk.com/video-162947134_456253842",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.8,
     "length": null
   },
   {
@@ -1695,9 +1695,9 @@
     "video_link": "https://vk.com/video-74449405_456242620",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.8,
     "length": null
   },
   {
@@ -1706,7 +1706,7 @@
     "week": null,
     "title": "Цель — Бирма!",
     "title_en": "The Goal Is Burma!",
-    "description": "Фильм рассказывает о парашютистах США, действующих в тылу Японии в Бирме. Картина вызвала скандал в Британии из-за отсутствия упоминания британского вклада в события.",
+    "description": "Фильм рассказывает о парашютистах США, действующих в тылу Японии в Бирме. Картина вызвала скандал в Британии из-за отсутми упоминания британского вклада в события.",
     "description_en": "",
     "director": "",
     "authors": "",
@@ -1716,9 +1716,9 @@
     "video_link": "https://vk.com/video-158498517_456241170",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -1739,7 +1739,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 7.7,
     "length": 0
   },
   {
@@ -1758,9 +1758,9 @@
     "video_link": "https://vk.com/video219780809_456240412",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.3,
     "length": null
   },
   {
@@ -1779,9 +1779,9 @@
     "video_link": "https://qmovie.ru/video/955614-Gannover-strit-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.2,
     "length": null
   },
   {
@@ -1792,17 +1792,17 @@
     "title_en": "The Battle of Anzio",
     "description": "Фильм рассказывает о провальной высадке союзников в Италии и последующей осаде, освещая стратегические ошибки и мужество участников событий.",
     "description_en": "",
-    "director": "Эдвард Дмитрик, Дуилио Колетти",
-    "authors": "Эдвард Дмитрик, Дуилио Колетти",
+    "director": "Эдвард Дмитрик, Дуилио Колетти",
+    "authors": "Эдвард Дмитрик, Дуилио Колетти",
     "actors": "",
     "history_link": "",
     "preview": "https://upload.wikimedia.org/wikipedia/ru/thumb/5/52/The_Battle_for_Anzio.jpg/250px-The_Battle_for_Anzio.jpg",
     "video_link": "https://vk.com/video-78517495_456243512",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.0,
     "length": null
   },
   {
@@ -1821,9 +1821,9 @@
     "video_link": "https://vk.com/video-74449405_456241805",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.0,
     "length": null
   },
   {
@@ -1842,9 +1842,9 @@
     "video_link": "https://qmovie.ru/video/946424-Otryad.10.iz.Navarone-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.4,
     "length": null
   },
   {
@@ -1863,9 +1863,9 @@
     "video_link": "https://qmovie.ru/video/946506-Tam.gde.gnezdyatsya.orly-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.6,
     "length": null
   },
   {
@@ -1884,9 +1884,9 @@
     "video_link": "https://vk.com/video-135458078_456240042",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.3,
     "length": null
   },
   {
@@ -1905,9 +1905,9 @@
     "video_link": "https://vk.com/video-221600256_456242104",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.5,
     "length": null
   },
   {
@@ -1926,9 +1926,9 @@
     "video_link": "https://ok.ru/video/1902373440180",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.8,
     "length": null
   },
   {
@@ -1947,9 +1947,9 @@
     "video_link": "https://vk.com/video-39165340_456253448",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.6,
     "length": null
   },
   {
@@ -1968,9 +1968,9 @@
     "video_link": "https://vk.com/video-74449405_456243543",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.5,
     "length": null
   },
   {
@@ -1989,9 +1989,9 @@
     "video_link": "https://vk.com/video-29208736_167116236",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.6,
     "length": null
   },
   {
@@ -2010,9 +2010,9 @@
     "video_link": "https://vk.com/video588668315_456245912",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.5,
     "length": null
   },
   {
@@ -2031,9 +2031,9 @@
     "video_link": "https://vk.com/video588668315_456244183",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.5,
     "length": null
   },
   {
@@ -2052,9 +2052,9 @@
     "video_link": "https://vk.com/video735831744_456243105",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.5,
     "length": null
   },
   {
@@ -2073,9 +2073,9 @@
     "video_link": "https://vk.com/video735831744_456243114",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.5,
     "length": null
   },
   {
@@ -2094,9 +2094,9 @@
     "video_link": "https://vk.com/video-162947134_456249720",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -2115,9 +2115,9 @@
     "video_link": "https://vk.com/video735831744_456243165",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 5.7,
     "length": null
   },
   {
@@ -2136,9 +2136,9 @@
     "video_link": "https://vk.com/video-74449405_456243376",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.2,
     "length": null
   },
   {
@@ -2157,9 +2157,9 @@
     "video_link": "https://vk.com/video316045531_456239473",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.2,
     "length": null
   },
   {
@@ -2178,9 +2178,9 @@
     "video_link": "https://vk.com/video-83600764_456253026",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.6,
     "length": null
   },
   {
@@ -2199,9 +2199,9 @@
     "video_link": "https://qmovie.ru/video/480587-Kogda_molchat_fanfary_TV-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.1,
     "length": null
   },
   {
@@ -2220,9 +2220,9 @@
     "video_link": "https://qmovie.ru/video/471496-Podvodnaya_lodka_U-571-Film",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.6,
     "length": null
   },
   {
@@ -2241,9 +2241,9 @@
     "video_link": "https://vk.com/video-221701330_456239126",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.3,
     "length": null
   },
   {
@@ -2262,9 +2262,9 @@
     "video_link": "",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.7,
     "length": null
   },
   {
@@ -2283,9 +2283,9 @@
     "video_link": "",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 7.0,
     "length": null
   },
   {
@@ -2304,16 +2304,16 @@
     "video_link": "https://vkvideo.ru/video-74449405_456243457",
     "field1": "",
     "field2": "",
-    "production": "domestic",
+    "production": "foreign",
     "media_type": "movie",
-    "rating": null,
+    "rating": 6.6,
     "length": null
   },
   {
     "year": 1943,
     "month": 7,
     "week": null,
-    "title": "Летающая крепость / Fortress 2012",
+    "title": "Летающая крепость / Fortress 2012",
     "title_en": "Flying Fortress / Fortress 2012",
     "description": "В фильме рассказывается о замене убитого командира экипажа B-17 Летящей Крепости молодым пилотом, которого нелегко принимают члены экипажа — ирландцы и американцы.",
     "description_en": "",
@@ -2327,7 +2327,7 @@
     "field2": "",
     "production": "foreign",
     "media_type": "movie",
-    "rating": 0,
+    "rating": 4.6,
     "length": 0
   }
 ]
